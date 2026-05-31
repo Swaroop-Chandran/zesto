@@ -6,6 +6,7 @@ require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/config/auth.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/location_helper.php';
+require_once __DIR__ . '/includes/image_helper.php';
 
 $pageTitle = 'Explore Sizzling Food Dishes — Zesto';
 $description = 'Browse thousands of fresh, hot dishes. Filter by category, Veg/Non-Veg, and sort by prices and ratings.';
@@ -191,7 +192,7 @@ include __DIR__ . '/includes/navbar.php';
 
       <!-- image thumbnail -->
       <div class="w-24 h-24 md:w-28 md:h-28 rounded-xl overflow-hidden shrink-0 border border-gray-100 shadow-sm relative">
-        <img src="<?= $item['image'] ?: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBZLbHo94g2948yCQi_Q1dVUSPm7BgZNWKJWBJwlPkeAxvdQXlETDOg88T30AcJwkVKeiDN3TZ3h4Uzx-ktYgh2MxBjNSgQmOdj3cR8mlX0VcaeE9AA-ynZ-cXRNbEOjFU47cUGFE9pWTrzGgqg6liFOHMYjEWhj-CyDCSeVvyO5282aXh30ZUK6uEhmx48fz-0Os880RaqVw-iUMvfgiHqI0oGi_UikGPKsXXv80RBqP2yhQQchY8YwAnkKE6NJTZJYRarOE_5lng' ?>" 
+        <img src="<?= getFoodImage($item['image'], $item['name']) ?>" 
              alt="<?= e($item['name']) ?>" class="w-full h-full object-cover">
       </div>
 

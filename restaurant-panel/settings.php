@@ -23,6 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $restaurant) {
     $tags   = trim($_POST['tags'] ?? '');
     $city   = trim($_POST['city'] ?? 'Mumbai');
     $discount = trim($_POST['discount'] ?? '');
+    $phone  = trim($_POST['phone'] ?? '');
+    $address = trim($_POST['address'] ?? '');
+    $operating_hours = trim($_POST['operating_hours'] ?? '9:00 AM - 10:00 PM');
+    $delivery_radius = floatval($_POST['delivery_radius'] ?? 5.0);
 
     // Handle Uploads
     $logoUrl = null;
@@ -36,16 +40,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $restaurant) {
     }
 
     if (empty($name)) { $errors[] = 'Restaurant name cannot be empty.'; }
+    if (empty($phone)) { $errors[] = 'Contact phone number cannot be empty.'; }
+    if (empty($address)) { $errors[] = 'Restaurant address cannot be empty.'; }
 
     if (empty($errors)) {
         // Build SQL
-        $sql = "UPDATE restaurants SET name=:name, description=:desc, tags=:tags, city=:city, discount=:discount";
+        $sql = "UPDATE restaurants SET name=:name, description=:desc, tags=:tags, city=:city, discount=:discount, phone=:phone, address=:address, operating_hours=:hours, delivery_radius=:radius";
         $params = [
             ':name' => $name,
             ':desc' => $desc,
             ':tags' => $tags,
             ':city' => $city,
             ':discount' => $discount,
+            ':phone' => $phone,
+            ':address' => $address,
+            ':hours' => $operating_hours,
+            ':radius' => $delivery_radius,
             ':rid' => $restaurant['id']
         ];
 
@@ -136,6 +146,27 @@ include __DIR__ . '/../includes/header.php';
               <option value="Chennai" <?= $restaurant['city'] === 'Chennai' ? 'selected' : '' ?>>Chennai</option>
             </select>
           </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Contact Phone Number *</label>
+            <input type="text" name="phone" required value="<?= e($restaurant['phone'] ?? '') ?>" placeholder="e.g. +91 99999 11111" class="zesto-input bg-gray-50/50 text-xs">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Delivery Radius (km) *</label>
+            <input type="number" name="delivery_radius" required step="0.1" value="<?= e($restaurant['delivery_radius'] ?? 5.0) ?>" min="0.5" max="30.0" class="zesto-input bg-gray-50/50 text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Operating Hours *</label>
+          <input type="text" name="operating_hours" required value="<?= e($restaurant['operating_hours'] ?? '9:00 AM - 10:00 PM') ?>" placeholder="e.g. 9:00 AM - 10:00 PM" class="zesto-input bg-gray-50/50 text-xs">
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Full Kitchen Address *</label>
+          <textarea name="address" required rows="2" placeholder="e.g. 12, Link Road, Andheri West, Mumbai" class="zesto-input bg-gray-50/50 text-xs resize-none"><?= e($restaurant['address'] ?? '') ?></textarea>
         </div>
 
         <div>

@@ -6,6 +6,7 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/upload_helper.php';
+require_once __DIR__ . '/../includes/image_helper.php';
 
 requireRole(ROLE_RESTAURANT_OWNER);
 $ownerId = getCurrentUser()['id'];
@@ -230,7 +231,7 @@ include __DIR__ . '/../includes/header.php';
         <div class="space-y-3">
           <!-- Image thumbnail -->
           <div class="h-40 w-full rounded-2xl overflow-hidden shrink-0 border border-gray-100 relative bg-gray-50">
-            <img src="<?= $item['image'] ?: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBZLbHo94g2948yCQi_Q1dVUSPm7BgZNWKJWBJwlPkeAxvdQXlETDOg88T30AcJwkVKeiDN3TZ3h4Uzx-ktYgh2MxBjNSgQmOdj3cR8mlX0VcaeE9AA-ynZ-cXRNbEOjFU47cUGFE9pWTrzGgqg6liFOHMYjEWhj-CyDCSeVvyO5282aXh30ZUK6uEhmx48fz-0Os880RaqVw-iUMvfgiHqI0oGi_UikGPKsXXv80RBqP2yhQQchY8YwAnkKE6NJTZJYRarOE_5lng' ?>" 
+            <img src="<?= getFoodImage($item['image'], $item['name'], $item['category_name']) ?>" 
                  alt="dish" class="w-full h-full object-cover">
             
             <span class="absolute top-3 left-3 w-4 h-4 border flex items-center justify-center rounded-sm text-[8px] bg-white font-bold <?= $item['is_veg'] ? 'border-green-600 text-green-600' : 'border-red-600 text-red-600' ?>">

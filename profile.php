@@ -7,7 +7,31 @@ require_once __DIR__ . '/config/auth.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/location_helper.php';
 
-requireLogin();
+// Soft auth gate — show drawer instead of hard redirect
+if (!isLoggedIn()) {
+    $pageTitle = 'My Profile — Zesto';
+    include __DIR__ . '/includes/header.php';
+    include __DIR__ . '/includes/navbar.php';
+    ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof ZestoAuth !== 'undefined') ZestoAuth.open();
+    });
+    </script>
+    <main class="flex-1 pb-16 md:pb-8">
+    <div class="max-w-2xl mx-auto px-6 py-24 text-center flex flex-col items-center gap-6">
+      <div class="w-20 h-20 bg-[#ffdbd0]/70 rounded-full flex items-center justify-center text-3xl">👤</div>
+      <h1 class="text-2xl font-black text-[#1b1c1c]">Sign in to view your profile</h1>
+      <p class="text-sm text-gray-500 max-w-sm">Access your saved addresses, order history and account settings.</p>
+      <button onclick="ZestoAuth.open()" class="btn-primary px-8">Sign In to Continue</button>
+      <a href="<?= BASE_URL ?>/index.php" class="text-xs text-gray-400 hover:text-[#a83300] font-semibold">← Back to Home</a>
+    </div>
+    </main>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
+    <?php exit; ?>
+<?php
+}
+
 $user = getCurrentUser();
 $userId = $user['id'];
 $errors = [];

@@ -6,6 +6,7 @@ require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/config/auth.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/location_helper.php';
+require_once __DIR__ . '/includes/image_helper.php';
 
 $pageTitle = 'Hot Coupons & Today\'s Offers — Zesto';
 $description = 'Unlock 50% discount codes, weekend feasts, and sizzling food promotions. Save big with Rupee offers.';
@@ -136,7 +137,7 @@ include __DIR__ . '/includes/navbar.php';
       <?php foreach ($trendingFoods as $trend): ?>
       <div onclick="window.location.href='<?= BASE_URL ?>/restaurant.php?id=<?= $trend['restaurant_slug'] ?>'"
            class="group cursor-pointer bg-white rounded-2xl border border-gray-150 p-4 hover:shadow-sm transition-all flex gap-4">
-        <img src="<?= $trend['image'] ?: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDgyfyP7rZ5dmAORInBqrp6VhdNNjTUc3kJb-uGys1DXHWggV9aJfUPMwEIDyBuchzQlSz2_H-GhgK4CPrHMHDdT9XcXzk0tjfAafyZhNbgMUYIhKMJFY_T6Lkiyv7bLzAcf_LH9yFedLNmQWqOU9FEplVgB2QNXItgaSM0PngufbViGwnLmgTG6zXQ_giH7ILTd1-Wvircw50sDHB3PrwG3ug70sfg4ydbThZMLuJ8BQqJ5NOQ4kOyZ6ntA2f5zDfwXWqenvjvpPQ' ?>"
+        <img src="<?= getFoodImage($trend['image'], $trend['name']) ?>"
              class="w-16 h-16 rounded-xl object-cover shrink-0 border border-gray-100 shadow-sm" alt="dish">
         <div class="flex-1 flex flex-col justify-between min-w-0">
           <div>

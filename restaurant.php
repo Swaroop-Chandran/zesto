@@ -1,36 +1,28 @@
 <?php
 /**
- * Zesto — Dedicated Restaurant Details & Menu Page (restaurant.php)
+ * Zesto — Swiggy-Style Restaurant Detail & Menu Page v2.0
  */
 require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/config/auth.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/location_helper.php';
+require_once __DIR__ . '/includes/image_helper.php';
 
 $slug = trim($_GET['id'] ?? '');
-
-if (empty($slug)) {
-    header('Location: ' . BASE_URL . '/index.php');
-    exit;
-}
+if (empty($slug)) { header('Location: ' . BASE_URL . '/index.php'); exit; }
 
 // Fetch Restaurant
-$stmt = db()->prepare("SELECT * FROM restaurants WHERE slug = :slug AND is_active = 1 LIMIT 1");
+$stmt = db()->prepare("SELECT * FROM restaurants WHERE slug=:slug AND is_active=1 LIMIT 1");
 $stmt->execute([':slug' => $slug]);
 $restaurant = $stmt->fetch();
+if (!$restaurant) { http_response_code(404); echo "<h1>Restaurant Not Found</h1>"; exit; }
 
-if (!$restaurant) {
-    http_response_code(404);
-    echo "<h1>Restaurant Not Found</h1>";
-    exit;
-}
-
-// Fetch categories that have active foods in this restaurant
+// Fetch categories used by this restaurant's active items
 $catStmt = db()->prepare("
-    SELECT DISTINCT c.* 
+    SELECT DISTINCT c.*
     FROM categories c
     JOIN menu_items mi ON mi.category_id = c.id
-    WHERE mi.restaurant_id = :rid AND mi.is_available = 1
+    WHERE mi.restaurant_id=:rid AND mi.is_available=1
     ORDER BY c.display_order ASC
 ");
 $catStmt->execute([':rid' => $restaurant['id']]);
@@ -41,8 +33,8 @@ $menuStmt = db()->prepare("
     SELECT mi.*, c.name AS category_name
     FROM menu_items mi
     LEFT JOIN categories c ON c.id = mi.category_id
-    WHERE mi.restaurant_id = :rid AND mi.is_available = 1
-    ORDER BY c.display_order ASC, mi.display_order ASC, mi.id ASC
+    WHERE mi.restaurant_id=:rid AND mi.is_available=1
+    ORDER BY mi.is_popular DESC, c.display_order ASC, mi.display_order ASC
 ");
 $menuStmt->execute([':rid' => $restaurant['id']]);
 $menuItems = $menuStmt->fetchAll();
@@ -50,221 +42,426 @@ $menuItems = $menuStmt->fetchAll();
 // Group items by category
 $groupedMenu = [];
 foreach ($menuItems as $item) {
-    $catName = $item['category_name'] ?: 'Others';
+    $catName = $item['category_name'] ?: 'Menu';
     $groupedMenu[$catName][] = $item;
 }
 
-$pageTitle = $restaurant['name'] . ' — Zesto Menu';
-$description = 'Order delicious meals from ' . $restaurant['name'] . ' in ' . $restaurant['city'] . '. Sizzling fast delivery.';
-$extraJs = [BASE_URL . '/assets/js/cart.js'];
+// Recommended items (popular)
+$recommended = array_filter($menuItems, fn($i) => $i['is_popular']);
+
+$pageTitle   = $restaurant['name'] . ' Menu — Order on Zesto';
+$description = 'Order from ' . $restaurant['name'] . '. ' . ($restaurant['description'] ?? 'Great food delivered fast.');
 include __DIR__ . '/includes/header.php';
 include __DIR__ . '/includes/navbar.php';
 ?>
 
-<main class="flex-1 pb-16 md:pb-8 bg-[#fbf9f8]">
-  
-  <!-- ═══ RESTAURANT HEADER BRANDING ════════════════════════ -->
-  <section class="relative w-full h-64 md:h-80 bg-black overflow-hidden">
-    <img src="<?= $restaurant['banner_image'] ?: ($restaurant['image'] ?: 'https://lh3.googleusercontent.com/aida-public/AB6AXuACPe1OwcnqiSYz6mGkYPwpTwUZkoQT8Jeq336MHTLd5-szfhdGafbxKuJ3QVMBjxqcxm4UwTDipbBKsEECFSl_VHIJI58oJjjfYhQRcILi8-eedqeW9Mmlq_MJCKbX6yX6excKavJXTN1YruIGDT445j8SmCA9w4wNuJUqWrKgCGPpn5cc-E6Ph19OOcwM0Lu_vntB6rnd88Rr2jXfoBPCYqOX-gehGl-S_UIFfvPKeRPs0iP4Kc_0ZbV9KJ8H6mFYWZPD6gO7v2U') ?>" 
-         alt="<?= e($restaurant['name']) ?>" class="w-full h-full object-cover opacity-60">
-    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent flex flex-col justify-end">
-      <div class="max-w-[1280px] w-full mx-auto px-6 md:px-10 pb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 text-white">
+<main class="flex-1 bg-[#f5f5f0] pb-mobile-nav" id="restaurant-page">
+
+  <!-- ── Back Button ─────────────────────────────────────────── -->
+  <div class="max-w-[1280px] mx-auto px-4 md:px-8 lg:px-10 pt-4">
+    <a href="<?= BASE_URL ?>/restaurants.php"
+       class="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-[#a83300] transition-colors group">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back to Restaurants
+    </a>
+  </div>
+
+  <!-- ── Restaurant Banner ───────────────────────────────────── -->
+  <div class="relative h-48 md:h-72 lg:h-80 bg-[#1b1c1c] overflow-hidden mt-3">
+    <img src="<?= e(getRestaurantBanner($restaurant)) ?>"
+         alt="<?= e($restaurant['name']) ?> — Restaurant Banner"
+         class="w-full h-full object-cover opacity-80">
+    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+  </div>
+
+  <!-- ── Restaurant Info Card ────────────────────────────────── -->
+  <div class="max-w-[1280px] mx-auto px-4 md:px-8 lg:px-10">
+    <div class="bg-white rounded-2xl md:rounded-3xl shadow-lg border border-[#ece9e6] -mt-12 md:-mt-16 relative z-10 p-5 md:p-8">
+      <div class="flex gap-4 md:gap-6 items-start">
+        <!-- Logo -->
+        <div class="w-16 h-16 md:w-24 md:h-24 rounded-xl md:rounded-2xl overflow-hidden border-2 border-[#ece9e6] bg-white flex-shrink-0 shadow-md">
+          <img src="<?= e(getRestaurantLogo($restaurant)) ?>"
+               alt="<?= e($restaurant['name']) ?> logo"
+               class="w-full h-full object-cover">
+        </div>
         
-        <div class="flex items-center gap-5">
-          <!-- Logo -->
-          <div class="w-20 h-20 md:w-24 md:h-24 bg-white rounded-2xl overflow-hidden shrink-0 border border-white/20 p-1 flex items-center justify-center shadow-lg">
-            <img src="<?= $restaurant['logo_image'] ?: ($restaurant['image'] ?: 'https://lh3.googleusercontent.com/aida-public/AB6AXuACPe1OwcnqiSYz6mGkYPwpTwUZkoQT8Jeq336MHTLd5-szfhdGafbxKuJ3QVMBjxqcxm4UwTDipbBKsEECFSl_VHIJI58oJjjfYhQRcILi8-eedqeW9Mmlq_MJCKbX6yX6excKavJXTN1YruIGDT445j8SmCA9w4wNuJUqWrKgCGPpn5cc-E6Ph19OOcwM0Lu_vntB6rnd88Rr2jXfoBPCYqOX-gehGl-S_UIFfvPKeRPs0iP4Kc_0ZbV9KJ8H6mFYWZPD6gO7v2U') ?>" 
-                 alt="Logo" class="w-full h-full object-cover rounded-xl shrink-0">
+        <!-- Details -->
+        <div class="flex-1 min-w-0">
+          <h1 class="text-xl md:text-3xl font-black text-[#1b1c1c] leading-tight"><?= e($restaurant['name']) ?></h1>
+          <p class="text-sm md:text-base text-gray-500 mt-1 line-clamp-2"><?= e($restaurant['tags']) ?></p>
+          
+          <div class="flex flex-wrap items-center gap-3 mt-3">
+            <!-- Rating -->
+            <div class="flex items-center gap-1.5 bg-green-600 text-white text-sm font-bold px-2.5 py-1 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <?= number_format($restaurant['rating'], 1) ?>
+              <span class="text-green-200 font-normal text-xs">(<?= number_format($restaurant['rating_count']) ?>+)</span>
+            </div>
+            
+            <!-- Delivery Time -->
+            <div class="flex items-center gap-1.5 text-sm text-gray-600 font-semibold bg-gray-100 px-2.5 py-1 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <?= e($restaurant['delivery_time'] ?: '30–45 min') ?>
+            </div>
+            
+            <!-- Delivery Fee -->
+            <div class="text-sm text-gray-600 font-semibold bg-gray-100 px-2.5 py-1 rounded-lg">
+              <?= $restaurant['is_free_delivery'] ? '🎉 Free Delivery' : '₹' . number_format($restaurant['delivery_fee'], 0) . ' delivery' ?>
+            </div>
+            
+            <!-- Distance -->
+            <?php if ($restaurant['distance']): ?>
+            <div class="flex items-center gap-1 text-sm text-gray-500 font-medium">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <?= number_format($restaurant['distance'], 1) ?> km
+            </div>
+            <?php endif; ?>
           </div>
-          <div>
-            <span class="bg-[#ffdbd0] text-[#a83300] text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider select-none">Zesto Premium Kitchen</span>
-            <h1 class="text-2xl md:text-4xl font-black tracking-tight mt-1.5"><?= e($restaurant['name']) ?></h1>
-            <p class="text-xs md:text-sm text-gray-300 mt-1"><?= e($restaurant['description'] ?: implode(' • ', explode(',', $restaurant['tags']))) ?></p>
+          
+          <?php if ($restaurant['description']): ?>
+          <p class="text-sm text-gray-500 mt-3 leading-relaxed line-clamp-3 md:line-clamp-none"><?= e($restaurant['description']) ?></p>
+          <?php endif; ?>
+          
+          <?php if ($restaurant['discount']): ?>
+          <div class="restaurant-offer-badge mt-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M7 7h.01M7 3h5l7 7a3 3 0 0 1 0 4.24l-5 5a3 3 0 0 1-4.24 0L3 12V7a4 4 0 0 1 4-4z"/></svg>
+            <?= e($restaurant['discount']) ?>
           </div>
+          <?php endif; ?>
         </div>
-
-        <!-- Rating & Delivery Time Info Box -->
-        <div class="flex bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 gap-6 text-center text-xs text-gray-100">
-          <div>
-            <span class="block text-[#f59e0b] font-black text-sm">★ <?= number_format($restaurant['rating'], 1) ?></span>
-            <span class="block text-[9px] text-gray-300 uppercase mt-0.5"><?= $restaurant['rating_count'] ?>+ reviews</span>
-          </div>
-          <div class="w-px bg-white/10"></div>
-          <div>
-            <span class="block font-extrabold text-sm"><?= e($restaurant['delivery_time']) ?></span>
-            <span class="block text-[9px] text-gray-300 uppercase mt-0.5">Delivery Time</span>
-          </div>
-          <div class="w-px bg-white/10"></div>
-          <div>
-            <span class="block font-extrabold text-sm"><?= number_format($restaurant['distance'], 1) ?> km</span>
-            <span class="block text-[9px] text-gray-300 uppercase mt-0.5">Distance</span>
-          </div>
-        </div>
-
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ═══ MENU CONTENT CONTAINER ════════════════════════════ -->
-  <section class="max-w-[1280px] mx-auto px-6 md:px-10 py-10 grid grid-cols-1 lg:grid-cols-12 gap-10 font-sans">
+  <!-- ── Menu Section ────────────────────────────────────────── -->
+  <div class="max-w-[1280px] mx-auto px-4 md:px-8 lg:px-10 mt-6 md:mt-8">
     
-    <!-- LEFT SIDEBAR: STICKY MENU CATEGORIES -->
-    <div class="lg:col-span-3 hidden lg:block">
-      <div class="sticky top-24 bg-white rounded-2xl border border-gray-150 p-4 space-y-1 shadow-sm">
-        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest px-3.5 mb-3">Categories</h4>
-        <?php foreach ($categories as $cat): ?>
-        <a href="#cat-section-<?= $cat['id'] ?>" 
-           class="block w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold text-gray-600 hover:bg-[#ffdbd0] hover:text-[#a83300] transition-all">
-          <?= e($cat['name']) ?>
-        </a>
-        <?php endforeach; ?>
-        <?php if (isset($groupedMenu['Others'])): ?>
-        <a href="#cat-section-others" 
-           class="block w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold text-gray-600 hover:bg-[#ffdbd0] hover:text-[#a83300] transition-all">
-          Others
+    <!-- Search + Veg Filter Bar -->
+    <div class="flex items-center gap-3 mb-6 bg-white rounded-xl border border-[#ece9e6] p-3">
+      <div class="flex-1 flex items-center gap-2.5 bg-gray-50 rounded-lg px-3.5 py-2.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="menu-search" placeholder="Search in menu..."
+               class="flex-1 bg-transparent border-none outline-none text-sm font-medium text-[#1b1c1c] placeholder:text-gray-400">
+      </div>
+      <label class="flex items-center gap-2 cursor-pointer select-none shrink-0">
+        <div class="relative">
+          <input type="checkbox" id="veg-toggle" class="sr-only">
+          <div class="w-10 h-5 bg-gray-200 rounded-full transition-colors" id="veg-track"></div>
+          <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform" id="veg-thumb"></div>
+        </div>
+        <div class="veg-dot veg"></div>
+        <span class="text-sm font-bold text-[#1b1c1c]">Veg Only</span>
+      </label>
+    </div>
+
+    <!-- Layout: Category Nav (desktop left) + Menu (main) -->
+    <div class="flex gap-6 lg:gap-8 items-start">
+      
+      <!-- Category Nav — desktop sticky sidebar -->
+      <?php if (count($categories) > 1): ?>
+      <nav class="hidden lg:block w-52 shrink-0 sticky top-4 bg-white rounded-2xl border border-[#ece9e6] p-3 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-none">
+        <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-3 px-2">Menu</p>
+        <?php if (!empty($recommended)): ?>
+        <a href="#section-recommended" onclick="scrollToSection('recommended')" class="category-nav-item active" data-section="recommended">
+          ⭐ Recommended (<?= count($recommended) ?>)
         </a>
         <?php endif; ?>
-      </div>
-    </div>
+        <?php foreach ($categories as $cat): ?>
+        <?php $safeName = preg_replace('/[^a-z0-9]+/', '-', strtolower($cat['name'])); ?>
+        <a href="#section-<?= $safeName ?>" onclick="scrollToSection('<?= $safeName ?>')" class="category-nav-item" data-section="<?= $safeName ?>">
+          <?= getCategoryEmoji($cat['name']) ?> <?= e($cat['name']) ?> (<?= count($groupedMenu[$cat['name']] ?? []) ?>)
+        </a>
+        <?php endforeach; ?>
+      </nav>
+      <?php endif; ?>
 
-    <!-- RIGHT: VEG TOGGLE & FOOD LISTING -->
-    <div class="lg:col-span-9 space-y-8">
-      
-      <!-- Top Filters Menu -->
-      <div class="bg-white rounded-2xl border border-gray-150 p-4 flex justify-between items-center shadow-sm">
-        <div class="flex items-center gap-3">
-          <span class="text-xs font-bold text-gray-500">Filter Dishes:</span>
-          <!-- Veg Only Toggle Button -->
-          <button id="veg-toggle-btn" onclick="ZestoRestaurant.toggleVeg()" class="px-4 py-2 border rounded-full text-xs font-bold transition-all cursor-pointer bg-white text-gray-600 border-gray-200 hover:bg-[#f5f3f3]">
-            🌱 Veg Only
-          </button>
-        </div>
-        <p class="text-xs text-gray-400 font-bold uppercase tracking-widest"><span id="active-item-count"><?= count($menuItems) ?></span> Items Available</p>
-      </div>
+      <!-- Menu Items -->
+      <div class="flex-1 min-w-0 space-y-8" id="menu-container">
 
-      <!-- grouped categories menu -->
-      <div class="space-y-10">
-        <?php foreach ($groupedMenu as $catName => $items): 
-          $catId = 'others';
-          foreach ($categories as $c) {
-              if ($c['name'] === $catName) { $catId = $c['id']; break; }
-          }
-        ?>
-        <div id="cat-section-<?= $catId ?>" class="scroll-mt-24 space-y-4">
-          <h3 class="text-lg font-black text-[#1b1c1c] tracking-tight uppercase border-b border-gray-100 pb-2.5 flex items-center justify-between">
-            <span><?= e($catName) ?></span>
-            <span class="text-xs bg-[#ffdbd0] text-[#a83300] px-2.5 py-0.5 rounded-lg"><?= count($items) ?> items</span>
-          </h3>
-
-          <div class="divide-y divide-gray-100 bg-white rounded-2xl border border-gray-150 px-5 shadow-sm">
-            <?php foreach ($items as $item): ?>
-            <div class="py-5 flex gap-4 justify-between items-center menu-dish-card" data-veg="<?= $item['is_veg'] ? '1' : '0' ?>">
-              
-              <!-- Left side item description -->
-              <div class="flex-1 space-y-2 min-w-0 pr-4">
-                <div class="flex items-center gap-1.5">
-                  <span class="w-4 h-4 border flex items-center justify-center rounded-sm text-[8px] font-bold shrink-0 <?= $item['is_veg'] ? 'border-green-600 text-green-600' : 'border-red-600 text-red-600' ?>">
-                    <?= $item['is_veg'] ? '●' : '▲' ?>
-                  </span>
-                  <?php if ($item['is_special']): ?>
-                  <span class="bg-[#ffdbd0] text-[#a83300] text-[8px] font-bold px-1.5 py-0.5 rounded select-none shrink-0 uppercase tracking-widest">Today's Choice</span>
-                  <?php endif; ?>
+        <!-- Recommended Section -->
+        <?php if (!empty($recommended)): ?>
+        <div class="menu-section" data-section="recommended" id="section-recommended">
+          <div class="menu-section-divider">
+            <h3>⭐ Recommended <span class="text-gray-400 font-medium text-sm"><?= count($recommended) ?> items</span></h3>
+          </div>
+          <div class="space-y-3 mt-3">
+            <?php foreach ($recommended as $item): ?>
+            <?php $itemImg = getFoodImage($item['image'], $item['name'], $item['category_name'] ?? ''); ?>
+            <div class="food-card menu-item" 
+                 data-name="<?= strtolower(e($item['name'])) ?>"
+                 data-veg="<?= $item['is_veg'] ? '1' : '0' ?>"
+                 data-id="<?= (int)$item['id'] ?>">
+              <!-- Text side -->
+              <div class="food-card-content">
+                <div class="flex items-center gap-1.5 mb-1.5">
+                  <div class="veg-dot <?= $item['is_veg'] ? 'veg' : 'nonveg' ?>"></div>
+                  <?php if ($item['is_special']): ?><span class="text-[10px] bg-[#ffdbd0] text-[#a83300] font-black px-2 py-0.5 rounded uppercase tracking-wide">Chef's Special</span><?php endif; ?>
+                  <?php if ($item['is_popular']): ?><span class="text-[10px] bg-amber-100 text-amber-700 font-black px-2 py-0.5 rounded uppercase tracking-wide">Bestseller</span><?php endif; ?>
                 </div>
-                <h4 class="font-extrabold text-sm text-[#1b1c1c] truncate"><?= e($item['name']) ?></h4>
-                <p class="text-xs text-gray-500 font-medium leading-relaxed max-w-xl"><?= e($item['description'] ?: 'Delicious kitchen recipe cooked fresh daily.') ?></p>
-                <p class="text-[#a83300] font-black text-sm mt-2"><?= formatPrice($item['price']) ?></p>
-
-                <!-- Customization inputs displays -->
-                <?php 
-                $opts = json_decode($item['customization_options'] ?? '[]', true) ?: [];
-                if (!empty($opts)): ?>
-                <div class="mt-3.5 flex flex-wrap gap-1.5 items-center">
-                  <span class="text-[9px] text-[#5c4037] font-bold uppercase tracking-wide mr-1">Customize:</span>
-                  <?php foreach ($opts as $index => $opt): ?>
-                  <button onclick="ZestoRestaurant.toggleCustomization(this, '<?= e($opt) ?>', <?= $item['id'] ?>)"
-                          class="px-2.5 py-1 rounded text-[10px] font-semibold border transition-all bg-white text-gray-500 border-gray-200 hover:bg-[#ffdbd0] hover:text-[#a83300] hover:border-[#a83300] cursor-pointer">
-                    <?= e($opt) ?>
-                  </button>
-                  <?php endforeach; ?>
-                  <input type="hidden" id="custom-<?= $item['id'] ?>" value="">
-                </div>
+                <h3 class="food-card-name"><?= e($item['name']) ?></h3>
+                <?php if ($item['description']): ?>
+                <p class="food-card-desc"><?= e($item['description']) ?></p>
                 <?php endif; ?>
-              </div>
-
-              <!-- Right side add to cart button & thumbnail -->
-              <div class="flex flex-col items-center shrink-0 w-28 md:w-32 relative">
-                <div class="w-24 h-24 md:w-28 md:h-28 rounded-2xl overflow-hidden border border-gray-100 shadow-sm mb-3">
-                  <img src="<?= $item['image'] ?: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBZLbHo94g2948yCQi_Q1dVUSPm7BgZNWKJWBJwlPkeAxvdQXlETDOg88T30AcJwkVKeiDN3TZ3h4Uzx-ktYgh2MxBjNSgQmOdj3cR8mlX0VcaeE9AA-ynZ-cXRNbEOjFU47cUGFE9pWTrzGgqg6liFOHMYjEWhj-CyDCSeVvyO5282aXh30ZUK6uEhmx48fz-0Os880RaqVw-iUMvfgiHqI0oGi_UikGPKsXXv80RBqP2yhQQchY8YwAnkKE6NJTZJYRarOE_5lng' ?>" 
-                       alt="<?= e($item['name']) ?>" class="w-full h-full object-cover">
+                <div class="flex items-end justify-between mt-3">
+                  <span class="food-card-price"><?= formatPrice($item['price']) ?></span>
+                  <div class="add-btn-wrap" id="wrap-<?= $item['id'] ?>">
+                    <button onclick="cartAdd(<?= $item['id'] ?>, <?= $restaurant['id'] ?>, '<?= e($restaurant['slug']) ?>')"
+                            class="add-to-cart-btn">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      ADD
+                    </button>
+                  </div>
                 </div>
-                <button data-add-cart="<?= $item['id'] ?>"
-                        onclick="addToCart('<?= $item['id'] ?>', '<?= $restaurant['id'] ?>', '<?= $restaurant['slug'] ?>', document.getElementById('custom-<?= $item['id'] ?>') ? document.getElementById('custom-<?= $item['id'] ?>').value : '')"
-                        class="absolute bottom-1 bg-white border border-gray-200 hover:bg-[#ffdbd0] hover:text-[#a83300] hover:border-[#a83300] shadow-md px-4 py-2 rounded-xl text-xs font-black text-gray-700 tracking-wide active:scale-95 transition-all flex items-center justify-center gap-1.5 w-[90px] shrink-0 cursor-pointer">
-                  ADD
-                </button>
               </div>
+              <!-- Image side -->
+              <div class="food-card-img-wrap">
+                <img src="<?= e($itemImg) ?>" alt="<?= e($item['name']) ?>" class="food-card-img" loading="lazy">
+              </div>
+            </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
+        <?php endif; ?>
 
+        <!-- Category Sections -->
+        <?php foreach ($groupedMenu as $catName => $items): ?>
+        <?php $sectionId = preg_replace('/[^a-z0-9]+/', '-', strtolower($catName)); ?>
+        <div class="menu-section" data-section="<?= $sectionId ?>" id="section-<?= $sectionId ?>">
+          <div class="menu-section-divider">
+            <h3><?= getCategoryEmoji($catName) ?> <?= e($catName) ?> <span class="text-gray-400 font-medium text-sm"><?= count($items) ?> items</span></h3>
+          </div>
+          <div class="space-y-3 mt-3">
+            <?php foreach ($items as $item): ?>
+            <?php $itemImg = getFoodImage($item['image'], $item['name'], $catName); ?>
+            <div class="food-card menu-item"
+                 data-name="<?= strtolower(htmlspecialchars($item['name'], ENT_QUOTES)) ?>"
+                 data-veg="<?= $item['is_veg'] ? '1' : '0' ?>"
+                 data-id="<?= (int)$item['id'] ?>">
+              <div class="food-card-content">
+                <div class="flex items-center gap-1.5 mb-1.5">
+                  <div class="veg-dot <?= $item['is_veg'] ? 'veg' : 'nonveg' ?>"></div>
+                  <?php if ($item['is_special']): ?><span class="text-[10px] bg-[#ffdbd0] text-[#a83300] font-black px-2 py-0.5 rounded uppercase tracking-wide">Chef's Special</span><?php endif; ?>
+                  <?php if ($item['is_popular']): ?><span class="text-[10px] bg-amber-100 text-amber-700 font-black px-2 py-0.5 rounded uppercase tracking-wide">Bestseller</span><?php endif; ?>
+                </div>
+                <h3 class="food-card-name"><?= e($item['name']) ?></h3>
+                <?php if ($item['description']): ?>
+                <p class="food-card-desc"><?= e($item['description']) ?></p>
+                <?php endif; ?>
+                <div class="flex items-end justify-between mt-3">
+                  <span class="food-card-price"><?= formatPrice($item['price']) ?></span>
+                  <div class="add-btn-wrap" id="wrap-<?= $item['id'] ?>">
+                    <button onclick="cartAdd(<?= $item['id'] ?>, <?= $restaurant['id'] ?>, '<?= e($restaurant['slug']) ?>')"
+                            class="add-to-cart-btn">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      ADD
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="food-card-img-wrap">
+                <img src="<?= e($itemImg) ?>" alt="<?= e($item['name']) ?>" class="food-card-img" loading="lazy">
+              </div>
             </div>
             <?php endforeach; ?>
           </div>
         </div>
         <?php endforeach; ?>
+        
+        <!-- Empty State -->
+        <div id="menu-empty" class="hidden py-16 text-center">
+          <div class="text-4xl mb-3">🔍</div>
+          <h3 class="text-lg font-bold text-[#1b1c1c]">No items found</h3>
+          <p class="text-gray-500 text-sm mt-1">Try a different search term or remove the veg filter.</p>
+        </div>
       </div>
-
     </div>
-  </section>
-
+  </div>
 </main>
 
+<!-- Mobile Category Scroll Bar -->
+<?php if (count($categories) > 1): ?>
+<div class="lg:hidden fixed bottom-14 left-0 right-0 bg-white border-t border-[#ece9e6] z-30 px-4 py-2 flex gap-2 overflow-x-auto scrollbar-none" id="mobile-cat-bar">
+  <?php if (!empty($recommended)): ?>
+  <button onclick="scrollToSection('recommended')" class="category-nav-item active whitespace-nowrap text-xs py-1.5 px-3" data-section="recommended">
+    ⭐ Recommended
+  </button>
+  <?php endif; ?>
+  <?php foreach ($categories as $cat): ?>
+  <?php $safeName = preg_replace('/[^a-z0-9]+/', '-', strtolower($cat['name'])); ?>
+  <button onclick="scrollToSection('<?= $safeName ?>')" class="category-nav-item whitespace-nowrap text-xs py-1.5 px-3" data-section="<?= $safeName ?>">
+    <?= getCategoryEmoji($cat['name']) ?> <?= e($cat['name']) ?>
+  </button>
+  <?php endforeach; ?>
+</div>
+<?php endif; ?>
+
+<script src="<?= BASE_URL ?>/assets/js/cart.js" defer></script>
 <script>
-window.ZestoRestaurant = {
-  isVegOnly: false,
-  
-  toggleVeg: function() {
-    this.isVegOnly = !this.isVegOnly;
-    const btn = document.getElementById('veg-toggle-btn');
-    const cards = document.querySelectorAll('.menu-dish-card');
-    
-    if (this.isVegOnly) {
-      btn.className = "px-4 py-2 border rounded-full text-xs font-bold transition-all cursor-pointer bg-green-600 text-white border-green-600 shadow-sm";
-      let count = 0;
-      cards.forEach(card => {
-        if (card.dataset.veg !== '1') {
-          card.classList.add('hidden');
-        } else {
-          card.classList.remove('hidden');
-          count++;
-        }
-      });
-      document.getElementById('active-item-count').textContent = count;
-    } else {
-      btn.className = "px-4 py-2 border rounded-full text-xs font-bold transition-all cursor-pointer bg-white text-gray-600 border-gray-200 hover:bg-[#f5f3f3]";
-      cards.forEach(card => card.classList.remove('hidden'));
-      document.getElementById('active-item-count').textContent = cards.length;
-    }
-  },
+// ── Cart quantities state ──────────────────────────────────────
+const cartQty = {};
 
-  toggleCustomization: function(btn, opt, id) {
-    const input = document.getElementById('custom-' + id);
-    if (!input) return;
+async function cartAdd(itemId, restaurantId, restaurantSlug) {
+  const wrap = document.getElementById('wrap-' + itemId);
+  if (!wrap) return;
 
-    if (btn.classList.contains('active-opt')) {
-      btn.classList.remove('active-opt', 'bg-[#ffdbd0]', 'text-[#a83300]', 'border-[#a83300]');
-      btn.classList.add('bg-white', 'text-gray-500', 'border-gray-200');
-      input.value = '';
+  // Show loading state
+  const origHtml = wrap.innerHTML;
+  wrap.innerHTML = `<div class="flex items-center justify-center w-24 h-[38px]"><div class="spinner"></div></div>`;
+
+  try {
+    const res = await fetch(`${window.ZESTO_BASE}/api/cart/add.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
+      body: JSON.stringify({ menu_item_id: itemId, restaurant_id: restaurantId })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      cartQty[itemId] = (cartQty[itemId] || 0) + 1;
+      renderStepper(itemId, restaurantId, restaurantSlug);
+      updateCartBadge(data.cart_count);
+      Zesto.toast('🛒 Added to cart!', 'cart');
     } else {
-      // Deactivate other buttons
-      const siblings = btn.parentNode.querySelectorAll('button');
-      siblings.forEach(s => {
-        s.classList.remove('active-opt', 'bg-[#ffdbd0]', 'text-[#a83300]', 'border-[#a83300]');
-        s.classList.add('bg-white', 'text-gray-500', 'border-gray-200');
-      });
-      btn.classList.add('active-opt', 'bg-[#ffdbd0]', 'text-[#a83300]', 'border-[#a83300]');
-      btn.classList.remove('bg-white', 'text-gray-500', 'border-gray-200');
-      input.value = opt;
+      wrap.innerHTML = origHtml;
+      Zesto.toast(data.message || 'Could not add item.', 'error');
     }
+  } catch(e) {
+    wrap.innerHTML = origHtml;
+    Zesto.toast('Network error.', 'error');
   }
-};
+}
+
+function renderStepper(itemId, restaurantId, restaurantSlug) {
+  const wrap = document.getElementById('wrap-' + itemId);
+  if (!wrap) return;
+  const qty = cartQty[itemId] || 1;
+  wrap.innerHTML = `
+    <div class="qty-stepper">
+      <button class="qty-stepper-btn" onclick="cartDecrement(${itemId},${restaurantId},'${restaurantSlug}')">−</button>
+      <span class="qty-stepper-count">${qty}</span>
+      <button class="qty-stepper-btn" onclick="cartIncrement(${itemId},${restaurantId},'${restaurantSlug}')">+</button>
+    </div>`;
+}
+
+async function cartIncrement(itemId, restaurantId, restaurantSlug) {
+  try {
+    const res = await fetch(`${window.ZESTO_BASE}/api/cart/add.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
+      body: JSON.stringify({ menu_item_id: itemId, restaurant_id: restaurantId, delta: 1 })
+    });
+    const data = await res.json();
+    if (data.success) {
+      cartQty[itemId] = (cartQty[itemId] || 1) + 1;
+      renderStepper(itemId, restaurantId, restaurantSlug);
+      updateCartBadge(data.cart_count);
+    }
+  } catch(e) {}
+}
+
+async function cartDecrement(itemId, restaurantId, restaurantSlug) {
+  cartQty[itemId] = Math.max(0, (cartQty[itemId] || 1) - 1);
+  if (cartQty[itemId] === 0) {
+    // Remove from cart
+    try {
+      const res = await fetch(`${window.ZESTO_BASE}/api/cart/remove.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
+        body: JSON.stringify({ menu_item_id: itemId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        updateCartBadge(data.cart_count);
+      }
+    } catch(e) {}
+    // Restore ADD button
+    const wrap = document.getElementById('wrap-' + itemId);
+    if (wrap) {
+      wrap.innerHTML = `<button onclick="cartAdd(${itemId}, ${restaurantId}, '${restaurantSlug}')" class="add-to-cart-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        ADD
+      </button>`;
+    }
+  } else {
+    renderStepper(itemId, restaurantId, restaurantSlug);
+    // Update quantity via API
+    try {
+      await fetch(`${window.ZESTO_BASE}/api/cart/update.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
+        body: JSON.stringify({ menu_item_id: itemId, delta: -1 })
+      });
+    } catch(e) {}
+  }
+}
+
+// ── Menu search & veg filter ───────────────────────────────────
+let vegOnly = false;
+let searchQ  = '';
+
+document.getElementById('menu-search')?.addEventListener('input', function() {
+  searchQ = this.value.toLowerCase().trim();
+  applyFilters();
+});
+
+const vegToggle = document.getElementById('veg-toggle');
+const vegTrack  = document.getElementById('veg-track');
+const vegThumb  = document.getElementById('veg-thumb');
+vegToggle?.addEventListener('change', function() {
+  vegOnly = this.checked;
+  vegTrack.classList.toggle('bg-green-500', vegOnly);
+  vegTrack.classList.toggle('bg-gray-200', !vegOnly);
+  vegThumb.style.transform = vegOnly ? 'translateX(20px)' : '';
+  applyFilters();
+});
+
+function applyFilters() {
+  const items = document.querySelectorAll('.menu-item');
+  let visibleCount = 0;
+  items.forEach(el => {
+    const name    = el.dataset.name || '';
+    const isVeg   = el.dataset.veg === '1';
+    const matchSr = !searchQ || name.includes(searchQ);
+    const matchVg = !vegOnly || isVeg;
+    const visible = matchSr && matchVg;
+    el.style.display = visible ? '' : 'none';
+    if (visible) visibleCount++;
+  });
+  // Show/hide sections
+  document.querySelectorAll('.menu-section').forEach(sec => {
+    const visItems = sec.querySelectorAll('.menu-item:not([style*="none"])');
+    sec.style.display = visItems.length > 0 ? '' : 'none';
+  });
+  document.getElementById('menu-empty').classList.toggle('hidden', visibleCount > 0);
+}
+
+// ── Category nav active state (scroll spy) ─────────────────────
+function scrollToSection(sectionId) {
+  const el = document.getElementById('section-' + sectionId);
+  if (el) {
+    const offset = 100;
+    const y = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+  setActiveNav(sectionId);
+}
+
+function setActiveNav(sectionId) {
+  document.querySelectorAll('.category-nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.section === sectionId);
+  });
+}
+
+// Intersection observer for scroll-spy
+const sections = document.querySelectorAll('.menu-section');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      setActiveNav(entry.target.dataset.section);
+    }
+  });
+}, { rootMargin: '-30% 0px -50% 0px' });
+sections.forEach(s => observer.observe(s));
 </script>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

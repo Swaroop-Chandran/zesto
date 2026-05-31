@@ -61,9 +61,19 @@ include __DIR__ . '/../includes/header.php';
     </div>
 
     <?php if (!$res): ?>
-    <div class="bg-[#ffdbd0] rounded-2xl p-8 text-center">
-      <p class="font-bold text-[#a83300]">No restaurant linked to your account.</p>
-      <p class="text-sm text-gray-600 mt-1">Please contact the admin to link your restaurant.</p>
+    <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-3xl p-10 border border-orange-200 text-center max-w-2xl mx-auto shadow-sm my-10 font-sans">
+      <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white text-3xl mb-6 shadow-sm">
+        🍳
+      </div>
+      <h2 class="text-2xl font-black text-[#1b1c1c]">Welcome to Zesto Kitchens!</h2>
+      <p class="text-sm text-gray-600 mt-3 leading-relaxed font-semibold">
+        To start managing orders, selling your delicious dishes, and tracking your business, you need to create your restaurant profile first.
+      </p>
+      <div class="mt-8 flex justify-center">
+        <a href="<?= BASE_URL ?>/restaurant-panel/onboard.php" class="btn-primary flex items-center gap-2 font-bold px-8 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-md hover:scale-[1.02] active:scale-95 transition-all text-xs">
+          Setup Your Restaurant Profile 🚀
+        </a>
+      </div>
     </div>
     <?php else: ?>
 

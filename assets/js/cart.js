@@ -209,11 +209,12 @@ async function openRestaurantMenu(slug) {
 }
 
 // ── Place Order (AJAX) ────────────────────────────────────────
-async function placeOrder(paymentMethod, deliveryAddress) {
-  const btn = document.getElementById('place-order-btn');
+async function placeOrder(paymentMethod, deliveryAddress, couponCode = null) {
+  const btn = document.getElementById('cart-order-btn') || document.getElementById('place-order-btn');
   if (btn) {
     btn.disabled = true;
-    btn.innerHTML = `<span class="spinner" style="width:1rem;height:1rem;border-width:2px;"></span>&nbsp;Locking Payment Securely...`;
+    const origHtml = btn.innerHTML;
+    btn.innerHTML = `<span class="spinner" style="width:1rem;height:1rem;border-width:2px;display:inline-block;vertical-align:middle;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin 1s linear infinite;"></span>&nbsp;Placing Order Securely...`;
   }
 
   try {
@@ -223,7 +224,11 @@ async function placeOrder(paymentMethod, deliveryAddress) {
         'Content-Type': 'application/json',
         'X-CSRF-Token': getCsrfToken(),
       },
-      body: JSON.stringify({ payment_method: paymentMethod, delivery_address: deliveryAddress }),
+      body: JSON.stringify({ 
+        payment_method: paymentMethod, 
+        delivery_address: deliveryAddress,
+        coupon_code: couponCode
+      }),
     });
     const data = await res.json();
 
@@ -233,7 +238,7 @@ async function placeOrder(paymentMethod, deliveryAddress) {
       Zesto.toast(data.message || 'Order failed. Please try again.', 'error');
       if (btn) {
         btn.disabled = false;
-        btn.innerHTML = `PLACE ORDER`;
+        btn.innerHTML = `<span>PLACE ORDER</span>`;
       }
     }
   } catch(e) {

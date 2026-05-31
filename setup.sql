@@ -60,6 +60,8 @@ CREATE TABLE IF NOT EXISTS restaurants (
     address             TEXT            DEFAULT NULL,
     city                VARCHAR(100)    NOT NULL DEFAULT 'Mumbai',
     phone               VARCHAR(30)     DEFAULT NULL,
+    operating_hours     VARCHAR(150)    DEFAULT '9:00 AM - 10:00 PM',
+    delivery_radius     DECIMAL(5,2)    DEFAULT 5.00,
     is_featured         TINYINT(1)      NOT NULL DEFAULT 0,
     is_popular          TINYINT(1)      NOT NULL DEFAULT 0,
     is_best_rated       TINYINT(1)      NOT NULL DEFAULT 0,
@@ -129,6 +131,8 @@ CREATE TABLE IF NOT EXISTS orders (
     subtotal            DECIMAL(10,2)   NOT NULL DEFAULT 0.00,
     delivery_fee        DECIMAL(10,2)   NOT NULL DEFAULT 0.00,
     taxes               DECIMAL(10,2)   NOT NULL DEFAULT 0.00,
+    discount            DECIMAL(10,2)   NOT NULL DEFAULT 0.00,
+    coupon_code         VARCHAR(50)     DEFAULT NULL,
     total               DECIMAL(10,2)   NOT NULL DEFAULT 0.00,
     notes               TEXT            DEFAULT NULL,
     created_at          TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -183,92 +187,115 @@ CREATE TABLE IF NOT EXISTS delivery_partners (
 -- SEED DATA
 -- ─────────────────────────────────────────────────────────────
 
--- Seed admin user (password: Admin@123)
-INSERT IGNORE INTO users (name, email, password, role) VALUES
-('Admin', 'admin@zesto.com', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+-- ─────────────────────────────────────────────────────────────
+-- DEMO CREDENTIALS — ALL ACCOUNTS USE PASSWORD: Zesto@123
+-- Hash generated with: password_hash('Zesto@123', PASSWORD_BCRYPT, ['cost' => 10])
+-- ─────────────────────────────────────────────────────────────
 
--- Seed demo customer (password: Customer@123)
+-- Seed admin user (email: admin@zesto.com / password: Zesto@123)
+INSERT IGNORE INTO users (name, email, password, role) VALUES
+('Admin', 'admin@zesto.com', '$2y$10$MZ5HS/mNwvb3DSw63q0X..wZ9FwsB9QQKpj6DFTkJH6fwpPdbAOOy', 'admin');
+
+-- Seed demo customer (email: alex@example.com / password: Zesto@123)
 INSERT IGNORE INTO users (name, email, password, phone, role) VALUES
-('Alex Johnson', 'alex@example.com', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '+1 555-0101', 'customer');
+('Alex Johnson', 'alex@example.com', '$2y$10$MZ5HS/mNwvb3DSw63q0X..wZ9FwsB9QQKpj6DFTkJH6fwpPdbAOOy', '+91 98765 43210', 'customer');
 
--- Seed restaurant owner (password: Owner@123)
+-- Seed restaurant owner (email: mario@zesto.com / password: Zesto@123)
 INSERT IGNORE INTO users (name, email, password, role) VALUES
-('Mario Rossi', 'mario@zesto.com', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'restaurant_owner');
+('Mario Rossi', 'mario@zesto.com', '$2y$10$MZ5HS/mNwvb3DSw63q0X..wZ9FwsB9QQKpj6DFTkJH6fwpPdbAOOy', 'restaurant_owner');
 
--- Seed delivery partner (password: Delivery@123)
+-- Seed delivery partner (email: marcus@zesto.com / password: Zesto@123)
 INSERT IGNORE INTO users (name, email, password, role) VALUES
-('Marcus Rodriguez', 'marcus@zesto.com', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'delivery_partner');
+('Marcus Rodriguez', 'marcus@zesto.com', '$2y$10$MZ5HS/mNwvb3DSw63q0X..wZ9FwsB9QQKpj6DFTkJH6fwpPdbAOOy', 'delivery_partner');
 
--- Seed categories
-INSERT IGNORE INTO categories (name, image, display_order) VALUES
-('Pizza',    'https://lh3.googleusercontent.com/aida-public/AB6AXuCmf3zFUlKXutpRxTK_3-QlgR36ZowZKDpJYa3j53CsKM4mFjYBvYqVI3mCHtXQd4DCJrhhyHtF7ekcIeRzV8g7ftXqOtoGxmmFmyxh7qpfOb_fRz49Uv6z_lOljCv3rk-sJ5kkJJqg5ZzBrswKdaZSZ7sDr5ySQLplEmdldpyO8ha97lMrwKkPvVUvquOlQaEDns69EYiPOtGQRjmG0xa5Ee1F8Az3z7L7PDXBdDxzEE7elTrPV6xZNAMWiXqobulan0fWFnFqeo8', 1),
-('Burgers',  'https://lh3.googleusercontent.com/aida-public/AB6AXuBZLbHo94g2948yCQi_Q1dVUSPm7BgZNWKJWBJwlPkeAxvdQXlETDOg88T30AcJwkVKeiDN3TZ3h4Uzx-ktYgh2MxBjNSgQmOdj3cR8mlX0VcaeE9AA-ynZ-cXRNbEOjFU47cUGFE9pWTrzGgqg6liFOHMYjEWhj-CyDCSeVvyO5282aXh30ZUK6uEhmx48fz-0Os880RaqVw-iUMvfgiHqI0oGi_UikGPKsXXv80RBqP2yhQQchY8YwAnkKE6NJTZJYRarOE_5lng', 2),
-('Sushi',    'https://lh3.googleusercontent.com/aida-public/AB6AXuCJT_Jg8SYMH4uRHjwaZVnW0HQImHM4omGuUTsqkoJeLFz7iBwNbtU3vKFejxg-h-Hu1REdHRuyVrljsjZAlqVYgWmyv28vUTQKUskpMVOHjcKB3EdIKLINyUf2Od5EN2LVX1Evuq3y-BNW1KAEkoWDVgNDofO4jgPhcGA-XQ5kGBFBhWMkn_5NaI5Fx8S3cZl1aDoglTXRloby2AdxN3nNZ3AnGCRcqsN-Srd6ltOVPLjUjFXoca0ZpOItktJw9uSfo2LjUFIooGY', 3),
-('Pasta',    'https://lh3.googleusercontent.com/aida-public/AB6AXuCm2X3BOIdAAWgicslb39AKBnNVOBx8O_auQuzctdOBmS_PVn8Id7niaQjDwuIUjYUhwt0uLmC6IMHF9hbsJnFCxzpauJeQ9vbqxvRqi-lE6XuFg0lYH9aHRhOXzYIJ6pWUu0KtxiBaO_YQeL_w_y9WmKjEYX2bqQz2_dwjT-I-kZtxiRYKNAcillhYrTq2yRZsR-D8_Zl21qujBEaX6eYITTCRKBEZUEMWkfytoDu2Z1OO4dbcWCOtbHcA7o3ftlN_zTgqX7lkVT4', 4),
-('Desserts', 'https://lh3.googleusercontent.com/aida-public/AB6AXuCjb4QnX7QdK2njUj7cm5zMMt_z6M7TgjQXjKGvVjlyj_lMulWXhFMzGhKHLdC8oi-vSZBb8OD5TTsaBl1ZxFi1XeMrf6BEgaMfoLzxgc9LTL7Ushufv42J9xr3k_x69Uol5bIvQyNJLHfqlOJpr4G__zIskHJ8u-5fAU-G1BcFDtWqKX8LhEmQzqWdkXenZ9VLOfT6q4svJR4O0PCuOVU7ri04mYwJSJ8rzQ4oIWwMfA7j67bzlITK0A15bO7bAYlIJ-nO1_7sM3s', 5),
-('Healthy',  'https://lh3.googleusercontent.com/aida-public/AB6AXuCJV9NVHf_4y_cCjz9eEQYvvDhEzj3W1T0v67YCrdCZtJOXaIK3_ushKGml16cpsP0zMAzG9bEtz30q7aS0Om12Q8UhUSDtE-oO-1swechcZbO5cEdShsA_9B_hr6zBqnP_nzscmkrKNq3tiZLvYsFuuzTl0M3teeBkd9T2BIXAbbs3AgvEGQBdEcrih6CnfcaIFTvg048HOEHdUCs2x6tzuASCgKXeFWp-IRIjnKRZ00LvVOAGxeuWVg-_uIRjOnKgqFas11TNl8U', 6),
-('Drinks',   'https://lh3.googleusercontent.com/aida-public/AB6AXuDgyfyP7rZ5dmAORInBqrp6VhdNNjTUc3kJb-uGys1DXHWggV9aJfUPMwEIDyBuchzQlSz2_H-GhgK4CPrHMHDdT9XcXzk0tjfAafyZhNbgMUYIhKMJFY_T6Lkiyv7bLzAcf_LH9yFedLNmQWqOU9FEplVgB2QNXItgaSM0PngufbViGwnLmgTG6zXQ_giH7ILTd1-Wvircw50sDHB3PrwG3ug70sfg4ydbThZMLuJ8BQqJ5NOQ4kOyZ6ntA2f5zDfwXWqenvjvpPQ', 7);
+-- Clean up old seed data first to avoid duplicate errors or key mismatches
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE menu_items;
+TRUNCATE TABLE restaurants;
+TRUNCATE TABLE categories;
+SET FOREIGN_KEY_CHECKS = 1;
 
--- Seed restaurants
-INSERT IGNORE INTO restaurants (slug, name, tags, rating, delivery_time, delivery_time_value, distance, delivery_fee, is_free_delivery, image) VALUES
-('steakhouse',     'The Steakhouse Grill',  'Premium Steaks,American,Fine Dining',      4.8, '25-35 min', 30, 2.4, 0.00, 1, 'https://lh3.googleusercontent.com/aida-public/AB6AXuACPe1OwcnqiSYz6mGkYPwpTwUZkoQT8Jeq336MHTLd5-szfhdGafbxKuJ3QVMBjxqcxm4UwTDipbBKsEECFSl_VHIJI58oJjjfYhQRcILi8-eedqeW9Mmlq_MJCKbX6yX6excKavJXTN1YruIGDT445j8SmCA9w4wNuJUqWrKgCGPpn5cc-E6Ph19OOcwM0Lu_vntB6rnd88Rr2jXfoBPCYqOX-gehGl-S_UIFfvPKeRPs0iP4Kc_0ZbV9KJ8H6mFYWZPD6gO7v2U'),
-('urban-bites',    'Urban Bites',           'Burgers,Fries,Fast Casual',                4.6, '15-25 min', 20, 1.1, 1.99, 0, 'https://lh3.googleusercontent.com/aida-public/AB6AXuA4jPmsOW8BKn873nl6iulEAGQL68SalnXdDBpixzUU5q4QjwpCkuvx4l2EkjUb1d2LjLDtBasc3MyvpIGeyRWdPTYI7SfIAE0SfBaMV1kC225DGbTGKp3sTGJmMVgty20fJ04Lj43xiUc2D4ODVrufxfTl_MBkqlwHAw_G3Ikiu5ac78s5VoZQLC_nrle09lwVrWFiVPLBYnPVsl4qcgLC6ztuNbnK_sCiX-wmaadjLRrrvI6BrdmvLb93XtoTZ3EQydhVnTgzaiI'),
-('pasta-fresca',   'Pasta Fresca',          'Italian,Handmade Pasta,Vegetarian Friendly',4.9, '30-40 min', 35, 3.7, 2.99, 0, 'https://lh3.googleusercontent.com/aida-public/AB6AXuArgDIL9KLzq5ZsApELWgYS3y8HQs9wSVxxHf8FHKmyqQhnzEAa3rvvaUUNQa5AYYgYehaggp8vqVC6IlXc697ltid9krYc8SUQxTRWEOI1BhMvYDHSnQP8ifgFllVkfqAda8OdbUhS2drUJO4O6JLWXW0JRxP_A3D0Ux1twYAwdJjId72SupMxUtW7IbyggYamrivoWy093ntQyoknBK6sIWoezFNdTnxijcuVsYafPQILAyhxunA-LeW5bCFyLrMaGBb_rGMvU0Q'),
-('miyabi-sushi',   'Miyabi Sushi',          'Japanese,Seafood,Authentic',               4.7, '40-50 min', 45, 4.2, 3.50, 0, 'https://lh3.googleusercontent.com/aida-public/AB6AXuCR50Ht2X1Mwfs1wwMxi8XFT5HsY1AvQuN5ET_BVWNR5pbrkeDcKDHv-kOPsdRu4JJIWq2itatHkpGMBN2Krppu1yvVN551DQF8ag8-Jz1y65o9OwxhibwTBjWxKoMbEG0Go2t7TsMF_JMb2q9p8TVPfjCJxnbLsLhulhVW87uYs1moahSKWywnZR9dGA8GNxV2cavxL34efzr50YQ2ef9c2z5K8NddwlLkCkLp4wsQmkfNOL1CiQUKURKUFnwlvA21rd9lYEWv0eI'),
-('green-leaf',     'Green Leaf Kitchen',    'Vegetarian,Salads,Organic',               4.5, '20-30 min', 25, 1.8, 1.50, 0, 'https://lh3.googleusercontent.com/aida-public/AB6AXuAFaOo2_2F_4fgzcANsaBFRuz9Dzo0agRgVjOugjYR5C1rm218seye-wgP3uVGE_DijvXoO9vqkGbmp88DpthaeK_dLnd7uIpXHyhpyAlpXhHCEYoFJWdl-ZC87rCp_4DBQKdfY9pZliM8dKvHs5kL0XWPwIZqfXs73M2pWKUHbAQxFA30Emo5HcCyEAZ504GxqAYMzVfpF9J0vUbSMeJYZGfGj2jUZOVuxp_B0B7drIpa0nyFkgY2ZZ3nxmGdAzDaifOJYqHBRVsM'),
-('taco-fiesta',    'Taco Fiesta',           'Mexican,Street Food,Authentic',            4.4, '15-20 min', 17, 0.5, 0.00, 1, 'https://lh3.googleusercontent.com/aida-public/AB6AXuAhhu5yrzS4UxTPK0miFmvCWGhJvBy4pHBZ_py8DdnHumZiG1obv_6r5-1EbHS88k3Sxd_4LXvb0PciYmKNteitCJqJSpIEX_u5qXTbrUfBO1nj3kn10c1_zWRREcFlYOEGt-id-1ZfZHBM0WGH5zhYjyx0_u5Rkd1SW62DHbu9geq0bRRLVdRE0dsjkem-tjZmKwELi9p2Z5FAcd_GnoBr68upLYtppoQBG2zryR2H2swK-HGSL6CID-Tw2-mb2Jtr5Ka5QHNEk7o'),
-('mizu-sushi',     'Mizu Sushi Bar',        'Japanese,Sushi,Gourmet',                  4.8, '20-30 min', 25, 1.2, 0.00, 1, 'https://lh3.googleusercontent.com/aida-public/AB6AXuDP-q7jh4-MLVz5tkEqfW-bMMMdrFH7POEz1_lOTvowl1-_ZTPWFOwzLsf-WKndJIgiD57Bz_ifUfaHdR80pa9JYnPQaAcKtJlpb_NVPCpIY6N_FLbHvMgtUM1oU21DGcP8DNoogiq9rYVj-VhfDYWiU_nMQ2-6iLL5SAwsvyY0YQn4FG2OZxDlLIsVH98cuPZ6e64QnsIb7G-1nYew5XsIdfqnZnjkQ2To42RWEnzxv3kclt0TEw0X13MrUIlVbjrQSqyCisIlNoQ'),
-('breakfast-club', 'Breakfast Club',        'American,Pancakes,Breakfast',             4.5, '15-25 min', 20, 2.1, 0.99, 0, 'https://lh3.googleusercontent.com/aida-public/AB6AXuAjUk8C5lbXk0zVT7PJw-BDvhO3x7q3VLo-2EuJyFhLX1xLo1LOajRCGNw44OdAC2RqAOLRJV1X3uifD74Qkc_Jmc3Ec1QsNvzSzsj6URQliEpwX5c8-0XnqgHZA9XWFvX_e2gWACiPwii3PPBQrqYamJmd1Fpc87QLzLx-_oiDxi0tJYzzcgpxc_5pNzknxG87ObvwYNWqUPsCYlJpoDZDC35d251DDTvIDuMJgkbFP5hmoDWuDwG4YELS0_BrKtMHIiaBQ9zQyCw');
+-- Seed categories (Indian and International favorites)
+INSERT INTO categories (id, name, image, display_order) VALUES
+(1, 'Pizza', 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80', 1),
+(2, 'Burgers', 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80', 2),
+(3, 'Biryani', 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=80', 3),
+(4, 'South Indian', 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=800&q=80', 4),
+(5, 'North Indian', 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=800&q=80', 5),
+(6, 'Chinese', 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80', 6),
+(7, 'Desserts', 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&q=80', 7),
+(8, 'Healthy', 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80', 8),
+(9, 'Drinks', 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&q=80', 9);
 
--- Seed menu items for The Steakhouse Grill
-INSERT IGNORE INTO menu_items (restaurant_id, name, description, price, customization_options) VALUES
-((SELECT id FROM restaurants WHERE slug='steakhouse'), 'Signature Sirloin Steak', 'Prime dry-aged 12oz sirloin grilled to perfection over hickory coal, served with garlic herbed butter and charred asparagus.', 34.00, '["Rare","Medium Rare","Medium","Well Done"]'),
-((SELECT id FROM restaurants WHERE slug='steakhouse'), 'Bone-In Cowboy Ribeye', 'Tender, richly marbled 18oz ribeye, aged for 35 days, served with custom peppercorn cream sauce.', 45.00, '["Medium Rare","Medium","Medium Well"]'),
-((SELECT id FROM restaurants WHERE slug='steakhouse'), 'Double Truffle Burger', 'Double wagyu beef patties, melted black truffle white cheddar, crisp arugula, and garlic aioli on a toasted brioche bun.', 18.50, '["Extra cheese","No onions","Gluten-free bun"]'),
-((SELECT id FROM restaurants WHERE slug='steakhouse'), 'Classic Caesar with Grilled Steak', 'Crisp romaine lettuce, shaved parmigiano-reggiano, sourdough croutons, tossed in garlic anchovy emulsion, topped with prime sliced sirloin.', 19.00, NULL),
-((SELECT id FROM restaurants WHERE slug='steakhouse'), 'Lobster Macaroni & Cheese', 'Campanelle pasta baked in creamy five-cheese mornay sauce with Atlantic lobster tail and herbed panko crust.', 22.00, NULL);
+-- Seed restaurants (Indian and INR-focused in Mumbai)
+INSERT INTO restaurants (id, owner_id, slug, name, tags, description, rating, rating_count, delivery_time, delivery_time_value, distance, delivery_fee, is_free_delivery, image, banner_image, logo_image, address, city, phone, is_featured, is_popular, is_best_rated) VALUES
+(1, (SELECT id FROM users WHERE email='mario@zesto.com' LIMIT 1), 'royal-biryani', 'Royal Biryani Kitchen', 'Biryani,Mughlai,North Indian', 'Experience the rich taste of authentic wood-fire cooked Hyderabadi and Lucknowi Biryanis made with premium long-grain basmati rice and aromatic spices.', 4.8, 1240, '20-30 min', 25, 1.5, 0.00, 1, 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=80', 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=80', 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=800&q=80', '12, Link Road, Andheri West, Mumbai', 'Mumbai', '+91 99999 11111', 0, 1, 0),
+(2, (SELECT id FROM users WHERE email='mario@zesto.com' LIMIT 1), 'spice-symphony', 'Spice Symphony', 'North Indian,Curry,Thali', 'A beautiful symphony of traditional Indian gravies, perfectly baked tandoori breads, and premium Maharaja thalis.', 4.7, 850, '30-40 min', 35, 2.2, 30.00, 0, 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=800&q=80', 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=800&q=80', 'https://images.unsplash.com/photo-1604152135912-04a022e23696?w=800&q=80', 'G-4, High Street Mall, Powai, Mumbai', 'Mumbai', '+91 99999 22222', 1, 0, 0),
+(3, (SELECT id FROM users WHERE email='mario@zesto.com' LIMIT 1), 'dakshin-delight', 'Dakshin Delight', 'South Indian,Dosa,Breakfast', 'Serving piping hot, paper-thin crispy dosas, fluffy idlis, and traditional filter coffee with freshly ground chutneys.', 4.6, 1420, '15-25 min', 20, 0.8, 20.00, 0, 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=800&q=80', 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=800&q=80', 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=800&q=80', 'Shop 3, Station Road, Matunga, Mumbai', 'Mumbai', '+91 99999 33333', 0, 1, 0),
+(4, (SELECT id FROM users WHERE email='mario@zesto.com' LIMIT 1), 'pizza-express', 'The Pizza Express', 'Pizza,Italian,Fast Food', 'Gourmet hand-tossed wood-fired sourdough pizzas with fresh local mozzarella, organic farm-fresh toppings, and house-made sauces.', 4.5, 980, '25-35 min', 30, 2.5, 0.00, 1, 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80', 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80', 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80', 'Plot 56, Carter Road, Bandra West, Mumbai', 'Mumbai', '+91 99999 44444', 0, 0, 0),
+(5, (SELECT id FROM users WHERE email='mario@zesto.com' LIMIT 1), 'burger-co', 'Burger & Co', 'Burgers,Fast Food,American', 'Juicy custom-crafted chicken and vegetable burger patties, loaded with cheese, special sauce, and served on toasted brioche.', 4.4, 710, '15-25 min', 20, 1.1, 15.00, 0, 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80', 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80', 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80', '18, Lokhandwala Complex, Andheri West, Mumbai', 'Mumbai', '+91 99999 55555', 0, 0, 0),
+(6, (SELECT id FROM users WHERE email='mario@zesto.com' LIMIT 1), 'wok-roll', 'Wok & Roll', 'Chinese,Noodles,Street Food', 'Authentic Indo-Chinese street style woks, Hakka noodles, crispy manchurian, and steamed momos prepared fresh.', 4.3, 530, '20-30 min', 25, 1.9, 25.00, 0, 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80', 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80', 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80', 'Block C, Phoenix Marketcity, Kurla, Mumbai', 'Mumbai', '+91 99999 66666', 0, 0, 0),
+(7, (SELECT id FROM users WHERE email='mario@zesto.com' LIMIT 1), 'sweet-retreat', 'Sweet Retreat Cafe', 'Desserts,Cakes,Ice Cream', 'Indulge in artisanal chocolate cakes, freshly churned premium ice creams, and melt-in-your-mouth pastries.', 4.9, 1600, '10-20 min', 15, 0.5, 0.00, 1, 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&q=80', 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&q=80', 'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=800&q=80', 'Shop 1, Hill Road, Bandra West, Mumbai', 'Mumbai', '+91 99999 77777', 0, 0, 1),
+(8, (SELECT id FROM users WHERE email='mario@zesto.com' LIMIT 1), 'salad-story', 'The Salad Story', 'Healthy,Salads,Drinks', 'Freshly tossed organic salads, high-protein grain bowls, and sugar-free cold-pressed juices for the fitness enthusiast.', 4.5, 420, '20-30 min', 25, 1.7, 20.00, 0, 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80', 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80', 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=800&q=80', '15, BKC Avenue, Bandra Kurla Complex, Mumbai', 'Mumbai', '+91 99999 88888', 0, 0, 0);
 
--- Seed menu items for Urban Bites
-INSERT IGNORE INTO menu_items (restaurant_id, name, description, price, customization_options) VALUES
-((SELECT id FROM restaurants WHERE slug='urban-bites'), 'Urban Double Cheeseburger', 'Two smashed grass-fed beef patties, double American cheese, caramelized onions, house pickles, and secret Smash Sauce on potato roll.', 13.99, '["Extra cheese","Add bacon","No onions","Lettuce wrap"]'),
-((SELECT id FROM restaurants WHERE slug='urban-bites'), 'Hot Crispy Chicken Sandwich', 'Buttermilk-brined double fried chicken thigh tossed in Nashville hot oil, sweet tangy pickle chips, and creamy slaw on brioche.', 12.50, '["Mild","Medium","Xtra Hot"]'),
-((SELECT id FROM restaurants WHERE slug='urban-bites'), 'Parmesan Truffle Fries', 'Crisp hand-cut Russet potatoes, white truffle oil, grated pecorino, and fresh parsley, with house garlic dipping sauce.', 6.99, NULL),
-((SELECT id FROM restaurants WHERE slug='urban-bites'), 'Gourmet Salted Caramel Shake', 'Slow-churned premium vanilla bean gelato blended with homemade sea salted caramel sauce and fresh farm cream.', 5.50, NULL);
+-- Seed menu items for Royal Biryani Kitchen (restaurant_id = 1)
+INSERT INTO menu_items (restaurant_id, category_id, name, description, price, is_veg, is_popular, is_special, is_trending) VALUES
+(1, 3, 'Veg Dum Biryani', 'Authentic slow-cooked seasonal vegetables and basmati rice infused with saffron, cardamom, and fresh mint.', 249.00, 1, 1, 0, 0),
+(1, 3, 'Special Chicken Biryani', 'Fragrant basmati rice layered with juicy, marinated chicken, caramelised onions, aromatic spices, cooked in handi.', 329.00, 0, 1, 1, 0),
+(1, 3, 'Mutton Dum Biryani', 'Slow-cooked tender baby goat meat layered with long-grain basmati rice and signature spice blend.', 449.00, 0, 0, 0, 1),
+(1, 3, 'Paneer Tikka Biryani', 'Rich tandoori paneer cubes layered with aromatic spices and saffron rice cooked on dum.', 289.00, 1, 0, 0, 0),
+(1, 9, 'Classic Sweet Lassi', 'Chilled creamy yogurt beverage blended with sugar, rose water, and topped with dry fruits.', 89.00, 1, 1, 0, 0);
 
--- Seed menu items for Pasta Fresca
-INSERT IGNORE INTO menu_items (restaurant_id, name, description, price, customization_options) VALUES
-((SELECT id FROM restaurants WHERE slug='pasta-fresca'), 'Handmade Fettuccine Alfredo', 'Fettuccine kneaded from organic semolina and pasture egg yolk, cooked al dente in a rich emulsion of authentic parmigiano-reggiano and sweet butter.', 18.99, '["Add grilled chicken","Add prawns","Gluten-free noodles"]'),
-((SELECT id FROM restaurants WHERE slug='pasta-fresca'), 'Grandma''s Bolognese Lasagna', 'Fresh pasta sheets layered with slow-simmered 8-hour beef & veal ragù, creamy bechamel, and melted whole-milk mozzarella.', 21.00, NULL),
-((SELECT id FROM restaurants WHERE slug='pasta-fresca'), 'House Signature Tiramisu', 'Light ladyfingers soaked in robust espresso and sweet dark rum, layered with whipped organic mascarpone custard, dusted with direct-trade cocoa.', 8.50, NULL),
-((SELECT id FROM restaurants WHERE slug='pasta-fresca'), 'Creamy Heirloom Burrata Salad', 'Pugliese burrata surrounded by heirloom cherry tomatoes, wild arugula, extra virgin olive oil, aged balsamic glaze, and fresh pine nut pesto.', 14.50, NULL);
+-- Seed menu items for Spice Symphony (restaurant_id = 2)
+INSERT INTO menu_items (restaurant_id, category_id, name, description, price, is_veg, is_popular, is_special, is_trending) VALUES
+(2, 5, 'Paneer Butter Masala', 'Fresh cottage cheese cubes cooked in a rich, creamy, mild sweet tomato and butter gravy.', 279.00, 1, 1, 0, 0),
+(2, 5, 'Butter Chicken', 'Tender tandoori chicken cooked in a rich, buttery, velvety tomato gravy with a touch of kasuri methi.', 349.00, 0, 1, 1, 0),
+(2, 5, 'Dal Makhani', 'Black lentils slow cooked overnight with butter and cream, finished with fresh cream.', 229.00, 1, 0, 0, 0),
+(2, 5, 'Garlic Naan', 'Tandoor-baked leavened flatbread brushed with melted butter and fresh minced garlic.', 59.00, 1, 0, 0, 0),
+(2, 5, 'Maharaja Veg Thali', 'A royal platter of Dal Makhani, Paneer Butter Masala, Mix Veg, Rice, 2 Butter Rotis, Raita, and Gulab Jamun.', 399.00, 1, 0, 0, 1);
 
--- Seed menu items for Miyabi Sushi
-INSERT IGNORE INTO menu_items (restaurant_id, name, description, price, customization_options) VALUES
-((SELECT id FROM restaurants WHERE slug='miyabi-sushi'), 'Premium Sushi Omakase Set', 'Chef selection of 8 nigiri sushi pieces (tuna belly, king salmon, red snapper, etc.) and one spicy tuna handroll.', 38.00, NULL),
-((SELECT id FROM restaurants WHERE slug='miyabi-sushi'), 'Imperial Rainbow Roll', 'Lump crab meat and cucumber roll inside, topped with fresh avocado, yellowtail tuna, king salmon, and jumbo tiger prawns.', 19.50, NULL),
-((SELECT id FROM restaurants WHERE slug='miyabi-sushi'), 'Garlic Truffle Edamame', 'Steamed young soy pods tossed in white truffle oil, sea salt, toasted garlic bits, and organic chili oil.', 6.50, NULL);
+-- Seed menu items for Dakshin Delight (restaurant_id = 3)
+INSERT INTO menu_items (restaurant_id, category_id, name, description, price, is_veg, is_popular, is_special, is_trending) VALUES
+(3, 4, 'Mysore Masala Dosa', 'Thin crispy rice and lentil crepe smeared with spicy red chutney, stuffed with spiced mashed potato.', 149.00, 1, 1, 0, 0),
+(3, 4, 'Steamed Idli (2 Pcs)', 'Super fluffy, steamed rice-lentil cakes served with hot sambar and fresh coconut chutney.', 79.00, 1, 0, 0, 0),
+(3, 4, 'Medu Vada (2 Pcs)', 'Crispy, deep-fried lentil donuts served with piping hot sambar and tomato chutney.', 99.00, 1, 0, 0, 0),
+(3, 4, 'Rava Onion Dosa', 'Lacy, crispy crepe made with semolina, onions, green chillies, served with chutneys.', 169.00, 1, 0, 0, 1),
+(3, 9, 'Traditional Filter Coffee', 'Freshly brewed aromatic chicory-blend South Indian filter coffee frothed with hot milk.', 59.00, 1, 1, 0, 0);
 
--- Seed menu items for Green Leaf Kitchen
-INSERT IGNORE INTO menu_items (restaurant_id, name, description, price, customization_options) VALUES
-((SELECT id FROM restaurants WHERE slug='green-leaf'), 'Harvest Quinoa & Avocado Bowl', 'Organic warm quinoa, avocado halves with hemp seeds, shredded sweet potatoes, purple cabbage, and lemon-tahini drizzle.', 15.50, NULL),
-((SELECT id FROM restaurants WHERE slug='green-leaf'), 'Ultimate Greens & Berries Salad', 'Organic kale, sweet spinach, fresh blackberries, wild raspberries, roasted walnuts, crumbled goat cheese, in red-wine poppyseed vinaigrette.', 14.00, '["No Goat Cheese","Vegan (No Cheese)","Add roast tofu"]'),
-((SELECT id FROM restaurants WHERE slug='green-leaf'), 'Immunity Green Cold-Press Juice', 'Cold-pressed cucumber, green apple, organic celery, curly kale, baby spinach, fresh lemon, ginger root, and mint sprigs.', 7.99, NULL);
+-- Seed menu items for The Pizza Express (restaurant_id = 4)
+INSERT INTO menu_items (restaurant_id, category_id, name, description, price, is_veg, is_popular, is_special, is_trending) VALUES
+(4, 1, 'Margherita Pizza', '10" Sourdough base topped with rich San Marzano tomato sauce, fresh mozzarella, extra virgin olive oil, and fresh basil.', 299.00, 1, 1, 0, 0),
+(4, 1, 'Chicken Tikka Pizza', 'Spiced tandoori chicken chunks, red onions, capsicum, and fresh mozzarella on a classic marinara base.', 399.00, 0, 1, 1, 0),
+(4, 1, 'Garden Feast Pizza', 'Loaded with olives, bell peppers, corn, red onions, mushrooms, and fresh mozzarella cheese.', 349.00, 1, 0, 0, 1),
+(4, 1, 'Garlic Breadsticks', 'Warm, freshly baked breadsticks brushed with herb garlic butter, served with cheesy dip.', 129.00, 1, 0, 0, 0);
 
--- Seed menu items for Taco Fiesta
-INSERT IGNORE INTO menu_items (restaurant_id, name, description, price, customization_options) VALUES
-((SELECT id FROM restaurants WHERE slug='taco-fiesta'), 'Artisanal Street Taco Trio', 'Three hand-pounded corn tortillas loaded with your choice of Birria beef, Carnitas pork, or Chipotle grilled cauliflower, topped with onions, cilantro, and salsa verde.', 11.50, '["Birria Beef","Carnitas Pork","Chipotle Cauliflower"]'),
-((SELECT id FROM restaurants WHERE slug='taco-fiesta'), 'Oaxacan Melted Cheese Quesadilla', 'Huge flour tortilla crisp-melted with rich strings of artisan Oaxacan cheese, green chilies, and scallions, served with freshly mashed guacamole.', 12.00, NULL),
-((SELECT id FROM restaurants WHERE slug='taco-fiesta'), 'Mexican Churros with Dulce de Leche', 'Crisp golden brown pastry fingers rolled in sugar-cinnamon powder, paired with liquid Mexican caramel dip.', 6.00, NULL);
+-- Seed menu items for Burger & Co (restaurant_id = 5)
+INSERT INTO menu_items (restaurant_id, category_id, name, description, price, is_veg, is_popular, is_special, is_trending) VALUES
+(5, 2, 'Crispy Veg Burger', 'Crispy mixed vegetable patty, topped with fresh lettuce, sliced tomatoes, onions, and house mayonnaise.', 129.00, 1, 1, 0, 0),
+(5, 2, 'Maharaja Chicken Burger', 'Juicy grilled chicken breast patty, melted cheddar cheese, house-made spicy burger sauce, and crisp lettuce.', 189.00, 0, 1, 1, 0),
+(5, 2, 'Peri Peri Fries', 'Crispy golden French fries tossed in a spicy, tangy peri-peri seasoning blend.', 99.00, 1, 0, 0, 0),
+(5, 2, 'Double Cheese Crunch Burger', 'Double crispy fried vegetable patties layered with double cheddar slices, jalapenos, and spicy mayo.', 249.00, 1, 0, 0, 1);
 
--- Seed menu items for Mizu Sushi Bar
-INSERT IGNORE INTO menu_items (restaurant_id, name, description, price, customization_options) VALUES
-((SELECT id FROM restaurants WHERE slug='mizu-sushi'), 'Premium Salmon Avocado Roll', 'Fresh organic salmon slices, Hass avocado, cream cheese, seasoned rice wrap, sprinkled with black and white sesame.', 14.50, NULL),
-((SELECT id FROM restaurants WHERE slug='mizu-sushi'), 'Golden Crispy Shrimp Tempura', 'Four colossal black tier prawns coated in light crispy panko batter, dunked with grated daikon radish and sweet tempura dip.', 16.00, NULL);
+-- Seed menu items for Wok & Roll (restaurant_id = 6)
+INSERT INTO menu_items (restaurant_id, category_id, name, description, price, is_veg, is_popular, is_special, is_trending) VALUES
+(6, 6, 'Veg Hakka Noodles', 'Wok-tossed stir-fried wheat noodles with crunchy colorful bell peppers, cabbage, spring onions, and light soy.', 179.00, 1, 1, 0, 0),
+(6, 6, 'Chicken Manchurian Dry', 'Crispy batter-fried chicken chunks tossed in a sweet, sour, spicy, and tangy soy-based sauce.', 219.00, 0, 0, 0, 1),
+(6, 6, 'Steamed Veg Momos (6 Pcs)', 'Hand-folded steamed dumplings packed with finely minced seasoned vegetables, served with spicy red chilli chutney.', 119.00, 1, 0, 0, 0),
+(6, 6, 'Chilli Paneer Dry', 'Cottage cheese cubes wok-tossed with fresh capsicum, red onions, garlic, green chillies, and savory dark soy.', 199.00, 1, 1, 0, 0);
 
--- Seed menu items for Breakfast Club
-INSERT IGNORE INTO menu_items (restaurant_id, name, description, price, customization_options) VALUES
-((SELECT id FROM restaurants WHERE slug='breakfast-club'), 'Gourmet Wildberry Pancakes', 'Stack of three fluffy golden brown buttermilk pancakes with fresh dark blackberries, raspberries, blueberries, and Canadian grade-A maple syrup.', 12.00, '["Extra syrup","Add whipped cream","Gluten-free batter"]'),
-((SELECT id FROM restaurants WHERE slug='breakfast-club'), 'All-American Morning Feast', 'Two sunnyside eggs cooked in butter, three crisp strips of thick maplewood bacon, home-fries, and choice of fresh sourdough toast.', 14.50, NULL);
+-- Seed menu items for Sweet Retreat Cafe (restaurant_id = 7)
+INSERT INTO menu_items (restaurant_id, category_id, name, description, price, is_veg, is_popular, is_special, is_trending) VALUES
+(7, 7, 'Death by Chocolate Cake', 'Rich, moist double-layer Belgian chocolate sponge filled and frosted with velvety dark chocolate ganache.', 149.00, 1, 1, 0, 0),
+(7, 7, 'Premium Vanilla Bean Scoop', 'Double scoop of slow-churned pure organic vanilla bean gelato with real vanilla specks.', 89.00, 1, 0, 0, 0),
+(7, 7, 'Hot Gulab Jamun (2 Pcs)', 'Traditional warm soft milk-solid dumplings soaked in aromatic cardamom and saffron sugar syrup.', 69.00, 1, 0, 1, 0),
+(7, 7, 'Chocolate Fudge Waffle', 'Crispy golden waffle topped with melted milk chocolate, dark chocolate chips, and fresh cream.', 179.00, 1, 0, 0, 1);
+
+-- Seed menu items for The Salad Story (restaurant_id = 8)
+INSERT INTO menu_items (restaurant_id, category_id, name, description, price, is_veg, is_popular, is_special, is_trending) VALUES
+(8, 8, 'Avocado Quinoa Salad Bowl', 'Organic quinoa, fresh avocado, cherry tomatoes, cucumbers, mixed greens, chickpeas, with extra virgin olive oil vinaigrette.', 289.00, 1, 1, 0, 0),
+(8, 8, 'High-Protein Chicken Salad', 'Grilled chicken breast strips, hard-boiled eggs, sweet corn, mixed crisp lettuce greens, and a light herb-mustard dressing.', 319.00, 0, 0, 0, 1),
+(8, 9, 'Cold-Pressed Green Juice', 'Freshly extracted sugar-free nutrient-rich juice of celery, cucumber, green apple, spinach, ginger, and mint.', 149.00, 1, 0, 0, 0),
+(8, 9, 'Berry Blast Smoothie', 'A wholesome blend of frozen strawberries, blueberries, raspberries, banana, Greek yogurt, and raw honey.', 189.00, 1, 1, 0, 0);
 
 -- Seed delivery partner profile for Marcus
 INSERT IGNORE INTO delivery_partners (user_id, vehicle_type, total_deliveries, rating)

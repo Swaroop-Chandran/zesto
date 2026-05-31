@@ -13,6 +13,7 @@ if (empty($cart)) { jsonResponse(['success' => false, 'message' => 'Cart is empt
 $data            = json_decode(file_get_contents('php://input'), true) ?? [];
 $paymentMethod   = trim($data['payment_method']   ?? 'stripe');
 $deliveryAddress = trim($data['delivery_address'] ?? '');
+$couponCode      = trim($data['coupon_code']      ?? '');
 
 if (empty($deliveryAddress)) { jsonResponse(['success' => false, 'message' => 'Delivery address is required.'], 422); }
 
@@ -24,7 +25,26 @@ if (!in_array($paymentMethod, $allowedPayments, true)) $paymentMethod = 'stripe'
 $subtotal    = getCartSubtotal();
 $deliveryFee = DEFAULT_DELIVERY_FEE;
 $taxes       = PLATFORM_FEE;
-$total       = $subtotal + $deliveryFee + $taxes;
+
+$discount = 0.00;
+$couponApplied = null;
+
+if (!empty($couponCode)) {
+    $couponStmt = db()->prepare("SELECT * FROM coupons WHERE code = :code AND is_active = 1 LIMIT 1");
+    $couponStmt->execute([':code' => $couponCode]);
+    $coupon = $couponStmt->fetch();
+    if ($coupon && $subtotal >= floatval($coupon['min_order_value'])) {
+        $couponApplied = $coupon['code'];
+        $discountAmount = ($subtotal * floatval($coupon['discount_percentage'])) / 100;
+        $maxDiscount = floatval($coupon['max_discount']);
+        if ($maxDiscount > 0 && $discountAmount > $maxDiscount) {
+            $discountAmount = $maxDiscount;
+        }
+        $discount = $discountAmount;
+    }
+}
+
+$total = max(0, $subtotal + $deliveryFee + $taxes - $discount);
 
 // Get restaurant_id from cart
 $firstItem    = reset($cart);
@@ -46,8 +66,8 @@ try {
 
     // Insert order
     $orderStmt = db()->prepare("
-        INSERT INTO orders (order_number, user_id, restaurant_id, delivery_address, payment_method, payment_status, order_status, subtotal, delivery_fee, taxes, total)
-        VALUES (:onum, :uid, :rid, :addr, :pm, 'paid', 'placed', :sub, :dfee, :tax, :total)
+        INSERT INTO orders (order_number, user_id, restaurant_id, delivery_address, payment_method, payment_status, order_status, subtotal, delivery_fee, taxes, discount, coupon_code, total)
+        VALUES (:onum, :uid, :rid, :addr, :pm, 'paid', 'placed', :sub, :dfee, :tax, :discount, :ccode, :total)
     ");
     $orderStmt->execute([
         ':onum'  => $orderNumber,
@@ -58,6 +78,8 @@ try {
         ':sub'   => $subtotal,
         ':dfee'  => $deliveryFee,
         ':tax'   => $taxes,
+        ':discount' => $discount,
+        ':ccode' => $couponApplied,
         ':total' => $total,
     ]);
     $orderId = db()->lastInsertId();

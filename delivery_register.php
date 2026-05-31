@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $values['phone']   = trim(filter_input(INPUT_POST, 'phone',   FILTER_SANITIZE_SPECIAL_CHARS));
     $values['address'] = trim(filter_input(INPUT_POST, 'address', FILTER_SANITIZE_SPECIAL_CHARS));
     $password          = $_POST['password'] ?? '';
+    $confirmPassword   = $_POST['confirm_password'] ?? '';
     
     $values['vehicle_type']   = trim(filter_input(INPUT_POST, 'vehicle_type', FILTER_SANITIZE_SPECIAL_CHARS));
     $values['vehicle_number'] = trim(filter_input(INPUT_POST, 'vehicle_number', FILTER_SANITIZE_SPECIAL_CHARS));
@@ -48,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($values['name']))  $errors[] = 'Name is required.';
     if (!filter_var($values['email'], FILTER_VALIDATE_EMAIL)) $errors[] = 'Valid email address is required.';
     if (strlen($password) < 8)   $errors[] = 'Password must be at least 8 characters.';
+    if ($password !== $confirmPassword) $errors[] = 'Passwords do not match.';
     
     if (empty($errors)) {
         // Check duplicate email + role

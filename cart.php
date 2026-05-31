@@ -329,19 +329,29 @@ include __DIR__ . '/includes/navbar.php';
           <span>Platform Charges &amp; Taxes</span>
           <span class="font-extrabold text-gray-800"><?= formatPrice($taxes) ?></span>
         </div>
+        <div id="bill-discount-row" class="hidden flex justify-between items-center text-[#00c853]">
+          <span>Coupon Discount</span>
+          <span id="bill-discount-value" class="font-extrabold">-₹0.00</span>
+        </div>
 
         <div class="h-px bg-gray-150 my-4"></div>
 
         <div class="flex justify-between items-center text-[#1b1c1c] pt-2">
           <span class="text-sm font-black uppercase tracking-wider">Grand Total</span>
-          <span class="text-xl font-black text-[#a83300]"><?= formatPrice($total) ?></span>
+          <span id="bill-grand-total" class="text-xl font-black text-[#a83300]" data-total="<?= $total ?>"><?= formatPrice($total) ?></span>
         </div>
       </div>
 
       <!-- Promo Code Claiming Panel -->
-      <div class="mt-6 flex bg-[#00c853]/10 p-3.5 rounded-2xl items-center border border-[#00c853]/20 gap-3">
-        <span class="text-xl">🎉</span>
-        <p class="text-[10px] text-[#00c853] font-bold font-sans">You are eligible for flat delivery fee waives on this checkout!</p>
+      <div class="mt-6 bg-[#ffdbd0]/10 border border-[#ffdbd0] rounded-2xl p-4 flex flex-col gap-3 font-sans">
+        <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Apply Coupon Code</h3>
+        <div class="flex gap-2">
+          <input type="text" id="coupon-input" placeholder="e.g. WELCOME50" class="zesto-input bg-white text-xs h-10 uppercase font-bold font-mono">
+          <button onclick="applyCoupon()" class="bg-[#a83300] hover:bg-[#d24200] text-white text-xs font-bold px-4 rounded-xl active:scale-95 transition-all select-none cursor-pointer">
+            APPLY
+          </button>
+        </div>
+        <div id="coupon-status" class="hidden text-[10px] font-semibold"></div>
       </div>
 
       <!-- Place Order button -->
@@ -350,7 +360,7 @@ include __DIR__ . '/includes/navbar.php';
         <span>PLACE ORDER</span>
         <div class="flex items-center gap-2">
           <span class="h-6 w-[1.5px] bg-white/20"></span>
-          <span><?= formatPrice($total) ?></span>
+          <span id="btn-grand-total"><?= formatPrice($total) ?></span>
         </div>
       </button>
     </section>
@@ -361,6 +371,71 @@ include __DIR__ . '/includes/navbar.php';
 </main>
 
 <script>
+let appliedCouponCode = null;
+let baseSubtotal = <?= floatval($subtotal) ?>;
+let baseTotal = <?= floatval($total) ?>;
+
+// Validate & Apply Coupon code client-side via validate.php
+async function applyCoupon() {
+  const input = document.getElementById('coupon-input');
+  const statusDiv = document.getElementById('coupon-status');
+  const discountRow = document.getElementById('bill-discount-row');
+  const discountVal = document.getElementById('bill-discount-value');
+  const grandTotalSpan = document.getElementById('bill-grand-total');
+  const btnTotalSpan = document.getElementById('btn-grand-total');
+
+  const code = input.value.trim().toUpperCase();
+  if (!code) {
+    Zesto.toast('Please enter a coupon code.', 'error');
+    return;
+  }
+
+  statusDiv.className = "text-[10px] font-semibold text-gray-500";
+  statusDiv.innerHTML = "Validating coupon...";
+  statusDiv.classList.remove('hidden');
+
+  try {
+    const res = await fetch((window.ZESTO_BASE || '/Zesto') + '/api/coupons/validate.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': getCsrfToken(),
+      },
+      body: JSON.stringify({ code: code, subtotal: baseSubtotal })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      appliedCouponCode = data.code;
+      statusDiv.className = "text-[10px] font-semibold text-[#00c853]";
+      statusDiv.innerHTML = "✓ " + data.message;
+      
+      // Update totals
+      const discount = parseFloat(data.discount_amount);
+      const newTotal = Math.max(0, baseTotal - discount);
+      
+      discountVal.innerHTML = "-₹" + discount.toFixed(2);
+      discountRow.classList.remove('hidden');
+      
+      grandTotalSpan.innerHTML = "₹" + newTotal.toFixed(2);
+      btnTotalSpan.innerHTML = "₹" + newTotal.toFixed(2);
+      
+      Zesto.toast('Coupon applied successfully!', 'success');
+    } else {
+      appliedCouponCode = null;
+      statusDiv.className = "text-[10px] font-semibold text-red-500";
+      statusDiv.innerHTML = "✗ " + data.message;
+      
+      discountRow.classList.add('hidden');
+      grandTotalSpan.innerHTML = "₹" + baseTotal.toFixed(2);
+      btnTotalSpan.innerHTML = "₹" + baseTotal.toFixed(2);
+    }
+  } catch(e) {
+    statusDiv.className = "text-[10px] font-semibold text-red-500";
+    statusDiv.innerHTML = "✗ Network error during validation.";
+  }
+}
+
 // Payment methods toggling selection highlight
 document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
   radio.addEventListener('change', function() {
@@ -400,7 +475,7 @@ function triggerCheckout() {
   const payment = document.querySelector('input[name="payment_method"]:checked')?.value || 'razorpay';
   
   // Trigger order placing
-  placeOrder(payment, selectedAddr);
+  placeOrder(payment, selectedAddr, appliedCouponCode);
 }
 </script>
 

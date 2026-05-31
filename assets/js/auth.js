@@ -71,35 +71,41 @@ window.ZestoAuth = {
     }
   },
 
+  // Fill demo account credentials into the login form
+  fillDemo: function(email, role) {
+    const emailInput = document.getElementById('login-email');
+    const passInput  = document.getElementById('login-password');
+    if (emailInput) emailInput.value = email;
+    if (passInput)  passInput.value  = 'Zesto@123';
+
+    // Select the correct role radio
+    const roleMap = {
+      'admin':            'admin',
+      'customer':         'customer',
+      'restaurant_owner': 'restaurant_owner',
+      'delivery_partner': 'delivery_partner'
+    };
+    const roleInputs = document.querySelectorAll('input[name="login_role"]');
+    const roleLabels = document.querySelectorAll('.role-login-pill');
+    roleInputs.forEach((input, i) => {
+      if (input.value === role) {
+        input.checked = true;
+        roleLabels.forEach(l => {
+          l.className = 'text-center p-2 border rounded-lg text-[10px] font-bold transition-all border-gray-200 text-gray-500 hover:border-gray-400 role-login-pill';
+        });
+        if (roleLabels[i]) {
+          roleLabels[i].className = 'text-center p-2 border rounded-lg text-[10px] font-bold transition-all border-[#a83300] bg-[#ffdbd0] text-[#a83300] role-login-pill';
+        }
+      }
+    });
+
+    Zesto.toast(`🧑 Demo: ${email} filled — click Sign In`, 'info');
+  },
+
   // Mock social signins
   quickMock: async function(type) {
-    Zesto.toast(`💬 Mocking ${type} checkout...`, 'info');
-    
-    // Simulate successful login with mock email/customer details
-    const email = type === 'phone' ? 'alex@example.com' : 'alex@example.com';
-    const pass = 'password';
-    const role = 'customer';
-
-    try {
-      const res = await fetch((window.ZESTO_BASE || '/Zesto') + '/api/auth/login.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
-        },
-        body: JSON.stringify({ email, password: pass, role })
-      });
-      const data = await res.json();
-      if (data.success) {
-        Zesto.toast(`✅ Mock OTP Verified successfully! Logged in as ${data.user.name}`, 'success');
-        this.close();
-        setTimeout(() => {
-          location.reload();
-        }, 1000);
-      }
-    } catch(e) {
-      Zesto.toast('Mock validation failed.', 'error');
-    }
+    Zesto.toast(`💬 Attempting demo ${type} login...`, 'info');
+    this.fillDemo('alex@example.com', 'customer');
   }
 };
 
@@ -123,9 +129,11 @@ document.addEventListener('DOMContentLoaded', function() {
   roleLoginInputs.forEach((input, index) => {
     input.addEventListener('change', function() {
       roleLoginLabels.forEach(lbl => {
-        lbl.className = "text-center p-2.5 border rounded-lg text-xs font-bold transition-all border-gray-200 text-gray-500 hover:border-gray-400 role-login-pill";
+        lbl.className = 'text-center p-2 border rounded-lg text-[10px] font-bold transition-all border-gray-200 text-gray-500 hover:border-gray-400 role-login-pill';
       });
-      roleLoginLabels[index].className = "text-center p-2.5 border rounded-lg text-xs font-bold transition-all border-[#a83300] bg-[#ffdbd0] text-[#a83300] role-login-pill";
+      if (roleLoginLabels[index]) {
+        roleLoginLabels[index].className = 'text-center p-2 border rounded-lg text-[10px] font-bold transition-all border-[#a83300] bg-[#ffdbd0] text-[#a83300] role-login-pill';
+      }
     });
   });
 
