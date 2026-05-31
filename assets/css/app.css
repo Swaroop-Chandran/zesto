@@ -1,0 +1,283 @@
+/* ============================================================
+ * Zesto — Custom Application Styles
+ * Tailwind is loaded via CDN; this file handles custom animations,
+ * scrollbar utilities, and base overrides.
+ * ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ── Base ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  background-color: #fbf9f8;
+  color: #1b1c1c;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbar Hide ─────────────────────────────────────────── */
+.scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* ── Animations ─────────────────────────────────────────────── */
+@keyframes slideUp {
+  0%   { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideRight {
+  0%   { opacity: 0; transform: translateX(-24px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleUp {
+  0%   { opacity: 0; transform: scale(0.96); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
+.animate-slide-up    { animation: slideUp    0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-slide-right { animation: slideRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-scale-up    { animation: scaleUp    0.3s  cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.animate-fade-in     { animation: fadeIn     0.25s ease-out forwards; }
+.animate-bounce-gentle { animation: bounce-gentle 1.8s ease-in-out infinite; }
+
+/* ── Toast Notification ──────────────────────────────────────── */
+#toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast {
+  background: #303031;
+  color: #fff;
+  padding: 0.875rem 1.25rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  max-width: 22rem;
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: all;
+}
+
+.toast.toast-success { border-left: 3px solid #00c853; }
+.toast.toast-error   { border-left: 3px solid #f44336; }
+.toast.toast-info    { border-left: 3px solid #a83300; }
+
+/* ── Mobile bottom nav spacing ───────────────────────────────── */
+@media (max-width: 767px) {
+  .pb-mobile-nav { padding-bottom: 5rem; }
+}
+
+/* ── Modal Overlay ───────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 1.25rem;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+  overflow: hidden;
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────── */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #5c4037;
+  transition: background 0.15s, color 0.15s;
+  text-decoration: none;
+}
+
+.sidebar-link:hover       { background: #ffdbd0; color: #a83300; }
+.sidebar-link.active      { background: #ffdbd0; color: #a83300; }
+
+/* ── Form Inputs (global override) ──────────────────────────── */
+.zesto-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  background: #f5f3f3;
+  color: #1b1c1c;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.zesto-input:focus {
+  border-color: #a83300;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(168, 51, 0, 0.1);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn-primary {
+  background: #a83300;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary:hover  { background: #d24200; }
+.btn-primary:active { transform: scale(0.97); }
+
+.btn-secondary {
+  background: #ffdbd0;
+  color: #a83300;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-secondary:hover { background: #f5c8b4; }
+
+/* ── Card ────────────────────────────────────────────────────── */
+.zesto-card {
+  background: #fff;
+  border-radius: 1rem;
+  border: 1px solid #f0eded;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+/* ── Status Badges ───────────────────────────────────────────── */
+.badge { display: inline-flex; align-items: center; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; }
+.badge-placed          { background: #e0f2fe; color: #0277bd; }
+.badge-preparing       { background: #fff8e1; color: #f57f17; }
+.badge-out_for_delivery{ background: #ffdbd0; color: #a83300; }
+.badge-delivered       { background: #e8f5e9; color: #2e7d32; }
+.badge-cancelled       { background: #fce4ec; color: #c62828; }
+.badge-paid            { background: #e8f5e9; color: #2e7d32; }
+.badge-pending         { background: #fff8e1; color: #f57f17; }
+
+/* ── Loader Spinner ─────────────────────────────────────────── */
+.spinner {
+  width: 1.5rem; height: 1.5rem;
+  border: 3px solid #ffdbd0;
+  border-top-color: #a83300;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Rating Stars ─────────────────────────────────────────────── */
+.star-filled { color: #f59e0b; }
+.star-empty  { color: #d1d5db; }
+
+/* ── Mobile drawer ───────────────────────────────────────────── */
+.drawer-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(2px);
+  z-index: 40;
+}
+
+.drawer-panel {
+  position: fixed; top: 0; left: 0; bottom: 0;
+  width: 18rem; max-width: 85vw;
+  background: #fff;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  animation: slideRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Tracking Map ────────────────────────────────────────────── */
+.tracking-map {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  height: 380px;
+  background: #f5f3f3;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* ── Admin Sidebar ───────────────────────────────────────────── */
+.admin-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+@media (max-width: 1023px) {
+  .admin-layout { grid-template-columns: 1fr; }
+  .admin-sidebar { display: none; }
+}
+
+.admin-sidebar {
+  background: #fff;
+  border-right: 1px solid #f0eded;
+  padding: 1.5rem 1rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
