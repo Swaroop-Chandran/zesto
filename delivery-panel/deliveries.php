@@ -6,7 +6,17 @@ require_once __DIR__ . '/../config/database.php';
 requireRole(ROLE_DELIVERY_PARTNER);
 $userId = getCurrentUser()['id'];
 
-$deliveries = db()->prepare("SELECT o.*, r.name AS restaurant_name FROM orders o JOIN restaurants r ON r.id=o.restaurant_id WHERE o.delivery_partner_id=:uid ORDER BY o.updated_at DESC LIMIT 50");
+// Get all assignments (accepted, completed, cancelled)
+$deliveries = db()->prepare("
+    SELECT o.order_number, o.order_status, o.total AS order_value,
+           r.name AS restaurant_name, r.address AS restaurant_address,
+           da.status AS assignment_status, da.total_distance, da.earnings, da.delivered_at, da.accepted_at
+    FROM delivery_assignments da
+    JOIN orders o ON o.id = da.order_id
+    JOIN restaurants r ON r.id = o.restaurant_id
+    WHERE da.delivery_partner_id = :uid
+    ORDER BY da.assigned_at DESC LIMIT 50
+");
 $deliveries->execute([':uid' => $userId]);
 $rows = $deliveries->fetchAll();
 
@@ -15,45 +25,60 @@ $extraJs   = [BASE_URL . '/assets/js/admin.js'];
 $sidebarType = 'delivery'; $activePage = 'deliveries.php';
 include __DIR__ . '/../includes/header.php';
 ?>
-<div class="admin-layout">
+<div class="admin-layout font-sans">
   <?php include __DIR__ . '/../includes/sidebar.php'; ?>
   <div class="flex-1 overflow-auto p-6 md:p-10 max-w-7xl">
-    <h1 class="text-2xl font-extrabold text-[#1b1c1c] mb-8">My Deliveries</h1>
+    <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-5">
+      <div>
+        <span class="text-xs font-bold text-[#00c853] uppercase tracking-widest">Delivery Panel</span>
+        <h1 class="text-2xl md:text-3xl font-black text-[#1b1c1c] mt-1">My Deliveries Log</h1>
+        <p class="text-xs text-gray-500 mt-1">Detailed history of all completed and past delivery assignments</p>
+      </div>
+    </div>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-3xl border border-gray-150 shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead class="bg-[#f5f3f3]">
+        <table class="w-full text-xs">
+          <thead class="bg-[#f5f3f3] text-gray-400 font-bold uppercase tracking-wider">
             <tr>
-              <?php foreach(['Order #','Restaurant','Address','Total','Status','Date','Update'] as $h): ?>
-              <th class="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase"><?= $h ?></th>
-              <?php endforeach; ?>
+              <th class="px-5 py-3.5 text-left">Order #</th>
+              <th class="px-5 py-3.5 text-left">Restaurant</th>
+              <th class="px-5 py-3.5 text-center">Distance Travelled</th>
+              <th class="px-5 py-3.5 text-right">Earning</th>
+              <th class="px-5 py-3.5 text-center">Lifecycle Status</th>
+              <th class="px-5 py-3.5 text-right">Delivered Date/Time</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-50">
+          <tbody class="divide-y divide-gray-100 font-semibold text-gray-700">
             <?php foreach ($rows as $del): ?>
-            <tr class="hover:bg-[#f5f3f3]/50">
-              <td class="px-4 py-3 font-bold text-[#a83300]"><?= e($del['order_number']) ?></td>
-              <td class="px-4 py-3 font-semibold"><?= e($del['restaurant_name']) ?></td>
-              <td class="px-4 py-3 text-gray-600 max-w-[200px] truncate"><?= e($del['delivery_address']) ?></td>
-              <td class="px-4 py-3 font-bold"><?= formatPrice($del['total']) ?></td>
-              <td class="px-4 py-3"><span id="order-status-<?= $del['id'] ?>" class="badge badge-<?= e($del['order_status']) ?>"><?= e(str_replace('_',' ',$del['order_status'])) ?></span></td>
-              <td class="px-4 py-3 text-xs text-gray-400"><?= date('M j, g:i A', strtotime($del['updated_at'])) ?></td>
-              <td class="px-4 py-3">
-                <?php if (!in_array($del['order_status'],['delivered','cancelled'])): ?>
-                <select data-status-select data-order-id="<?= $del['id'] ?>" class="text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none cursor-pointer hover:border-[#a83300]">
-                  <?php foreach(['out_for_delivery','delivered'] as $s): ?>
-                  <option value="<?= $s ?>" <?= $del['order_status']===$s?'selected':'' ?>><?= ucfirst(str_replace('_',' ',$s)) ?></option>
-                  <?php endforeach; ?>
-                </select>
-                <?php else: ?>
-                <span class="text-xs text-gray-400">Completed</span>
-                <?php endif; ?>
+            <tr class="hover:bg-gray-50/50">
+              <td class="px-5 py-4 font-bold text-[#a83300]"><?= e($del['order_number']) ?></td>
+              <td class="px-5 py-4">
+                <p class="font-extrabold text-gray-800"><?= e($del['restaurant_name']) ?></p>
+                <p class="text-[10px] text-gray-400 font-medium mt-0.5"><?= e(substr($del['restaurant_address'], 0, 45)) ?>...</p>
+              </td>
+              <td class="px-5 py-4 text-center font-mono font-bold">
+                <?= $del['total_distance'] ? number_format($del['total_distance'], 1) . ' KM' : '—' ?>
+              </td>
+              <td class="px-5 py-4 text-right font-black text-[#00c853]">
+                <?= $del['earnings'] ? formatPrice($del['earnings']) : '—' ?>
+              </td>
+              <td class="px-5 py-4 text-center">
+                <span class="badge badge-<?= e($del['order_status']) ?>">
+                  <?= e(str_replace('_', ' ', $del['order_status'])) ?>
+                </span>
+              </td>
+              <td class="px-5 py-4 text-right text-gray-400 text-[10px]">
+                <?= $del['delivered_at'] ? date('M j, Y - g:i A', strtotime($del['delivered_at'])) : ($del['accepted_at'] ? 'Accepted at ' . date('g:i A', strtotime($del['accepted_at'])) : '—') ?>
               </td>
             </tr>
             <?php endforeach; ?>
             <?php if (empty($rows)): ?>
-            <tr><td colspan="7" class="px-4 py-12 text-center text-gray-400">No deliveries found.</td></tr>
+            <tr>
+              <td colspan="6" class="px-5 py-16 text-center text-gray-400 font-bold">
+                🏍 You have not claimed or completed any delivery tasks yet.
+              </td>
+            </tr>
             <?php endif; ?>
           </tbody>
         </table>

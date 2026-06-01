@@ -33,7 +33,7 @@ include __DIR__ . '/../includes/header.php';
                class="zesto-input w-56 py-2 text-xs">
         <select name="status" onchange="this.form.submit()" class="zesto-input w-44 py-2 text-xs">
           <option value="">All Statuses</option>
-          <?php foreach (['placed','preparing','out_for_delivery','delivered','cancelled'] as $s): ?>
+          <?php foreach (['pending', 'accepted', 'preparing', 'ready_for_pickup', 'assigned_to_delivery', 'picked_up', 'out_for_delivery', 'delivered', 'cancelled'] as $s): ?>
           <option value="<?= $s ?>" <?= $statusFilter === $s ? 'selected' : '' ?>><?= ucfirst(str_replace('_',' ',$s)) ?></option>
           <?php endforeach; ?>
         </select>
@@ -64,7 +64,7 @@ include __DIR__ . '/../includes/header.php';
               <td class="px-4 py-4">
                 <select id="status-select-<?= $ord['id'] ?>" data-order-id="<?= $ord['id'] ?>" data-status-select
                         class="text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none cursor-pointer hover:border-[#a83300]">
-                  <?php foreach(['placed','preparing','out_for_delivery','delivered','cancelled'] as $s): ?>
+                  <?php foreach(['pending', 'accepted', 'preparing', 'ready_for_pickup', 'assigned_to_delivery', 'picked_up', 'out_for_delivery', 'delivered', 'cancelled'] as $s): ?>
                   <option value="<?= $s ?>" <?= $ord['order_status'] === $s ? 'selected' : '' ?>><?= ucfirst(str_replace('_',' ',$s)) ?></option>
                   <?php endforeach; ?>
                 </select>

@@ -26,6 +26,7 @@ $menus = [
       ['href' => BASE_URL . '/admin/offers.php',      'label' => 'Coupons & Offers',  'file' => 'offers.php',    'icon' => 'percent'],
       ['href' => BASE_URL . '/admin/specials.php',    'label' => 'Specials & Featured','file' => 'specials.php',  'icon' => 'star'],
       ['href' => BASE_URL . '/admin/reports.php',     'label' => 'Reports',      'file' => 'reports.php',     'icon' => 'bar-chart'],
+      ['href' => BASE_URL . '/admin/delivery_settings.php', 'label' => 'Delivery Settings', 'file' => 'delivery_settings.php', 'icon' => 'settings'],
     ],
   ],
   'restaurant' => [
@@ -46,6 +47,7 @@ $menus = [
       ['href' => BASE_URL . '/delivery-panel/dashboard.php',   'label' => 'Dashboard',   'file' => 'dashboard.php',   'icon' => 'grid'],
       ['href' => BASE_URL . '/delivery-panel/deliveries.php',  'label' => 'Deliveries',  'file' => 'deliveries.php',  'icon' => 'truck'],
       ['href' => BASE_URL . '/delivery-panel/earnings.php',    'label' => 'Earnings',    'file' => 'earnings.php',    'icon' => 'dollar-sign'],
+      ['href' => BASE_URL . '/delivery-panel/analytics.php',   'label' => 'Analytics',   'file' => 'analytics.php',   'icon' => 'bar-chart'],
     ],
   ],
 ];

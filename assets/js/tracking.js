@@ -1,196 +1,270 @@
 /**
- * Zesto — Order Tracking JavaScript
- * Simulates real-time delivery progress (ported from React OrderTracking component)
+ * Zesto — Real-Time Order Tracking & Polling JavaScript
+ * Fetches order updates and transitions the vertical visual timeline and map coordinates
  */
 
-const TrackingState = {
-  simStep: 2,
-  agentMinutesAway: 8,
-  simulationRunning: false,
-  timer: null,
-  agentPos: { top: '48%', left: '46%' },
-  chatMessages: [
-    { sender: 'driver', text: 'Hi! I have just picked up your fresh hot order. Heading towards you now!', time: '12:20 PM' }
-  ],
+const OrderTracking = {
+    orderNumber: window.ZESTO_ORDER_NUMBER || '',
+    baseUrl: window.ZESTO_BASE || '/Zesto',
+    pollInterval: null,
+    currentStatus: null,
 
-  init() {
-    this.renderChat();
-    this.updateTimeline();
-    this.updateAgentBadge();
+    statusWorkflow: [
+        'pending', 'accepted', 'preparing', 'ready_for_pickup',
+        'assigned_to_delivery', 'picked_up', 'out_for_delivery', 'delivered'
+    ],
 
-    // Bind UI buttons
-    const runBtn    = document.getElementById('sim-run-btn');
-    const resetBtn  = document.getElementById('sim-reset-btn');
-    const callBtn   = document.getElementById('call-driver-btn');
-    const hangBtn   = document.getElementById('hangup-btn');
-    const chatForm  = document.getElementById('chat-form');
+    statusLabels: {
+        'pending': 'Order Placed',
+        'accepted': 'Accepted',
+        'preparing': 'Preparing Food',
+        'ready_for_pickup': 'Ready for Pickup',
+        'assigned_to_delivery': 'Delivery Partner Assigned',
+        'picked_up': 'Picked Up',
+        'out_for_delivery': 'Out for Delivery',
+        'delivered': 'Delivered Successfully'
+    },
 
-    if (runBtn)   runBtn.addEventListener('click',   () => this.toggleSim());
-    if (resetBtn) resetBtn.addEventListener('click', () => this.reset());
-    if (callBtn)  callBtn.addEventListener('click',  () => this.startCall());
-    if (hangBtn)  hangBtn.addEventListener('click',  () => this.endCall());
-    if (chatForm) chatForm.addEventListener('submit', (e) => this.sendMessage(e));
-  },
+    statusDescs: {
+        'pending': 'Your order has been placed successfully.',
+        'accepted': 'Restaurant has accepted and verified your order.',
+        'preparing': 'Our chefs are cooking your fresh hot meal.',
+        'ready_for_pickup': 'Food is packaged and ready to hand over.',
+        'assigned_to_delivery': 'A nearby partner has accepted your delivery.',
+        'picked_up': 'Partner has picked up your food carrier bag.',
+        'out_for_delivery': 'Courier is riding towards your home area.',
+        'delivered': 'Delivered! Enjoy your warm fresh meal!'
+    },
 
-  toggleSim() {
-    if (this.simStep === 3) { this.reset(); return; }
-    this.simulationRunning = !this.simulationRunning;
-    const btn = document.getElementById('sim-run-btn');
-    if (btn) {
-      btn.innerHTML = this.simulationRunning
-        ? `<svg class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Sim Running...`
-        : `▶ Run Simulation`;
-    }
-    if (this.simulationRunning) this.startTimer();
-    else { clearInterval(this.timer); this.timer = null; }
-  },
+    // Mock map transition coordinates
+    mapPositions: {
+        'pending': { top: '67%', left: '76%' },              // At Restaurant
+        'accepted': { top: '67%', left: '76%' },             // At Restaurant
+        'preparing': { top: '67%', left: '76%' },            // At Restaurant
+        'ready_for_pickup': { top: '67%', left: '76%' },     // At Restaurant
+        'assigned_to_delivery': { top: '55%', left: '60%' }, // Moving to restaurant
+        'picked_up': { top: '48%', left: '46%' },             // Leaving restaurant
+        'out_for_delivery': { top: '35%', left: '33%' },      // Mid route
+        'delivered': { top: '25%', left: '25%' }              // At home
+    },
 
-  startTimer() {
-    this.timer = setInterval(() => {
-      if (this.simStep === 2) {
-        if (this.agentMinutesAway > 2) {
-          this.agentMinutesAway -= 2;
-          const moved = 8 - this.agentMinutesAway;
-          this.agentPos = {
-            top:  `${48 - moved * 2}%`,
-            left: `${46 - moved * 2}%`
-          };
-          this.addChatMsg('driver', `Traffic is light! I'm now just ${this.agentMinutesAway} minutes away. See you soon!`, '12:35 PM');
-        } else {
-          this.simStep = 3;
-          this.agentMinutesAway = 0;
-          this.agentPos = { top: '25%', left: '25%' };
-          this.addChatMsg('driver', "I've arrived at the entrance. Walking up with your warm food!", '12:44 PM');
-          clearInterval(this.timer);
-          this.simulationRunning = false;
-          const btn = document.getElementById('sim-run-btn');
-          if (btn) btn.innerHTML = '↺ Restart Simulation';
+    init() {
+        if (!this.orderNumber) return;
+        
+        console.log(`Starting real-time polling for order: ${this.orderNumber}`);
+        this.fetchStatus();
+        this.startPolling();
+
+        // Call actions
+        const callBtn = document.getElementById('call-driver-btn');
+        const hangBtn = document.getElementById('hangup-btn');
+        if (callBtn) callBtn.addEventListener('click', () => this.startCall());
+        if (hangBtn) hangBtn.addEventListener('click', () => this.endCall());
+
+        // Chat send action
+        const chatForm = document.getElementById('chat-form');
+        if (chatForm) {
+            chatForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = document.getElementById('chat-input');
+                if (!input || !input.value.trim()) return;
+                this.addChatMessage('customer', input.value, 'Just now');
+                input.value = '';
+                setTimeout(() => {
+                    this.addChatMessage('driver', 'Sure! I will take care of that for you.', 'Just now');
+                }, 2000);
+            });
         }
-      }
-      this.updateAgentMarker();
-      this.updateAgentBadge();
-      this.updateTimeline();
-    }, 4000);
-  },
+    },
 
-  reset() {
-    clearInterval(this.timer);
-    this.simStep = 2;
-    this.agentMinutesAway = 8;
-    this.agentPos = { top: '48%', left: '46%' };
-    this.simulationRunning = false;
-    this.chatMessages = [
-      { sender: 'driver', text: 'Hi! I have just picked up your fresh hot order. Heading towards you now!', time: '12:20 PM' }
-    ];
-    const btn = document.getElementById('sim-run-btn');
-    if (btn) btn.innerHTML = '▶ Run Simulation';
-    this.renderChat();
-    this.updateTimeline();
-    this.updateAgentMarker();
-    this.updateAgentBadge();
-  },
+    startPolling() {
+        this.pollInterval = setInterval(() => {
+            this.fetchStatus();
+        }, 4000); // Poll database every 4s
+    },
 
-  updateAgentMarker() {
-    const marker = document.getElementById('agent-marker');
-    if (marker) {
-      marker.style.top  = this.agentPos.top;
-      marker.style.left = this.agentPos.left;
-      if (this.simStep === 3) {
-        marker.innerHTML = `<div class="bg-[#00c853] text-white rounded-full p-3 shadow-xl border-2 border-white scale-110">✓</div>`;
-      } else {
-        marker.innerHTML = `<div class="bg-[#00c853] text-white rounded-full p-3 shadow-xl border-2 border-white scale-110 animate-bounce">🏍</div>`;
-      }
+    stopPolling() {
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
+        }
+    },
+
+    async fetchStatus() {
+        try {
+            const res = await fetch(`${this.baseUrl}/api/orders/status.php?order=${encodeURIComponent(this.orderNumber)}`);
+            const data = await res.json();
+            
+            if (data.success) {
+                const newStatus = data.status;
+                const partnerName = data.partner_name || null;
+                
+                if (newStatus !== this.currentStatus || partnerName) {
+                    this.currentStatus = newStatus;
+                    this.updateUI(newStatus, partnerName);
+                }
+
+                if (newStatus === 'delivered' || newStatus === 'cancelled') {
+                    console.log('Order complete, stopping polling loop.');
+                    this.stopPolling();
+                }
+            }
+        } catch (e) {
+            console.error('Polling error occurred: ', e);
+        }
+    },
+
+    updateUI(status, partnerName) {
+        // 1. Update text banner
+        const bannerStatus = document.getElementById('banner-status');
+        if (bannerStatus) bannerStatus.textContent = status.replace(/_/g, ' ');
+
+        // 2. Update ETA & Top Status Badge
+        const etaText = document.getElementById('tracking-eta');
+        const statusBadge = document.getElementById('tracking-status');
+        
+        if (status === 'delivered') {
+            if (etaText) etaText.textContent = 'Delivered! 🎉';
+            if (statusBadge) {
+                statusBadge.textContent = 'Completed';
+                statusBadge.className = 'px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase bg-emerald-50 text-emerald-700 border border-emerald-200';
+            }
+        } else {
+            if (etaText) {
+                if (status === 'out_for_delivery') {
+                    etaText.textContent = '5–10 Mins';
+                } else if (status === 'picked_up' || status === 'assigned_to_delivery') {
+                    etaText.textContent = '15–20 Mins';
+                } else {
+                    etaText.textContent = '30–40 Mins';
+                }
+            }
+            if (statusBadge) {
+                statusBadge.textContent = status.replace(/_/g, ' ');
+                statusBadge.className = 'px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase bg-amber-50 text-amber-700 border border-amber-200';
+            }
+        }
+
+        // 3. Update Visual Timeline Steppers
+        const activeIdx = this.statusWorkflow.indexOf(status);
+        const steps = document.querySelectorAll('.timeline-step-row');
+        
+        steps.forEach((step) => {
+            const idx = parseInt(step.dataset.stepIndex, 10);
+            const dot = step.querySelector('.absolute.rounded-full');
+            const line = step.querySelector('.absolute.w-\\[2px\\]');
+            const header = step.querySelector('h4');
+            
+            const done = idx <= activeIdx;
+            const active = idx === activeIdx;
+
+            if (dot) {
+                if (active) {
+                    dot.className = 'absolute -left-8 top-1.5 w-6 h-6 rounded-full flex items-center justify-center border-4 border-white z-10 transition-all duration-500 font-bold text-[10px] bg-[#a83300] text-white shadow-md';
+                    dot.innerHTML = '<div class="w-1.5 h-1.5 bg-white rounded-full animate-ping"></div>';
+                } else if (done) {
+                    dot.className = 'absolute -left-8 top-1.5 w-6 h-6 rounded-full flex items-center justify-center border-4 border-white z-10 transition-all duration-500 font-bold text-[10px] bg-[#00c853] text-white';
+                    dot.innerHTML = '✓';
+                } else {
+                    dot.className = 'absolute -left-8 top-1.5 w-6 h-6 rounded-full flex items-center justify-center border-4 border-white z-10 transition-all duration-500 font-bold text-[10px] bg-gray-100 text-gray-400';
+                    dot.innerHTML = '✓';
+                }
+            }
+
+            if (line) {
+                if (idx < activeIdx) {
+                    line.className = 'absolute -left-5 top-7 w-[2px] h-10 transition-all duration-500 bg-[#00c853]';
+                } else {
+                    line.className = 'absolute -left-5 top-7 w-[2px] h-10 transition-all duration-500 bg-gray-100';
+                }
+            }
+
+            if (header) {
+                if (active) {
+                    header.className = 'font-extrabold text-sm transition-colors duration-500 text-[#a83300]';
+                } else if (done) {
+                    header.className = 'font-extrabold text-sm transition-colors duration-500 text-gray-800';
+                } else {
+                    header.className = 'font-extrabold text-sm transition-colors duration-500 text-gray-400';
+                }
+            }
+        });
+
+        // 4. Update Courier Card
+        const agentName = document.getElementById('agent-name');
+        const callAgentName = document.getElementById('call-agent-name');
+        const agentRating = document.getElementById('agent-rating');
+        const agentMarkerBadge = document.getElementById('agent-badge');
+        
+        if (partnerName) {
+            if (agentName) agentName.textContent = partnerName;
+            if (callAgentName) callAgentName.textContent = partnerName;
+            if (agentRating) agentRating.textContent = '★ 4.9 Professional Executive';
+            if (agentMarkerBadge) {
+                if (status === 'out_for_delivery') {
+                    agentMarkerBadge.textContent = 'Courier Out for Delivery';
+                } else if (status === 'picked_up') {
+                    agentMarkerBadge.textContent = 'Food Picked Up';
+                } else {
+                    agentMarkerBadge.textContent = 'Courier Assigned';
+                }
+            }
+        }
+
+        // 5. Update Map Position
+        const agentMarker = document.getElementById('agent-marker');
+        const agentBadgeWrap = document.getElementById('agent-badge-wrap');
+        const pos = this.mapPositions[status] || this.mapPositions['pending'];
+        
+        if (agentMarker) {
+            agentMarker.style.top = pos.top;
+            agentMarker.style.left = pos.left;
+            if (status === 'delivered') {
+                agentMarker.innerHTML = `<div class="bg-[#00c853] text-white rounded-full p-3 shadow-xl border-2 border-white scale-110">✓</div>`;
+            } else {
+                agentMarker.innerHTML = `<div class="bg-[#00c853] text-white rounded-full p-3 shadow-xl border-2 border-white scale-110 animate-bounce">🏍</div>`;
+            }
+        }
+        if (agentBadgeWrap) {
+            agentBadgeWrap.style.top = `calc(${pos.top} + 56px)`;
+            agentBadgeWrap.style.left = pos.left;
+        }
+    },
+
+    addChatMessage(sender, text, time) {
+        const container = document.getElementById('chat-messages');
+        if (!container) return;
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `max-w-[85%] rounded-2xl p-3 text-sm leading-relaxed ${
+            sender === 'driver' ? 'bg-gray-50 mr-auto rounded-tl-none text-gray-700' : 'bg-[#ffdbd0]/50 ml-auto rounded-tr-none text-gray-800'
+        }`;
+        msgDiv.innerHTML = `<p>${text}</p><span class="text-[9px] text-gray-400 font-bold uppercase block mt-1">${time}</span>`;
+        container.appendChild(msgDiv);
+        container.scrollTop = container.scrollHeight;
+    },
+
+    startCall() {
+        const overlay = document.getElementById('call-overlay');
+        const status = document.getElementById('call-status');
+        const detail = document.getElementById('call-detail');
+
+        if (overlay) overlay.classList.remove('hidden');
+        if (status) status.textContent = 'Connecting...';
+        if (detail) detail.classList.add('hidden');
+
+        setTimeout(() => {
+            if (status) status.textContent = 'Connected (Secure Line)';
+            if (detail) detail.classList.remove('hidden');
+        }, 1500);
+    },
+
+    endCall() {
+        const overlay = document.getElementById('call-overlay');
+        if (overlay) overlay.classList.add('hidden');
     }
-  },
-
-  updateAgentBadge() {
-    const badge = document.getElementById('agent-badge');
-    if (badge) {
-      badge.textContent = this.simStep === 3 ? 'Arrived!' : `${this.agentMinutesAway} mins away`;
-    }
-  },
-
-  updateTimeline() {
-    const eta     = document.getElementById('tracking-eta');
-    const statusBadge = document.getElementById('tracking-status');
-    if (eta) eta.textContent = this.simStep === 3 ? 'Delivered!' : '12:45 PM';
-    if (statusBadge) {
-      statusBadge.textContent  = this.simStep === 3 ? 'Delivered' : 'On Track';
-      statusBadge.className = this.simStep === 3
-        ? 'px-3 py-1 rounded-full text-xs font-extrabold bg-[#00c853]/10 text-[#00c853]'
-        : 'px-3 py-1 rounded-full text-xs font-extrabold bg-[#ffdbd0] text-[#a83300]';
-    }
-
-    // Step 3 marker
-    const step3Label = document.getElementById('step-out-for-delivery');
-    if (step3Label) {
-      step3Label.textContent = this.simStep === 2
-        ? `Delivery Agent is ${this.agentMinutesAway} mins away`
-        : 'Agent delivered warm package';
-    }
-
-    // Step 4 color
-    const step4Dot = document.getElementById('step4-dot');
-    if (step4Dot) {
-      step4Dot.className = `absolute -left-8 top-1.5 w-6 h-6 rounded-full flex items-center justify-center z-10 border-4 border-white ${this.simStep === 3 ? 'bg-[#00c853]' : 'bg-gray-200'}`;
-    }
-
-    const step4Label = document.getElementById('step4-label');
-    if (step4Label) {
-      step4Label.className = `font-bold text-sm ${this.simStep === 3 ? 'text-[#00c853]' : 'text-gray-400'}`;
-    }
-  },
-
-  addChatMsg(sender, text, time) {
-    this.chatMessages.push({ sender, text, time });
-    this.renderChat();
-  },
-
-  renderChat() {
-    const container = document.getElementById('chat-messages');
-    if (!container) return;
-    container.innerHTML = this.chatMessages.map(msg => `
-      <div class="max-w-[85%] rounded-2xl p-3 text-sm leading-relaxed ${msg.sender === 'driver'
-        ? 'bg-[#f5f3f3]/60 mr-auto rounded-tl-none'
-        : 'bg-[#ffdbd0]/60 ml-auto rounded-tr-none'} text-gray-800">
-        <p class="leading-relaxed">${msg.text}</p>
-        <span class="text-[9px] text-gray-400 font-bold uppercase block mt-1">${msg.time}</span>
-      </div>
-    `).join('');
-    container.scrollTop = container.scrollHeight;
-  },
-
-  sendMessage(e) {
-    e.preventDefault();
-    const input = document.getElementById('chat-input');
-    if (!input || !input.value.trim()) return;
-    this.addChatMsg('customer', input.value, 'Just now');
-    input.value = '';
-    setTimeout(() => {
-      this.addChatMsg('driver', 'Received that! Thanks for the tip, will follow instructions.', 'Just now');
-    }, 1500);
-  },
-
-  startCall() {
-    const overlay = document.getElementById('call-overlay');
-    const status  = document.getElementById('call-status');
-    if (overlay) overlay.classList.remove('hidden');
-    if (status)  status.textContent = 'Calling...';
-    setTimeout(() => {
-      if (status) status.textContent = 'Connected (Secure Line)';
-      const detail = document.getElementById('call-detail');
-      if (detail) { detail.textContent = 'Connected speaking line active'; detail.classList.remove('hidden'); }
-    }, 2000);
-  },
-
-  endCall() {
-    const overlay = document.getElementById('call-overlay');
-    if (overlay) overlay.classList.add('hidden');
-  }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('tracking-eta')) {
-    TrackingState.init();
-  }
+    OrderTracking.init();
 });

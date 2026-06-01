@@ -62,12 +62,22 @@ include __DIR__ . '/includes/navbar.php';
     <div class="flex items-center gap-0">
       <?php
       $steps = [
-        ['label' => 'Placed',    'icon' => '📋', 'status' => 'placed'],
-        ['label' => 'Preparing', 'icon' => '👨‍🍳', 'status' => 'preparing'],
-        ['label' => 'On the way','icon' => '🛵', 'status' => 'out_for_delivery'],
-        ['label' => 'Delivered', 'icon' => '✅', 'status' => 'delivered'],
+        ['label' => 'Placed',    'icon' => '📋'],
+        ['label' => 'Preparing', 'icon' => '👨‍🍳'],
+        ['label' => 'On the way','icon' => '🛵'],
+        ['label' => 'Delivered', 'icon' => '✅'],
       ];
-      $statusOrder = ['placed'=>0, 'preparing'=>1, 'out_for_delivery'=>2, 'delivered'=>3];
+      $statusOrder = [
+        'pending' => 0,
+        'accepted' => 0,
+        'preparing' => 1,
+        'ready_for_pickup' => 1,
+        'assigned_to_delivery' => 2,
+        'picked_up' => 2,
+        'out_for_delivery' => 2,
+        'delivered' => 3,
+        'cancelled' => 3
+      ];
       $currentStep = $statusOrder[$order['order_status']] ?? 0;
       ?>
       <?php foreach ($steps as $i => $step): ?>

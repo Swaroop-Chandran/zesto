@@ -67,7 +67,7 @@ try {
     // Insert order
     $orderStmt = db()->prepare("
         INSERT INTO orders (order_number, user_id, restaurant_id, delivery_address, payment_method, payment_status, order_status, subtotal, delivery_fee, taxes, discount, coupon_code, total)
-        VALUES (:onum, :uid, :rid, :addr, :pm, 'paid', 'placed', :sub, :dfee, :tax, :discount, :ccode, :total)
+        VALUES (:onum, :uid, :rid, :addr, :pm, 'paid', 'pending', :sub, :dfee, :tax, :discount, :ccode, :total)
     ");
     $orderStmt->execute([
         ':onum'  => $orderNumber,
