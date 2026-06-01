@@ -168,11 +168,13 @@ document.addEventListener('DOMContentLoaded', function() {
       const role = this.querySelector('input[name="login_role"]:checked').value;
 
       try {
+        const csrfToken = this.querySelector('input[name="csrf_token"]')?.value || document.querySelector('meta[name="csrf-token"]')?.content || '';
         const res = await fetch((window.ZESTO_BASE || '/Zesto') + '/api/auth/login.php', {
           method: 'POST',
+          credentials: 'same-origin',
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            'X-CSRF-Token': csrfToken
           },
           body: JSON.stringify({ email, password, role })
         });
@@ -222,11 +224,13 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       try {
+        const csrfToken = this.querySelector('input[name="csrf_token"]')?.value || document.querySelector('meta[name="csrf-token"]')?.content || '';
         const res = await fetch((window.ZESTO_BASE || '/Zesto') + '/api/auth/register.php', {
           method: 'POST',
+          credentials: 'same-origin',
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            'X-CSRF-Token': csrfToken
           },
           body: JSON.stringify({ name, email, phone, password, role, ...dpFields })
         });
@@ -257,11 +261,13 @@ document.addEventListener('DOMContentLoaded', function() {
   if (guestBtn) {
     guestBtn.addEventListener('click', function() {
       // Set a mock session guest key via ajax, then refresh the page to show checkout
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
       fetch((window.ZESTO_BASE || '/Zesto') + '/api/auth/guest-checkout.php', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+          'X-CSRF-Token': csrfToken
         }
       })
       .then(res => res.json())
@@ -275,5 +281,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
     });
+  }
+
+  // Auto-open drawer if requested in URL parameter (?auth=open)
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('auth') === 'open') {
+    ZestoAuth.open();
   }
 });

@@ -70,6 +70,7 @@
       </div>
 
       <form id="ajax-login-form" class="space-y-4">
+        <?= csrfField() ?>
         <div>
           <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Email Address</label>
           <input id="login-email" type="email" name="email" required placeholder="name@example.com" class="zesto-input bg-gray-50/50">
@@ -120,6 +121,7 @@
     <!-- ── REGISTRATION FORM ────────────────────────────────────── -->
     <div id="auth-view-register" class="space-y-5 hidden">
       <form id="ajax-register-form" class="space-y-4">
+        <?= csrfField() ?>
         <div>
           <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Full Name *</label>
           <input type="text" name="name" required placeholder="Alex Johnson" class="zesto-input bg-gray-50/50">
