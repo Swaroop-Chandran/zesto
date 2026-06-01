@@ -6,13 +6,30 @@
 if (!defined('APP_NAME')) {
     require_once __DIR__ . '/../config/config.php';
 }
+$appJsVersion = file_exists(__DIR__ . '/../assets/js/app.js') ? filemtime(__DIR__ . '/../assets/js/app.js') : APP_VERSION;
+$cartJsVersion = file_exists(__DIR__ . '/../assets/js/cart.js') ? filemtime(__DIR__ . '/../assets/js/cart.js') : APP_VERSION;
 ?>
 
 <!-- ── Scripts (loaded before </body>) ───────────────────────── -->
-<script src="<?= BASE_URL ?>/assets/js/app.js"></script>
-<script src="<?= BASE_URL ?>/assets/js/cart.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/app.js?v=<?= e($appJsVersion) ?>"></script>
+<script src="<?= BASE_URL ?>/assets/js/cart.js?v=<?= e($cartJsVersion) ?>"></script>
 <?php if (!empty($extraJs)): foreach ($extraJs as $js): ?>
-<script src="<?= e($js) ?>"></script>
+<?php
+  $versionedJs = $js;
+  $baseAssetPrefix = BASE_URL . '/assets/js/';
+  if (strpos($js, $baseAssetPrefix) === 0) {
+      $relativeJsPath = parse_url($js, PHP_URL_PATH);
+      $baseUrlPath = parse_url(BASE_URL, PHP_URL_PATH) ?: '';
+      if ($baseUrlPath !== '' && strpos($relativeJsPath, $baseUrlPath) === 0) {
+          $relativeJsPath = substr($relativeJsPath, strlen($baseUrlPath));
+      }
+      $absoluteJsPath = $relativeJsPath ? realpath(__DIR__ . '/..' . $relativeJsPath) : false;
+      if ($absoluteJsPath && file_exists($absoluteJsPath)) {
+          $versionedJs .= (strpos($versionedJs, '?') === false ? '?' : '&') . 'v=' . filemtime($absoluteJsPath);
+      }
+  }
+?>
+<script src="<?= e($versionedJs) ?>"></script>
 <?php endforeach; endif; ?>
 
 <!-- ── Footer ─────────────────────────────────────────────────── -->

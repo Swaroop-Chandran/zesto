@@ -129,7 +129,56 @@ function verifyCsrf(): void {
  * Get the current session cart (array of items).
  */
 function getCart(): array {
-    return $_SESSION['cart'] ?? [];
+    if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
+        return $_SESSION['cart'];
+    }
+
+    if (!isLoggedIn()) {
+        return [];
+    }
+
+    require_once __DIR__ . '/database.php';
+
+    $stmt = db()->prepare("
+        SELECT
+            c.menu_item_id,
+            c.restaurant_id,
+            c.quantity,
+            c.customization,
+            mi.name,
+            mi.price,
+            mi.image,
+            r.name AS restaurant_name
+        FROM cart c
+        JOIN menu_items mi ON mi.id = c.menu_item_id
+        JOIN restaurants r ON r.id = c.restaurant_id
+        WHERE c.user_id = :uid
+          AND mi.is_available = 1
+        ORDER BY c.id ASC
+    ");
+    $stmt->execute([':uid' => getCurrentUser()['id']]);
+
+    $cart = [];
+    foreach ($stmt->fetchAll() as $item) {
+        $customization = $item['customization'] ?? '';
+        $cartKey = $item['menu_item_id'] . '_' . md5($customization);
+        $cart[$cartKey] = [
+            'menu_item_id'    => (int)$item['menu_item_id'],
+            'restaurant_id'   => (int)$item['restaurant_id'],
+            'restaurant_name' => $item['restaurant_name'],
+            'name'            => $item['name'],
+            'price'           => (float)$item['price'],
+            'image'           => $item['image'] ?? '',
+            'customization'   => $customization,
+            'quantity'        => (int)$item['quantity'],
+        ];
+    }
+
+    if (!empty($cart)) {
+        $_SESSION['cart'] = $cart;
+    }
+
+    return $cart;
 }
 
 /**

@@ -8,6 +8,23 @@ define('APP_NAME',    'Zesto');
 define('APP_TAGLINE', 'Delivering your favourite meals, fresh and fast.');
 define('APP_VERSION', '1.0.0');
 
+// ─── Load Environment Variables ───────────────────────────────────────────────
+$envPath = __DIR__ . '/../.env';
+if (file_exists($envPath)) {
+    $envVariables = parse_ini_file($envPath);
+    if (is_array($envVariables)) {
+        foreach ($envVariables as $key => $value) {
+            $_ENV[$key] = $value;
+            putenv("$key=$value");
+        }
+    }
+}
+
+// ─── Stripe Configuration ─────────────────────────────────────────────────────
+define('STRIPE_PUBLISHABLE_KEY', getenv('STRIPE_PUBLISHABLE_KEY') ?: ($_ENV['STRIPE_PUBLISHABLE_KEY'] ?? ''));
+define('STRIPE_SECRET_KEY',      getenv('STRIPE_SECRET_KEY') ?: ($_ENV['STRIPE_SECRET_KEY'] ?? ''));
+define('STRIPE_WEBHOOK_SECRET',  getenv('STRIPE_WEBHOOK_SECRET') ?: ($_ENV['STRIPE_WEBHOOK_SECRET'] ?? ''));
+
 // ─── Base URL (adjust if installed in a subdirectory) ───────────────────────
 // For XAMPP: http://localhost/Zesto
 // For production: https://yourdomain.com

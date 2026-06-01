@@ -341,7 +341,7 @@ include __DIR__ . '/../../../includes/navbar.php';
 </div>
 <?php endif; ?>
 
-<script src="<?= BASE_URL ?>/assets/js/cart.js" defer></script>
+<script src="<?= BASE_URL ?>/assets/js/cart.js?v=<?= e(filemtime(__DIR__ . '/../../../assets/js/cart.js')) ?>" defer></script>
 <script>
 // ── Cart quantities state ──────────────────────────────────────
 const cartQty = {};

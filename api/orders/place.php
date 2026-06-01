@@ -4,22 +4,46 @@ require_once __DIR__ . '/../../config/auth.php';
 require_once __DIR__ . '/../../config/database.php';
 
 header('Content-Type: application/json');
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') { jsonResponse(['success' => false, 'message' => 'Method not allowed.'], 405); }
+error_log('[Zesto Checkout] api/orders/place.php entered');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    error_log('[Zesto Checkout] api/orders/place.php rejected non-POST request');
+    jsonResponse(['success' => false, 'message' => 'Method not allowed.'], 405);
+}
 verifyCsrf();
+error_log('[Zesto Checkout] CSRF verified for direct order placement');
 
 $cart = getCart();
-if (empty($cart)) { jsonResponse(['success' => false, 'message' => 'Cart is empty.'], 422); }
+if (empty($cart)) {
+    error_log('[Zesto Checkout] Direct order blocked: cart is empty');
+    jsonResponse(['success' => false, 'message' => 'Cart is empty.'], 422);
+}
 
 $data            = json_decode(file_get_contents('php://input'), true) ?? [];
 $paymentMethod   = trim($data['payment_method']   ?? 'stripe');
 $deliveryAddress = trim($data['delivery_address'] ?? '');
 $couponCode      = trim($data['coupon_code']      ?? '');
+error_log('[Zesto Checkout] Direct order payload received: payment_method=' . ($paymentMethod ?: 'none') . ', has_address=' . ($deliveryAddress !== '' ? 'yes' : 'no') . ', coupon=' . ($couponCode !== '' ? $couponCode : 'none'));
 
-if (empty($deliveryAddress)) { jsonResponse(['success' => false, 'message' => 'Delivery address is required.'], 422); }
+if ($paymentMethod === 'stripe') {
+    error_log('[Zesto Checkout] Direct order blocked: Stripe must use /api/checkout/create_checkout_session.php');
+    jsonResponse([
+        'success' => false,
+        'message' => 'Stripe payments must start through Stripe Checkout.',
+        'redirect' => BASE_URL . '/cart.php',
+    ], 409);
+}
+
+if (empty($deliveryAddress)) {
+    error_log('[Zesto Checkout] Direct order blocked: missing delivery address');
+    jsonResponse(['success' => false, 'message' => 'Delivery address is required.'], 422);
+}
 
 // Validate payment method
-$allowedPayments = ['stripe', 'razorpay', 'cash'];
-if (!in_array($paymentMethod, $allowedPayments, true)) $paymentMethod = 'stripe';
+$allowedPayments = ['razorpay', 'cash'];
+if (!in_array($paymentMethod, $allowedPayments, true)) {
+    error_log('[Zesto Checkout] Direct order blocked: unsupported payment_method=' . $paymentMethod);
+    jsonResponse(['success' => false, 'message' => 'Unsupported payment method.'], 422);
+}
 
 // Calculate totals
 $subtotal    = getCartSubtotal();
@@ -58,11 +82,13 @@ $userId = isLoggedIn() ? getCurrentUser()['id'] : null;
 $isGuest = isset($_SESSION['is_guest']) && $_SESSION['is_guest'] === true;
 
 if (!$userId && !$isGuest) {
+    error_log('[Zesto Checkout] Direct order blocked: no customer or guest session');
     jsonResponse(['success' => false, 'message' => 'Please login or checkout as guest to place an order.', 'redirect' => BASE_URL . '/login.php'], 401);
 }
 
 try {
     db()->beginTransaction();
+    error_log('[Zesto Checkout] Creating direct paid order: payment_method=' . $paymentMethod . ', order_number=' . $orderNumber . ', total=' . number_format($total, 2, '.', ''));
 
     // Insert order
     $orderStmt = db()->prepare("
@@ -101,6 +127,7 @@ try {
     }
 
     db()->commit();
+    error_log('[Zesto Checkout] Direct order committed: order_id=' . $orderId . ', order_number=' . $orderNumber);
 
     // Clear cart
     $_SESSION['cart'] = [];
@@ -116,6 +143,6 @@ try {
 
 } catch (Exception $e) {
     db()->rollBack();
-    error_log('Order placement error: ' . $e->getMessage());
+    error_log('[Zesto Checkout] Direct order placement error: ' . $e->getMessage());
     jsonResponse(['success' => false, 'message' => 'Order failed. Please try again.'], 500);
 }

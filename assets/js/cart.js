@@ -211,14 +211,31 @@ async function openRestaurantMenu(slug) {
 // ── Place Order (AJAX) ────────────────────────────────────────
 async function placeOrder(paymentMethod, deliveryAddress, couponCode = null) {
   const btn = document.getElementById('cart-order-btn') || document.getElementById('place-order-btn');
+  const endpoint = paymentMethod === 'stripe'
+      ? '/api/checkout/create_checkout_session.php'
+      : '/api/orders/place.php';
+
+  console.log('[Zesto Checkout] placeOrder called', {
+    paymentMethod,
+    endpoint,
+    method: 'POST',
+    hasDeliveryAddress: Boolean(deliveryAddress && deliveryAddress.trim()),
+    couponCode: couponCode || null
+  });
+
   if (btn) {
     btn.disabled = true;
     const origHtml = btn.innerHTML;
-    btn.innerHTML = `<span class="spinner" style="width:1rem;height:1rem;border-width:2px;display:inline-block;vertical-align:middle;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin 1s linear infinite;"></span>&nbsp;Placing Order Securely...`;
+    btn.dataset.originalHtml = origHtml;
+    btn.innerHTML = `<span class="spinner" style="width:1rem;height:1rem;border-width:2px;display:inline-block;vertical-align:middle;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin 1s linear infinite;"></span>&nbsp;${paymentMethod === 'stripe' ? 'Opening Stripe Checkout...' : 'Placing Order Securely...'}`;
   }
 
   try {
-    const res = await fetch((window.ZESTO_BASE || '/Zesto') + '/api/orders/place.php', {
+    console.log('[Zesto Checkout] fetch checkout request', {
+      url: (window.ZESTO_BASE || '/Zesto') + endpoint,
+      method: 'POST'
+    });
+    const res = await fetch((window.ZESTO_BASE || '/Zesto') + endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -231,19 +248,27 @@ async function placeOrder(paymentMethod, deliveryAddress, couponCode = null) {
       }),
     });
     const data = await res.json();
+    console.log('[Zesto Checkout] Response', { status: res.status, data });
 
     if (data.success) {
-      window.location.href = `${window.ZESTO_BASE || '/Zesto'}/checkout.php?order=${data.order_number}`;
+      if (paymentMethod === 'stripe' && data.url) {
+          console.log('[Zesto Checkout] Redirecting to Stripe Checkout', data.url);
+          window.location.href = data.url;
+      } else {
+          console.log('[Zesto Checkout] Redirecting to order confirmation', data.order_number);
+          window.location.href = `${window.ZESTO_BASE || '/Zesto'}/checkout.php?order=${data.order_number}`;
+      }
     } else {
       Zesto.toast(data.message || 'Order failed. Please try again.', 'error');
       if (btn) {
         btn.disabled = false;
-        btn.innerHTML = `<span>PLACE ORDER</span>`;
+        btn.innerHTML = btn.dataset.originalHtml || `<span>PAY NOW</span>`;
       }
     }
   } catch(e) {
+    console.error('[Zesto Checkout] Request failed', e);
     Zesto.toast('Network error. Please check your connection.', 'error');
-    if (btn) { btn.disabled = false; btn.innerHTML = 'PLACE ORDER'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = btn.dataset.originalHtml || 'PAY NOW'; }
   }
 }
 
@@ -273,6 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
   paymentRadios.forEach(radio => {
     radio.addEventListener('change', function() {
+      console.log('[Zesto Checkout] Payment method selected', this.value);
       paymentRadios.forEach(r => {
         r.closest('label')?.classList.remove('border-[#a83300]', 'bg-[#ffdbd0]/20');
         r.closest('label')?.classList.add('border-gray-200');
@@ -288,6 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
     orderBtn.addEventListener('click', function() {
       const payment = document.querySelector('input[name="payment_method"]:checked')?.value || 'stripe';
       const address = document.getElementById('delivery-address-value')?.value || '';
+      console.log('[Zesto Checkout] Pay Now clicked', { payment, hasAddress: Boolean(address.trim()) });
       if (!address.trim()) {
         Zesto.toast('Please enter your delivery address.', 'error');
         return;

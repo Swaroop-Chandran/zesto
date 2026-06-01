@@ -40,7 +40,6 @@ $resOffersStmt = db()->prepare("
 $resOffersStmt->execute([':city' => $city]);
 $restaurantOffers = $resOffersStmt->fetchAll();
 
-$extraJs = [BASE_URL . '/assets/js/cart.js'];
 include __DIR__ . '/includes/header.php';
 include __DIR__ . '/includes/navbar.php';
 ?>

@@ -280,8 +280,8 @@ include __DIR__ . '/../../../includes/navbar.php';
       <h2 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 border-b border-gray-100 pb-3">Secure Payment Portal</h2>
       <div class="flex flex-col gap-3">
         <!-- Razorpay / UPI -->
-        <label class="flex items-center p-4 rounded-2xl cursor-pointer transition-all border border-[#a83300] bg-[#ffdbd0]/20 shadow-sm label-payment">
-          <input type="radio" name="payment_method" value="razorpay" checked class="hidden">
+        <label class="flex items-center p-4 rounded-2xl cursor-pointer transition-all border border-gray-200 hover:bg-gray-50 label-payment">
+          <input type="radio" name="payment_method" value="razorpay" class="hidden">
           <div class="w-10 h-10 rounded-xl bg-[#3395FF]/10 flex items-center justify-center shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#3395FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </div>
@@ -289,14 +289,13 @@ include __DIR__ . '/../../../includes/navbar.php';
             <span class="block font-extrabold text-xs md:text-sm text-[#1b1c1c]">Razorpay / UPI Wallet</span>
             <span class="block text-[10px] text-gray-450 mt-0.5">Sizzling fast checkout with direct UPI</span>
           </div>
-          <div class="w-5 h-5 rounded-full border-2 border-[#a83300] flex items-center justify-center font-bold">
-            <div class="w-2.5 h-2.5 rounded-full bg-[#a83300]"></div>
+          <div class="w-5 h-5 rounded-full border-2 border-gray-250 flex items-center justify-center font-bold">
           </div>
         </label>
 
         <!-- Stripe / Card -->
-        <label class="flex items-center p-4 rounded-2xl cursor-pointer transition-all border border-gray-200 hover:bg-gray-50 label-payment">
-          <input type="radio" name="payment_method" value="stripe" class="hidden">
+        <label class="flex items-center p-4 rounded-2xl cursor-pointer transition-all border border-[#a83300] bg-[#ffdbd0]/20 shadow-sm label-payment">
+          <input type="radio" name="payment_method" value="stripe" checked class="hidden">
           <div class="w-10 h-10 rounded-xl bg-[#635BFF]/10 flex items-center justify-center shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#635BFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
           </div>
@@ -304,7 +303,8 @@ include __DIR__ . '/../../../includes/navbar.php';
             <span class="block font-extrabold text-xs md:text-sm text-[#1b1c1c]">Credit / Debit Card</span>
             <span class="block text-[10px] text-gray-450 mt-0.5">Stripe secure card payment gate</span>
           </div>
-          <div class="w-5 h-5 rounded-full border-2 border-gray-250 flex items-center justify-center font-bold">
+          <div class="w-5 h-5 rounded-full border-2 border-[#a83300] flex items-center justify-center font-bold">
+            <div class="w-2.5 h-2.5 rounded-full bg-[#a83300]"></div>
           </div>
         </label>
       </div>
@@ -355,9 +355,9 @@ include __DIR__ . '/../../../includes/navbar.php';
       </div>
 
       <!-- Place Order button -->
-      <button id="cart-order-btn" onclick="triggerCheckout()"
+      <button type="button" id="cart-order-btn" onclick="triggerCheckout(event)"
               class="mt-6 w-full h-14 bg-[#d24200] hover:bg-[#a83300] text-white rounded-2xl flex items-center justify-between px-6 font-bold tracking-wide active:scale-[0.98] transition-all shadow-md shadow-[#d24200]/20 cursor-pointer">
-        <span>PLACE ORDER</span>
+        <span>PAY NOW</span>
         <div class="flex items-center gap-2">
           <span class="h-6 w-[1.5px] bg-white/20"></span>
           <span id="btn-grand-total"><?= formatPrice($total) ?></span>
@@ -439,6 +439,10 @@ async function applyCoupon() {
 // Payment methods toggling selection highlight
 document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
   radio.addEventListener('change', function() {
+    console.log('[Zesto Checkout] Payment method changed on cart page', {
+      paymentMethod: this.value,
+      endpoint: this.value === 'stripe' ? '/api/checkout/create_checkout_session.php' : '/api/orders/place.php'
+    });
     document.querySelectorAll('.label-payment').forEach(lbl => {
       lbl.className = "flex items-center p-4 rounded-2xl cursor-pointer transition-all border border-gray-200 hover:bg-gray-50 label-payment";
       lbl.querySelector('.w-5').className = "w-5 h-5 rounded-full border-2 border-gray-250 flex items-center justify-center font-bold";
@@ -451,11 +455,15 @@ document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
 });
 
 // Dynamic Checkout Placement Checks
-function triggerCheckout() {
+function triggerCheckout(event) {
+  event?.preventDefault();
+  event?.stopPropagation();
   const canCheckout = <?= $canCheckout ? 'true' : 'false' ?>;
+  console.log('[Zesto Checkout] Pay Now clicked on cart page', { canCheckout });
   
   if (!canCheckout) {
     // Show sliding drawer with checkout parameters
+    console.log('[Zesto Checkout] Checkout blocked; opening auth drawer');
     ZestoAuth.open({ checkout: true });
     return;
   }
@@ -463,6 +471,7 @@ function triggerCheckout() {
   // Address selection evaluation
   const addrRadio = document.querySelector('input[name="delivery_address_select"]:checked');
   const selectedAddr = addrRadio ? addrRadio.value : '';
+  console.log('[Zesto Checkout] Delivery address selected', { hasAddress: Boolean(selectedAddr) });
 
   if (!selectedAddr) {
     Zesto.toast('Please select or create a delivery address.', 'error');
@@ -472,7 +481,13 @@ function triggerCheckout() {
   // Update hidden field value
   document.getElementById('delivery-address-value').value = selectedAddr;
 
-  const payment = document.querySelector('input[name="payment_method"]:checked')?.value || 'razorpay';
+  const payment = document.querySelector('input[name="payment_method"]:checked')?.value || 'stripe';
+  const endpoint = payment === 'stripe' ? '/api/checkout/create_checkout_session.php' : '/api/orders/place.php';
+  console.log('[Zesto Checkout] Dispatching checkout request', {
+    paymentMethod: payment,
+    endpoint,
+    couponCode: appliedCouponCode || null
+  });
   
   // Trigger order placing
   placeOrder(payment, selectedAddr, appliedCouponCode);

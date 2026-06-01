@@ -63,7 +63,6 @@ $stmt = db()->prepare($sql);
 $stmt->execute($params);
 $items = $stmt->fetchAll();
 
-$extraJs = [BASE_URL . '/assets/js/cart.js'];
 include __DIR__ . '/../../../includes/header.php';
 include __DIR__ . '/../../../includes/navbar.php';
 ?>
