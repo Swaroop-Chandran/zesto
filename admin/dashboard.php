@@ -18,6 +18,25 @@ $stats['total_deliveries']  = db()->query("SELECT COUNT(*) FROM delivery_assignm
 $stats['active_partners']   = db()->query("SELECT COUNT(*) FROM delivery_partners dp JOIN users u ON u.id=dp.user_id WHERE dp.is_approved=1 AND dp.is_available=1")->fetchColumn();
 $stats['disbursed_earnings'] = db()->query("SELECT COALESCE(SUM(total_earnings),0) FROM delivery_earnings")->fetchColumn();
 
+// Calculate Average Confirmation Time
+$avgConfSeconds = db()->query("
+    SELECT AVG(TIMESTAMPDIFF(SECOND, delivered_at, confirmed_at)) 
+    FROM delivery_assignments 
+    WHERE status = 'completed' AND delivered_at IS NOT NULL AND confirmed_at IS NOT NULL
+")->fetchColumn();
+
+$avgConfTimeText = 'N/A';
+if ($avgConfSeconds !== null && $avgConfSeconds !== false) {
+    $seconds = (int)$avgConfSeconds;
+    if ($seconds < 60) {
+        $avgConfTimeText = $seconds . 's';
+    } else {
+        $minutes = floor($seconds / 60);
+        $remainingSeconds = $seconds % 60;
+        $avgConfTimeText = $minutes . 'm ' . $remainingSeconds . 's';
+    }
+}
+
 // Recent orders
 $recentOrders = db()->query("
     SELECT o.order_number, o.total, o.order_status, o.created_at, u.name AS customer, r.name AS restaurant
@@ -95,7 +114,7 @@ include __DIR__ . '/../includes/header.php';
     </div>
 
     <!-- Delivery KPIs Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-5 mb-8">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
       <div class="bg-white rounded-2xl border border-emerald-300 p-5 shadow-sm">
         <div class="flex justify-between items-start mb-2">
           <p class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Completed Deliveries</p>
@@ -116,6 +135,13 @@ include __DIR__ . '/../includes/header.php';
           <span class="text-lg">💵</span>
         </div>
         <p class="text-2xl font-black text-[#1b1c1c]"><?= formatPrice($stats['disbursed_earnings']) ?></p>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-sm">
+        <div class="flex justify-between items-start mb-2">
+          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Avg Confirmation Time</p>
+          <span class="text-lg">⏱️</span>
+        </div>
+        <p class="text-2xl font-black text-[#1b1c1c]"><?= $avgConfTimeText ?></p>
       </div>
     </div>
 

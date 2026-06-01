@@ -11,7 +11,7 @@ const OrderTracking = {
 
     statusWorkflow: [
         'pending', 'accepted', 'preparing', 'ready_for_pickup',
-        'assigned_to_delivery', 'picked_up', 'out_for_delivery', 'delivered'
+        'assigned_to_delivery', 'picked_up', 'out_for_delivery', 'awaiting_customer_confirmation'
     ],
 
     statusLabels: {
@@ -22,7 +22,7 @@ const OrderTracking = {
         'assigned_to_delivery': 'Delivery Partner Assigned',
         'picked_up': 'Picked Up',
         'out_for_delivery': 'Out for Delivery',
-        'delivered': 'Delivered Successfully'
+        'awaiting_customer_confirmation': 'Delivered Successfully'
     },
 
     statusDescs: {
@@ -104,9 +104,10 @@ const OrderTracking = {
                     this.updateUI(newStatus, partnerName);
                 }
 
-                if (newStatus === 'delivered' || newStatus === 'cancelled') {
-                    console.log('Order complete, stopping polling loop.');
+                if (newStatus === 'awaiting_customer_confirmation' || newStatus === 'delivery_issue' || newStatus === 'completed' || newStatus === 'cancelled') {
+                    console.log('Order transitioned to final or holding state. Stopping poll and reloading...');
                     this.stopPolling();
+                    setTimeout(() => location.reload(), 1000);
                 }
             }
         } catch (e) {

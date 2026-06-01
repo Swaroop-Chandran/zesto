@@ -94,6 +94,30 @@ if ($restaurant) {
     ");
     $stmt->execute([':rid' => $rid]);
     $categoriesBreakdown = $stmt->fetchAll();
+
+    // 7. Most Praised Foods
+    $stmt = db()->prepare("
+        SELECT oi.item_name, COUNT(oi.id) AS praise_count, SUM(oi.quantity) AS total_qty
+        FROM order_items oi
+        JOIN orders o ON o.id = oi.order_id
+        JOIN order_reviews r ON r.order_id = o.id
+        WHERE o.restaurant_id = :rid AND r.restaurant_rating >= 4
+        GROUP BY oi.menu_item_id, oi.item_name
+        ORDER BY praise_count DESC, total_qty DESC LIMIT 5
+    ");
+    $stmt->execute([':rid' => $rid]);
+    $praisedFoods = $stmt->fetchAll();
+
+    // 8. Recent Restaurant Reviews
+    $stmt = db()->prepare("
+        SELECT r.review_text, r.restaurant_rating, r.created_at, u.name AS customer_name
+        FROM order_reviews r
+        JOIN users u ON u.id = r.customer_id
+        WHERE r.restaurant_id = :rid AND r.review_text IS NOT NULL AND r.review_text != ''
+        ORDER BY r.created_at DESC LIMIT 5
+    ");
+    $stmt->execute([':rid' => $rid]);
+    $restaurantReviews = $stmt->fetchAll();
 }
 
 // Convert trend data for Chart.js
@@ -243,7 +267,67 @@ include __DIR__ . '/../includes/header.php';
             </tbody>
           </table>
         </div>
+    </div>
+
+    <!-- Praised Foods & Customer Feedback Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8 mb-8">
+      
+      <!-- Most Praised Foods -->
+      <div class="bg-white rounded-2xl border border-gray-150 shadow-sm overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-gray-100 bg-[#fdfdfd] flex justify-between items-center">
+          <h3 class="font-bold text-sm text-[#1b1c1c] flex items-center gap-1.5">👍 Most Praised Dishes</h3>
+          <span class="text-[10px] text-gray-400 font-bold uppercase">Rated 4★ or above</span>
+        </div>
+        <div class="overflow-x-auto flex-1">
+          <table class="w-full text-xs">
+            <thead class="bg-[#f5f3f3] text-gray-400 font-bold uppercase tracking-wider">
+              <tr>
+                <th class="text-left px-4 py-3">Dish Item</th>
+                <th class="text-center px-4 py-3">5★ Commendations</th>
+                <th class="text-right px-4 py-3">Volume Ordered</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 font-semibold text-gray-700">
+              <?php foreach ($praisedFoods as $pf): ?>
+              <tr>
+                <td class="px-4 py-4 font-bold text-gray-800"><?= e($pf['item_name']) ?></td>
+                <td class="px-4 py-4 text-center text-amber-500">★ <?= $pf['praise_count'] ?> times</td>
+                <td class="px-4 py-4 text-right text-gray-500"><?= $pf['total_qty'] ?> units</td>
+              </tr>
+              <?php endforeach; ?>
+              <?php if (empty($praisedFoods)): ?>
+              <tr>
+                <td colspan="3" class="px-4 py-10 text-center text-gray-400">No dishes rated highly yet. Excellent quality builds praise!</td>
+              </tr>
+              <?php endif; ?>
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      <!-- Recent Customer Feedback & Reviews -->
+      <div class="bg-white rounded-2xl border border-gray-150 shadow-sm p-6 flex flex-col gap-4">
+        <h3 class="font-bold text-sm text-[#1b1c1c] pb-2 border-b">💬 Customer Reviews &amp; Feedback</h3>
+        <?php if (empty($restaurantReviews)): ?>
+        <div class="flex-1 flex items-center justify-center text-center text-gray-400 text-xs py-8">
+          No customer review comments left yet for this kitchen.
+        </div>
+        <?php else: ?>
+        <div class="space-y-4 max-h-96 overflow-y-auto pr-1">
+          <?php foreach ($restaurantReviews as $rev): ?>
+          <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex flex-col gap-1 text-xs">
+            <div class="flex justify-between items-center font-bold">
+              <span class="text-gray-850 font-extrabold"><?= e($rev['customer_name']) ?></span>
+              <span class="text-amber-500">★ <?= number_format($rev['restaurant_rating'], 1) ?></span>
+            </div>
+            <p class="text-gray-600 italic mt-1 font-semibold">"<?= e($rev['review_text']) ?>"</p>
+            <span class="text-[9px] text-gray-400 font-bold block mt-1 uppercase"><?= date('M j, Y - g:i A', strtotime($rev['created_at'])) ?></span>
+          </div>
+          <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+      </div>
+
     </div>
 
     <?php endif; ?>

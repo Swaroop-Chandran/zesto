@@ -39,6 +39,17 @@ $menuStmt = db()->prepare("
 $menuStmt->execute([':rid' => $restaurant['id']]);
 $menuItems = $menuStmt->fetchAll();
 
+// Fetch restaurant reviews from order_reviews
+$reviewsStmt = db()->prepare("
+    SELECT r.review_text, r.restaurant_rating, r.created_at, u.name AS customer_name
+    FROM order_reviews r
+    JOIN users u ON u.id = r.customer_id
+    WHERE r.restaurant_id = :rid AND r.review_text IS NOT NULL AND r.review_text != ''
+    ORDER BY r.created_at DESC LIMIT 5
+");
+$reviewsStmt->execute([':rid' => $restaurant['id']]);
+$restaurantReviews = $reviewsStmt->fetchAll();
+
 // Group items by category
 $groupedMenu = [];
 foreach ($menuItems as $item) {
@@ -274,6 +285,41 @@ include __DIR__ . '/includes/navbar.php';
           <p class="text-gray-500 text-sm mt-1">Try a different search term or remove the veg filter.</p>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ── Customer Reviews & Feedback Section ────────────────── -->
+  <div class="max-w-[1280px] mx-auto px-4 md:px-8 lg:px-10 mt-10 mb-12">
+    <div class="bg-white rounded-2xl md:rounded-3xl border border-[#ece9e6] p-6 md:p-8 shadow-sm flex flex-col gap-6 font-sans">
+      <div class="flex justify-between items-center border-b border-gray-100 pb-4">
+        <div>
+          <h3 class="text-lg md:text-xl font-black text-[#1b1c1c]">Customer Reviews &amp; Feedback</h3>
+          <p class="text-xs text-gray-500 mt-1 font-semibold">Verified orders feedback and food ratings from real customers</p>
+        </div>
+        <div class="text-right">
+          <p class="text-2xl font-black text-green-600 flex items-center gap-1">★ <?= number_format($restaurant['rating'], 1) ?></p>
+          <span class="text-[10px] text-gray-400 font-bold block mt-0.5"><?= number_format($restaurant['rating_count']) ?> Verified Reviews</span>
+        </div>
+      </div>
+
+      <?php if (empty($restaurantReviews)): ?>
+      <div class="text-center py-10 text-gray-400 font-bold text-sm">
+        🍳 No customer reviews left for this kitchen yet. Be the first to order and review!
+      </div>
+      <?php else: ?>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <?php foreach ($restaurantReviews as $rev): ?>
+        <div class="bg-gray-50 rounded-2xl border border-gray-100 p-4 flex flex-col gap-1.5 text-xs font-semibold text-gray-700">
+          <div class="flex justify-between items-center font-extrabold">
+            <span class="text-gray-900"><?= e($rev['customer_name']) ?></span>
+            <span class="text-amber-500 font-bold">★ <?= number_format($rev['restaurant_rating'], 1) ?> rating</span>
+          </div>
+          <p class="text-gray-600 leading-normal">"<?= e($rev['review_text']) ?>"</p>
+          <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider block mt-1"><?= date('M j, Y — g:i A', strtotime($rev['created_at'])) ?></span>
+        </div>
+        <?php endforeach; ?>
+      </div>
+      <?php endif; ?>
     </div>
   </div>
 </main>

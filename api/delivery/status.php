@@ -118,39 +118,27 @@ try {
         $updOrd->execute([':oid' => $orderId]);
 
     } elseif ($status === 'delivered') {
-        // Find assignment
+        // When rider marks 'Delivered':
+        // 1. Move order to awaiting_customer_confirmation
+        // 2. Set assignment delivered_at timestamp, but status remains 'accepted' (earnings held)
+        
         $asgStmt = db()->prepare("SELECT * FROM delivery_assignments WHERE order_id = :oid AND delivery_partner_id = :pid AND status = 'accepted' LIMIT 1");
         $asgStmt->execute([':oid' => $orderId, ':pid' => $userId]);
         $assignment = $asgStmt->fetch();
 
         if ($assignment) {
-            $calc = EarningsHelper::calculate((float)$assignment['total_distance']);
-
-            // Insert into delivery_earnings
-            $ernStmt = db()->prepare("
-                INSERT INTO delivery_earnings (
-                    delivery_partner_id, order_id, base_fare, distance_charge, 
-                    peak_hour_bonus, rain_bonus, festival_bonus, total_earnings, distance_travelled
-                ) VALUES (
-                    :pid, :oid, :bf, :dc, :ph, :rb, :fb, :tot, :dist
-                )
-            ");
-            $ernStmt->execute([
-                ':pid' => $userId, ':oid' => $orderId, ':bf' => $calc['base_fare'], ':dc' => $calc['distance_charge'],
-                ':ph' => $calc['peak_hour_bonus'], ':rb' => $calc['rain_bonus'], ':fb' => $calc['festival_bonus'],
-                ':tot' => $calc['total_earnings'], ':dist' => $calc['distance_travelled']
-            ]);
-
-            // Update partner total earnings
-            $updDp = db()->prepare("UPDATE delivery_partners SET total_earnings = total_earnings + :earned, total_deliveries = total_deliveries + 1 WHERE user_id = :pid");
-            $updDp->execute([':earned' => $calc['total_earnings'], ':pid' => $userId]);
-
-            // Complete assignment
-            $updAsg = db()->prepare("UPDATE delivery_assignments SET status = 'completed', delivered_at = CURRENT_TIMESTAMP WHERE id = :aid");
+            $updAsg = db()->prepare("UPDATE delivery_assignments SET delivered_at = CURRENT_TIMESTAMP WHERE id = :aid");
             $updAsg->execute([':aid' => $assignment['id']]);
+
+            // Create audit log
+            $auditStmt = db()->prepare("INSERT INTO delivery_audit_logs (order_id, action_name, details) VALUES (:oid, 'delivered_by_partner', :det)");
+            $auditStmt->execute([
+                ':oid' => $orderId,
+                ':det' => "Order marked delivered by partner ID {$userId}. Awaiting customer confirmation."
+            ]);
         }
 
-        $updOrd = db()->prepare("UPDATE orders SET order_status = 'delivered' WHERE id = :oid");
+        $updOrd = db()->prepare("UPDATE orders SET order_status = 'awaiting_customer_confirmation' WHERE id = :oid");
         $updOrd->execute([':oid' => $orderId]);
     }
 

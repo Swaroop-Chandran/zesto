@@ -11,6 +11,34 @@ $partner = db()->prepare("SELECT * FROM delivery_partners WHERE user_id=:uid LIM
 $partner->execute([':uid' => $userId]);
 $dp = $partner->fetch();
 
+// Calculate delivery partner stats
+$totRatingsStmt = db()->prepare("SELECT COUNT(*) FROM order_reviews WHERE delivery_partner_id = :pid");
+$totRatingsStmt->execute([':pid' => $userId]);
+$totalRatings = (int)$totRatingsStmt->fetchColumn();
+
+$compCount = db()->prepare("SELECT COUNT(*) FROM delivery_assignments WHERE delivery_partner_id = :pid AND status = 'completed'");
+$compCount->execute([':pid' => $userId]);
+$completedCount = (int)$compCount->fetchColumn();
+
+$dispCount = db()->prepare("SELECT COUNT(*) FROM orders WHERE delivery_partner_id = :pid AND order_status IN ('cancelled', 'delivery_issue')");
+$dispCount->execute([':pid' => $userId]);
+$disputeCount = (int)$dispCount->fetchColumn();
+
+$successRate = ($completedCount + $disputeCount > 0) 
+    ? round(($completedCount / ($completedCount + $disputeCount)) * 100, 1) 
+    : 100.0;
+
+// Fetch recent delivery partner reviews
+$revsStmt = db()->prepare("
+    SELECT r.review_text, r.delivery_rating, r.created_at, u.name AS customer_name
+    FROM order_reviews r
+    JOIN users u ON u.id = r.customer_id
+    WHERE r.delivery_partner_id = :pid AND r.review_text IS NOT NULL AND r.review_text != ''
+    ORDER BY r.created_at DESC LIMIT 3
+");
+$revsStmt->execute([':pid' => $userId]);
+$recentReviews = $revsStmt->fetchAll();
+
 // 1. Available Deliveries (where assignment status is 'assigned')
 $available = db()->prepare("
     SELECT o.id AS order_id, o.order_number, o.total AS order_value, o.created_at, o.delivery_address,
@@ -33,7 +61,7 @@ $active = db()->prepare("
     FROM delivery_assignments da
     JOIN orders o ON o.id = da.order_id
     JOIN restaurants r ON r.id = o.restaurant_id
-    WHERE da.delivery_partner_id = :pid AND da.status = 'accepted' AND o.order_status NOT IN ('delivered', 'cancelled')
+    WHERE da.delivery_partner_id = :pid AND da.status = 'accepted' AND o.order_status NOT IN ('completed', 'cancelled')
     LIMIT 1
 ");
 $active->execute([':pid' => $userId]);
@@ -89,14 +117,19 @@ include __DIR__ . '/../includes/header.php';
 
     <!-- Partner KPIs -->
     <?php if ($dp): ?>
-    <div class="grid grid-cols-3 gap-5 mb-8">
-      <?php foreach ([['Total Deliveries', number_format($dp['total_deliveries']), '🏍'], ['Average Rating', number_format($dp['rating'], 1).' ★', '⭐'], ['Total Earnings', formatPrice($dp['total_earnings']), '💰']] as [$lbl, $val, $ico]): ?>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
+      <?php foreach ([
+          ['Total Deliveries', number_format($dp['total_deliveries']), '🏍'],
+          ['Average Rating', number_format($dp['rating'], 1).' ★ ('.$totalRatings.')', '⭐'],
+          ['Success Rate', $successRate.'%', '📈'],
+          ['Total Earnings', formatPrice($dp['total_earnings']), '💰']
+      ] as [$lbl, $val, $ico]): ?>
       <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-sm">
         <div class="flex justify-between items-start mb-2">
           <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider"><?= $lbl ?></p>
           <span class="text-xl"><?= $ico ?></span>
         </div>
-        <p class="text-2xl font-black text-[#1b1c1c]"><?= $val ?></p>
+        <p class="text-xl md:text-2xl font-black text-[#1b1c1c]"><?= $val ?></p>
       </div>
       <?php endforeach; ?>
     </div>
@@ -137,9 +170,12 @@ include __DIR__ . '/../includes/header.php';
       <!-- Progressive timeline indicators -->
       <div class="grid grid-cols-4 gap-2 mb-8">
         <?php 
-        $workflowStages = ['assigned_to_delivery', 'picked_up', 'out_for_delivery', 'delivered'];
+        $workflowStages = ['assigned_to_delivery', 'picked_up', 'out_for_delivery', 'awaiting_customer_confirmation'];
         $activeIdx = array_search($oStatus, $workflowStages);
-        if ($activeIdx === false) $activeIdx = 0;
+        if ($activeIdx === false) {
+            if ($oStatus === 'delivery_issue') $activeIdx = 3;
+            else $activeIdx = 0;
+        }
         
         $stageLabels = [
             'Navigate to Restaurant',
@@ -165,16 +201,21 @@ include __DIR__ . '/../includes/header.php';
       </div>
 
       <!-- Swiggy-Style Workflow Buttons -->
+      <?php 
+      $isWaiting = ($oStatus === 'awaiting_customer_confirmation');
+      $hasIssue  = ($oStatus === 'delivery_issue');
+      $isDisabled = ($isWaiting || $hasIssue);
+      ?>
       <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-gray-50 rounded-2xl p-5 border border-gray-100">
         <!-- Navigate To Restaurant -->
-        <button onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'assigned_to_delivery', this)" 
+        <button <?= $isDisabled ? 'disabled' : '' ?> onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'assigned_to_delivery', this)" 
                 class="py-3 px-4 rounded-xl font-bold text-xs shadow-sm transition-all cursor-pointer text-center
                        <?= $oStatus === 'assigned_to_delivery' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200/50 text-gray-400 border border-gray-100' ?>">
           Navigate to Restaurant
         </button>
         
         <!-- Picked Up -->
-        <button onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'picked_up', this)" 
+        <button <?= $isDisabled ? 'disabled' : '' ?> onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'picked_up', this)" 
                 class="py-3 px-4 rounded-xl font-bold text-xs shadow-sm transition-all cursor-pointer text-center
                        <?= $oStatus === 'picked_up' ? 'bg-amber-500 text-white hover:bg-amber-600' : ($oStatus === 'assigned_to_delivery' ? 'bg-white border border-[#00c853] text-[#00c853] hover:bg-[#00c853]/5' : 'bg-gray-100 text-gray-400') ?>"
                 <?= ($oStatus !== 'assigned_to_delivery' && $oStatus !== 'picked_up') ? 'disabled' : '' ?>>
@@ -182,21 +223,47 @@ include __DIR__ . '/../includes/header.php';
         </button>
         
         <!-- Out For Delivery -->
-        <button onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'out_for_delivery', this)" 
+        <button <?= $isDisabled ? 'disabled' : '' ?> onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'out_for_delivery', this)" 
                 class="py-3 px-4 rounded-xl font-bold text-xs shadow-sm transition-all cursor-pointer text-center
                        <?= $oStatus === 'out_for_delivery' ? 'bg-emerald-600 text-white hover:bg-emerald-700' : ($oStatus === 'picked_up' ? 'bg-white border border-[#00c853] text-[#00c853] hover:bg-[#00c853]/5' : 'bg-gray-100 text-gray-400') ?>"
                 <?= ($oStatus !== 'picked_up' && $oStatus !== 'out_for_delivery') ? 'disabled' : '' ?>>
           Out for Delivery
         </button>
         
-        <!-- Delivered -->
+        <!-- Delivered / Waiting Confirmation -->
+        <?php if ($isWaiting): ?>
+        <button disabled class="py-3 px-4 rounded-xl font-bold text-xs shadow-sm transition-all text-center bg-amber-500 text-white cursor-not-allowed sm:col-span-1">
+          Waiting for Customer...
+        </button>
+        <?php elseif ($hasIssue): ?>
+        <button disabled class="py-3 px-4 rounded-xl font-bold text-xs shadow-sm transition-all text-center bg-red-600 text-white cursor-not-allowed sm:col-span-1">
+          Dispute Opened ⚠️
+        </button>
+        <?php else: ?>
         <button onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'delivered', this)" 
                 class="py-3 px-4 rounded-xl font-bold text-xs shadow-sm transition-all cursor-pointer text-center
                        <?= ($oStatus === 'out_for_delivery') ? 'bg-[#00c853] text-white hover:bg-[#00b047]' : 'bg-gray-100 text-gray-400' ?>"
                 <?= ($oStatus !== 'out_for_delivery') ? 'disabled' : '' ?>>
           Delivered
         </button>
+        <?php endif; ?>
       </div>
+
+      <?php if ($isWaiting): ?>
+      <div class="mt-4 p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center gap-3 text-xs text-amber-800 font-bold">
+        <span class="text-lg">⏳</span>
+        <div>
+          <p>Order marked as Delivered. Courier earnings will be released automatically once the customer confirms receipt.</p>
+        </div>
+      </div>
+      <?php elseif ($hasIssue): ?>
+      <div class="mt-4 p-4 rounded-2xl bg-red-50 border border-red-200 flex items-center gap-3 text-xs text-red-800 font-bold animate-pulse">
+        <span class="text-lg">⚠️</span>
+        <div>
+          <p>The customer reported an issue with this delivery. Payout has been held. Support team and kitchen have been notified.</p>
+        </div>
+      </div>
+      <?php endif; ?>
     </div>
     <?php endif; ?>
 
@@ -300,6 +367,29 @@ include __DIR__ . '/../includes/header.php';
           </tbody>
         </table>
       </div>
+    </div>
+
+    <!-- RECENT CUSTOMER REVIEWS -->
+    <div class="bg-white rounded-3xl border border-gray-150 shadow-sm p-6 mb-8 flex flex-col gap-4">
+      <h3 class="font-bold text-sm text-[#1b1c1c] pb-2 border-b">⭐ Recent Customer Feedback &amp; Reviews</h3>
+      <?php if (empty($recentReviews)): ?>
+      <div class="text-center text-gray-400 font-bold text-xs py-6">
+        No rated reviews received yet from customers. Excellent service builds higher ratings!
+      </div>
+      <?php else: ?>
+      <div class="space-y-4">
+        <?php foreach ($recentReviews as $rev): ?>
+        <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex flex-col gap-1 text-xs font-semibold">
+          <div class="flex justify-between items-center font-extrabold">
+            <span class="text-gray-800"><?= e($rev['customer_name']) ?></span>
+            <span class="text-amber-500">★ <?= number_format($rev['delivery_rating'], 1) ?> rating</span>
+          </div>
+          <p class="text-gray-600 italic mt-1">"<?= e($rev['review_text']) ?>"</p>
+          <span class="text-[9px] text-gray-400 font-bold block mt-1 uppercase"><?= date('M j, Y - g:i A', strtotime($rev['created_at'])) ?></span>
+        </div>
+        <?php endforeach; ?>
+      </div>
+      <?php endif; ?>
     </div>
 
     <?php endif; ?>

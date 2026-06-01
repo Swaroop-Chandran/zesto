@@ -167,53 +167,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $assignment = $asgStmt->fetch();
             
             if ($assignment) {
-                $pUserId = (int)$assignment['delivery_partner_id'];
-                
-                // Calculate dynamic earnings breakdown
-                $calc = EarningsHelper::calculate((float)$assignment['total_distance']);
-                
-                // 1. Insert into delivery_earnings table
-                $ernStmt = db()->prepare("
-                    INSERT INTO delivery_earnings (
-                        delivery_partner_id, order_id, base_fare, 
-                        distance_charge, peak_hour_bonus, rain_bonus, 
-                        festival_bonus, total_earnings, distance_travelled
-                    ) VALUES (
-                        :pid, :oid, :bf, :dc, :ph, :rb, :fb, :tot, :dist
-                    )
-                ");
-                $ernStmt->execute([
-                    ':pid' => $pUserId,
-                    ':oid' => $orderId,
-                    ':bf' => $calc['base_fare'],
-                    ':dc' => $calc['distance_charge'],
-                    ':ph' => $calc['peak_hour_bonus'],
-                    ':rb' => $calc['rain_bonus'],
-                    ':fb' => $calc['festival_bonus'],
-                    ':tot' => $calc['total_earnings'],
-                    ':dist' => $calc['distance_travelled']
-                ]);
-                
-                // 2. Update delivery_partners aggregated earnings and deliveries counter
-                $updDp = db()->prepare("
-                    UPDATE delivery_partners 
-                    SET total_earnings = total_earnings + :earned, 
-                        total_deliveries = total_deliveries + 1 
-                    WHERE user_id = :pid
-                ");
-                $updDp->execute([
-                    ':earned' => $calc['total_earnings'],
-                    ':pid' => $pUserId
-                ]);
-                
-                // 3. Mark delivery assignment completed
+                // Set assignment delivered_at timestamp, but status remains 'accepted' (earnings held)
                 $updAsg = db()->prepare("
                     UPDATE delivery_assignments 
-                    SET status = 'completed', delivered_at = CURRENT_TIMESTAMP 
+                    SET delivered_at = CURRENT_TIMESTAMP 
                     WHERE id = :aid
                 ");
                 $updAsg->execute([':aid' => $assignment['id']]);
+
+                // Create audit log
+                $auditStmt = db()->prepare("
+                    INSERT INTO delivery_audit_logs (order_id, action_name, details) 
+                    VALUES (:oid, 'delivered_by_partner', :det)
+                ");
+                $auditStmt->execute([
+                    ':oid' => $orderId,
+                    ':det' => "Order marked delivered. Awaiting customer confirmation."
+                ]);
             }
+            // Change actual status to the holding state
+            $status = 'awaiting_customer_confirmation';
         }
 
         // ── UPDATE MAIN ORDER TABLE ────────────────────────────────────────
