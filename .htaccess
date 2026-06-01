@@ -1,4 +1,4 @@
-# Zesto — Apache Configuration
+# Zesto — Apache Configuration with Modular Routing Rewrites
 # Place this in the /zesto root directory (c:\xampp\htdocs\zesto\.htaccess)
 
 DirectoryIndex index.php index.html
@@ -37,6 +37,53 @@ AddDefaultCharset UTF-8
   AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json
 </IfModule>
 
+# URL Routing Rewrites
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /zesto/
+
+  # 1. Customer Module Routing
+  RewriteRule ^$ modules/customer/home/index.php [L]
+  RewriteRule ^index\.php$ modules/customer/home/index.php [L]
+  RewriteRule ^restaurants\.php$ modules/customer/restaurants/restaurants.php [L]
+  RewriteRule ^restaurant\.php$ modules/customer/restaurants/restaurant.php [L]
+  RewriteRule ^menu\.php$ modules/customer/menu/menu.php [L]
+  RewriteRule ^cart\.php$ modules/customer/cart/cart.php [L]
+  RewriteRule ^checkout\.php$ modules/customer/checkout/checkout.php [L]
+  RewriteRule ^orders\.php$ modules/customer/orders/orders.php [L]
+  RewriteRule ^profile\.php$ modules/customer/profile/profile.php [L]
+  RewriteRule ^location\.php$ modules/customer/location/location.php [L]
+
+  # 2. Restaurant Panel Routing
+  RewriteRule ^restaurant-panel/dashboard\.php$ modules/restaurant/dashboard/dashboard.php [L]
+  RewriteRule ^restaurant-panel/orders\.php$ modules/restaurant/orders/orders.php [L]
+  RewriteRule ^restaurant-panel/menu\.php$ modules/restaurant/menu/menu.php [L]
+  RewriteRule ^restaurant-panel/categories\.php$ modules/restaurant/categories/categories.php [L]
+  RewriteRule ^restaurant-panel/analytics\.php$ modules/restaurant/analytics/analytics.php [L]
+  RewriteRule ^restaurant-panel/settings\.php$ modules/restaurant/settings/settings.php [L]
+  RewriteRule ^restaurant-panel/onboard\.php$ modules/restaurant/onboarding/onboard.php [L]
+
+  # 3. Delivery Panel Routing
+  RewriteRule ^delivery-panel/dashboard\.php$ modules/delivery/dashboard/dashboard.php [L]
+  RewriteRule ^delivery-panel/deliveries\.php$ modules/delivery/deliveries/deliveries.php [L]
+  RewriteRule ^delivery-panel/earnings\.php$ modules/delivery/earnings/earnings.php [L]
+  RewriteRule ^delivery-panel/analytics\.php$ modules/delivery/analytics/analytics.php [L]
+  RewriteRule ^delivery-panel/notifications\.php$ modules/delivery/notifications/notifications.php [L]
+
+  # 4. Admin Panel Routing
+  RewriteRule ^admin/dashboard\.php$ modules/admin/dashboard/dashboard.php [L]
+  RewriteRule ^admin/restaurants\.php$ modules/admin/restaurants/restaurants.php [L]
+  RewriteRule ^admin/customers\.php$ modules/admin/customers/customers.php [L]
+  RewriteRule ^admin/delivery\.php$ modules/admin/delivery-partners/delivery.php [L]
+  RewriteRule ^admin/orders\.php$ modules/admin/orders/orders.php [L]
+  RewriteRule ^admin/offers\.php$ modules/admin/offers/offers.php [L]
+  RewriteRule ^admin/specials\.php$ modules/admin/specials/specials.php [L]
+  RewriteRule ^admin/confirmations\.php$ modules/admin/confirmations/confirmations.php [L]
+  RewriteRule ^admin/delivery_settings\.php$ modules/admin/settings/delivery_settings.php [L]
+  RewriteRule ^admin/reports\.php$ modules/admin/analytics/reports.php [L]
+
+</IfModule>
+
 # Protect config files
 <FilesMatch "^(config|setup\.sql|composer\.json)">
   Order Allow,Deny
@@ -48,7 +95,3 @@ AddDefaultCharset UTF-8
   Order Allow,Deny
   Deny from all
 </FilesMatch>
-
-# Custom error pages (optional)
-# ErrorDocument 404 /zesto/404.php
-# ErrorDocument 403 /zesto/403.php
