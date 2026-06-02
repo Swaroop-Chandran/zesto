@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS users (
     role          ENUM('customer','restaurant_owner','delivery_partner','admin') NOT NULL DEFAULT 'customer',
     avatar        VARCHAR(500)  DEFAULT NULL,
     is_active     TINYINT(1)    NOT NULL DEFAULT 1,
+    account_status ENUM('active','suspended','deleted') NOT NULL DEFAULT 'active',
+    session_invalidated_at TIMESTAMP NULL DEFAULT NULL,
     created_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY uq_email_role (email, role),

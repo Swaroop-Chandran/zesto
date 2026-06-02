@@ -39,24 +39,24 @@ $workflow = [
 function renderCardStatusButtons($orderId, $status) {
     $html = '<div class="flex gap-2 w-full mt-4">';
     if ($status === 'pending') {
-        $html .= '<button onclick="handleQuickStatus(' . $orderId . ', \'accepted\', this)" class="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-md cursor-pointer transition-all">Accept Order</button>';
-        $html .= '<button onclick="handleQuickStatus(' . $orderId . ', \'cancelled\', this)" class="py-3 px-4 border border-red-200 text-red-500 hover:bg-red-50 rounded-xl font-bold text-xs cursor-pointer transition-all">Reject</button>';
+        $html .= '<button onclick="handleQuickStatus(' . $orderId . ', \'accepted\', this)" class="flex-1 py-3 px-4 bg-[#f59e0b] hover:bg-[#fbbf24] text-black rounded-full font-bold text-xs shadow-md cursor-pointer transition-all border-none">Accept Order</button>';
+        $html .= '<button onclick="handleQuickStatus(' . $orderId . ', \'cancelled\', this)" class="py-3 px-4 border border-white/10 text-white/60 hover:bg-white/5 rounded-full font-bold text-xs cursor-pointer transition-all">Reject</button>';
     } elseif ($status === 'accepted') {
-        $html .= '<button onclick="handleQuickStatus(' . $orderId . ', \'preparing\', this)" class="flex-1 py-3 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs shadow-md cursor-pointer transition-all">Start Preparing &amp; Cook</button>';
+        $html .= '<button onclick="handleQuickStatus(' . $orderId . ', \'preparing\', this)" class="flex-1 py-3 px-4 bg-[#f59e0b] hover:bg-[#fbbf24] text-black rounded-full font-bold text-xs shadow-md cursor-pointer transition-all border-none">Start Preparing &amp; Cook</button>';
     } elseif ($status === 'preparing') {
-        $html .= '<button onclick="handleQuickStatus(' . $orderId . ', \'ready_for_pickup\', this)" class="flex-1 py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-xs shadow-md cursor-pointer transition-all">Food Ready for Pickup</button>';
+        $html .= '<button onclick="handleQuickStatus(' . $orderId . ', \'ready_for_pickup\', this)" class="flex-1 py-3 px-4 bg-[#f59e0b] hover:bg-[#fbbf24] text-black rounded-full font-bold text-xs shadow-md cursor-pointer transition-all border-none">Food Ready for Pickup</button>';
     } elseif ($status === 'assigned_to_delivery') {
-        $html .= '<button onclick="handleQuickStatus(' . $orderId . ', \'picked_up\', this)" class="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md cursor-pointer transition-all">Hand over to Courier</button>';
+        $html .= '<button onclick="handleQuickStatus(' . $orderId . ', \'picked_up\', this)" class="flex-1 py-3 px-4 bg-[#f59e0b] hover:bg-[#fbbf24] text-black rounded-full font-bold text-xs shadow-md cursor-pointer transition-all border-none">Hand over to Courier</button>';
     } elseif ($status === 'ready_for_pickup') {
-        $html .= '<span class="text-xs text-purple-600 bg-purple-50 px-4 py-3 rounded-xl border border-purple-150 flex items-center justify-center gap-1.5 w-full font-bold"><span class="w-2 h-2 bg-purple-500 rounded-full animate-ping"></span> Waiting for Partner Acceptance...</span>';
+        $html .= '<span class="text-xs text-amber-400 bg-amber-500/10 px-4 py-3 rounded-full border border-amber-500/20 flex items-center justify-center gap-1.5 w-full font-bold"><span class="w-2 h-2 bg-amber-500 rounded-full animate-ping"></span> Waiting for Partner Acceptance...</span>';
     } elseif ($status === 'picked_up') {
-        $html .= '<span class="text-xs text-blue-600 bg-blue-50 px-4 py-3 rounded-xl border border-blue-150 flex items-center justify-center w-full font-bold">Courier Active (In Care)</span>';
+        $html .= '<span class="text-xs text-blue-400 bg-blue-500/10 px-4 py-3 rounded-full border border-blue-500/20 flex items-center justify-center w-full font-bold">Courier Active (In Care)</span>';
     } elseif ($status === 'out_for_delivery') {
-        $html .= '<span class="text-xs text-emerald-600 bg-emerald-50 px-4 py-3 rounded-xl border border-emerald-150 flex items-center justify-center w-full font-bold">Rider Out for Delivery</span>';
+        $html .= '<span class="text-xs text-amber-400 bg-amber-500/10 px-4 py-3 rounded-full border border-amber-500/20 flex items-center justify-center w-full font-bold">Rider Out for Delivery</span>';
     } elseif ($status === 'delivered') {
-        $html .= '<span class="text-xs text-emerald-800 bg-emerald-50/50 px-4 py-3 rounded-xl border border-emerald-200 flex items-center justify-center gap-1 w-full font-bold">✓ Order Completed</span>';
+        $html .= '<span class="text-xs text-emerald-400 bg-emerald-500/10 px-4 py-3 rounded-full border border-emerald-500/20 flex items-center justify-center gap-1 w-full font-bold">✓ Order Completed</span>';
     } else {
-        $html .= '<span class="text-xs text-red-650 bg-red-50 px-4 py-3 rounded-xl border border-red-150 flex items-center justify-center w-full font-bold">✗ Order Cancelled</span>';
+        $html .= '<span class="text-xs text-red-400 bg-red-500/10 px-4 py-3 rounded-full border border-red-500/20 flex items-center justify-center w-full font-bold">✗ Order Cancelled</span>';
     }
     $html .= '</div>';
     return $html;

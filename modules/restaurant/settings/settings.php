@@ -103,13 +103,13 @@ include __DIR__ . '/../../../includes/header.php';
     </div>
 
     <?php if (empty($restaurant)): ?>
-    <div class="bg-zesto-orange/20 border border-zesto-orange/30 rounded-3xl p-8 text-center text-white/60 text-sm">
+    <div class="bg-zesto-orange/10 border border-zesto-orange/20 rounded-3xl p-8 text-center text-white/60 text-sm">
       🍴 You do not have a restaurant associated with your owner account.
     </div>
     <?php exit; endif; ?>
 
     <?php if (!empty($errors)): ?>
-    <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-semibold space-y-1">
+    <div class="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 font-semibold space-y-1">
       <?php foreach ($errors as $e): ?><p>• <?= htmlspecialchars($e) ?></p><?php endforeach; ?>
     </div>
     <?php endif; ?>
@@ -122,22 +122,22 @@ include __DIR__ . '/../../../includes/header.php';
         
         <div>
           <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Restaurant Kitchen Name *</label>
-          <input type="text" name="name" required value="<?= e($restaurant['name']) ?>" class="zesto-input bg-gray-50/50 text-xs">
+          <input type="text" name="name" required value="<?= e($restaurant['name']) ?>" class="zesto-input bg-white/5 border-white/10 text-xs">
         </div>
 
         <div>
           <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Active Promotional Discount (e.g. 50% OFF)</label>
-          <input type="text" name="discount" value="<?= e($restaurant['discount'] ?? '') ?>" placeholder="50% OFF | Flat ₹100 Off" class="zesto-input bg-gray-50/50 text-xs">
+          <input type="text" name="discount" value="<?= e($restaurant['discount'] ?? '') ?>" placeholder="50% OFF | Flat ₹100 Off" class="zesto-input bg-white/5 border-white/10 text-xs">
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Cuisines / Tags (comma-separated)</label>
-            <input type="text" name="tags" value="<?= e($restaurant['tags'] ?? '') ?>" placeholder="Pizza, Burgers, Italian" class="zesto-input bg-gray-50/50 text-xs">
+            <input type="text" name="tags" value="<?= e($restaurant['tags'] ?? '') ?>" placeholder="Pizza, Burgers, Italian" class="zesto-input bg-white/5 border-white/10 text-xs">
           </div>
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">City Location *</label>
-            <select name="city" required class="zesto-input bg-gray-50/50 text-xs font-semibold text-white/80">
+            <select name="city" required class="zesto-input bg-white/5 border-white/10 text-xs font-semibold text-white/80">
               <option value="Mumbai" <?= $restaurant['city'] === 'Mumbai' ? 'selected' : '' ?>>Mumbai</option>
               <option value="Delhi" <?= $restaurant['city'] === 'Delhi' ? 'selected' : '' ?>>Delhi</option>
               <option value="Bangalore" <?= $restaurant['city'] === 'Bangalore' ? 'selected' : '' ?>>Bangalore</option>
@@ -151,41 +151,41 @@ include __DIR__ . '/../../../includes/header.php';
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Contact Phone Number *</label>
-            <input type="text" name="phone" required value="<?= e($restaurant['phone'] ?? '') ?>" placeholder="e.g. +91 99999 11111" class="zesto-input bg-gray-50/50 text-xs">
+            <input type="text" name="phone" required value="<?= e($restaurant['phone'] ?? '') ?>" placeholder="e.g. +91 99999 11111" class="zesto-input bg-white/5 border-white/10 text-xs">
           </div>
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Delivery Radius (km) *</label>
-            <input type="number" name="delivery_radius" required step="0.1" value="<?= e($restaurant['delivery_radius'] ?? 5.0) ?>" min="0.5" max="30.0" class="zesto-input bg-gray-50/50 text-xs">
+            <input type="number" name="delivery_radius" required step="0.1" value="<?= e($restaurant['delivery_radius'] ?? 5.0) ?>" min="0.5" max="30.0" class="zesto-input bg-white/5 border-white/10 text-xs">
           </div>
         </div>
 
         <div>
           <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Operating Hours *</label>
-          <input type="text" name="operating_hours" required value="<?= e($restaurant['operating_hours'] ?? '9:00 AM - 10:00 PM') ?>" placeholder="e.g. 9:00 AM - 10:00 PM" class="zesto-input bg-gray-50/50 text-xs">
+          <input type="text" name="operating_hours" required value="<?= e($restaurant['operating_hours'] ?? '9:00 AM - 10:00 PM') ?>" placeholder="e.g. 9:00 AM - 10:00 PM" class="zesto-input bg-white/5 border-white/10 text-xs">
         </div>
 
         <div>
           <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Full Kitchen Address *</label>
-          <textarea name="address" required rows="2" placeholder="e.g. 12, Link Road, Andheri West, Mumbai" class="zesto-input bg-gray-50/50 text-xs resize-none"><?= e($restaurant['address'] ?? '') ?></textarea>
+          <textarea name="address" required rows="2" placeholder="e.g. 12, Link Road, Andheri West, Mumbai" class="zesto-input bg-white/5 border-white/10 text-xs resize-none"><?= e($restaurant['address'] ?? '') ?></textarea>
         </div>
 
         <div>
           <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Description</label>
-          <textarea name="description" rows="3" placeholder="Tell customers about your kitchen's rich history, standards, and chef specials..." class="zesto-input bg-gray-50/50 text-xs resize-none"><?= e($restaurant['description'] ?? '') ?></textarea>
+          <textarea name="description" rows="3" placeholder="Tell customers about your kitchen's rich history, standards, and chef specials..." class="zesto-input bg-white/5 border-white/10 text-xs resize-none"><?= e($restaurant['description'] ?? '') ?></textarea>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 border-t border-white/10 pt-5">
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Upload Restaurant Logo (Square)</label>
-            <input type="file" name="logo" accept="image/*" class="zesto-input bg-gray-50/50 text-xs py-2 px-3 border-dashed border-2">
+            <input type="file" name="logo" accept="image/*" class="zesto-input bg-white/5 border-white/10 text-xs py-2 px-3 border-dashed border-2">
           </div>
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Upload Restaurant Banner (Landscape)</label>
-            <input type="file" name="banner" accept="image/*" class="zesto-input bg-gray-50/50 text-xs py-2 px-3 border-dashed border-2">
+            <input type="file" name="banner" accept="image/*" class="zesto-input bg-white/5 border-white/10 text-xs py-2 px-3 border-dashed border-2">
           </div>
         </div>
 
-        <button type="submit" class="btn-primary w-fit h-11 px-6 font-bold rounded-xl mt-3 text-xs">
+        <button type="submit" class="btn-primary w-fit h-11 px-6 font-bold rounded-full mt-3 text-xs border-none">
           Save Settings & Images
         </button>
       </form>

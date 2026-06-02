@@ -116,18 +116,18 @@ include __DIR__ . '/../../../includes/header.php';
         <h1 class="text-2xl md:text-3xl font-black text-white mt-1">Menu Management</h1>
       </div>
       <?php if ($restaurant): ?>
-      <a href="?add=1" class="btn-primary text-xs font-bold px-5 py-3 rounded-xl">+ Add Item</a>
+      <a href="?add=1" class="btn-primary text-xs font-bold px-6 py-2.5 rounded-full">+ Add Item</a>
       <?php endif; ?>
     </div>
 
     <?php if (empty($restaurant)): ?>
-    <div class="bg-zesto-orange/20 border border-zesto-orange/30 rounded-3xl p-8 text-center text-white/60 text-sm">
+    <div class="bg-zesto-orange/10 border border-zesto-orange/20 rounded-3xl p-8 text-center text-white/60 text-sm">
       🍴 You do not have a restaurant associated with your owner account yet. Please contact admin for kitchen setups.
     </div>
     <?php exit; endif; ?>
 
     <?php if (!empty($errors)): ?>
-    <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-semibold space-y-1">
+    <div class="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 font-semibold space-y-1">
       <?php foreach ($errors as $e): ?><p>• <?= htmlspecialchars($e) ?></p><?php endforeach; ?>
     </div>
     <?php endif; ?>
@@ -145,15 +145,15 @@ include __DIR__ . '/../../../includes/header.php';
 
         <div>
           <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Dish Name *</label>
-          <input type="text" name="name" required value="<?= e($editItem['name'] ?? '') ?>" placeholder="Signature Pizza" class="zesto-input bg-gray-50/50 text-xs">
+          <input type="text" name="name" required value="<?= e($editItem['name'] ?? '') ?>" placeholder="Signature Pizza" class="zesto-input bg-white/5 border-white/10 text-xs">
         </div>
         <div>
           <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Price (₹) *</label>
-          <input type="number" name="price" step="0.01" min="0.01" required value="<?= e($editItem['price'] ?? '') ?>" placeholder="299.00" class="zesto-input bg-gray-50/50 text-xs">
+          <input type="number" name="price" step="0.01" min="0.01" required value="<?= e($editItem['price'] ?? '') ?>" placeholder="299.00" class="zesto-input bg-white/5 border-white/10 text-xs">
         </div>
         <div>
           <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Category *</label>
-          <select name="category_id" required class="zesto-input bg-gray-50/50 text-xs">
+          <select name="category_id" required class="zesto-input bg-white/5 border-white/10 text-xs">
             <option value="">Select Cuisine Category</option>
             <?php foreach ($categories as $cat): ?>
             <option value="<?= $cat['id'] ?>" <?= (($editItem['category_id'] ?? 0) == $cat['id']) ? 'selected' : '' ?>><?= e($cat['name']) ?></option>
@@ -165,7 +165,7 @@ include __DIR__ . '/../../../includes/header.php';
           <div class="grid grid-cols-2 gap-3">
             <label class="cursor-pointer">
               <input type="radio" name="is_veg" value="1" <?= ($editItem['is_veg'] ?? 1) == 1 ? 'checked' : '' ?> class="sr-only">
-              <div class="text-center p-2.5 border rounded-lg font-bold transition-all border-[#00c853] bg-green-50/20 text-[#00c853] role-veg-pill">
+              <div class="text-center p-2.5 border rounded-lg font-bold transition-all border-green-500/30 bg-green-500/10 text-green-400 role-veg-pill">
                 🌱 Vegetarian
               </div>
             </label>
@@ -179,30 +179,30 @@ include __DIR__ . '/../../../includes/header.php';
         </div>
         <div class="sm:col-span-2">
           <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Description</label>
-          <textarea name="description" rows="3" placeholder="Describe the ingredients, presentation, and culinary taste..." class="zesto-input bg-gray-50/50 text-xs resize-none"><?= e($editItem['description'] ?? '') ?></textarea>
+          <textarea name="description" rows="3" placeholder="Describe the ingredients, presentation, and culinary taste..." class="zesto-input bg-white/5 border-white/10 text-xs resize-none"><?= e($editItem['description'] ?? '') ?></textarea>
         </div>
         <div>
           <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Customization Options (comma-separated)</label>
-          <input type="text" name="options" value="<?= e(implode(', ', json_decode($editItem['customization_options'] ?? '[]', true) ?? [])) ?>" placeholder="Extra Cheese, Spicy, Wheat Base" class="zesto-input bg-gray-50/50 text-xs">
+          <input type="text" name="options" value="<?= e(implode(', ', json_decode($editItem['customization_options'] ?? '[]', true) ?? [])) ?>" placeholder="Extra Cheese, Spicy, Wheat Base" class="zesto-input bg-white/5 border-white/10 text-xs">
         </div>
         
         <!-- Image Upload Field -->
         <div>
           <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Dish Image Upload</label>
-          <input type="file" name="image" accept="image/*" class="zesto-input bg-gray-50/50 text-xs py-2 px-3 border-dashed border-2">
+          <input type="file" name="image" accept="image/*" class="zesto-input bg-white/5 border-white/10 text-xs py-2 px-3 border-dashed border-2">
           <?php if (!empty($editItem['image'])): ?>
           <p class="text-[10px] text-white/40 mt-1.5 flex items-center gap-1.5">✓ Current: <a href="<?= e($editItem['image']) ?>" target="_blank" class="font-bold text-zesto-orange hover:underline truncate"><?= basename($editItem['image']) ?></a></p>
           <?php endif; ?>
         </div>
 
         <div class="flex items-center gap-2 pt-6">
-          <input type="checkbox" name="is_available" id="avail" <?= ($editItem['is_available'] ?? 1) ? 'checked' : '' ?> class="w-4 h-4 accent-[#a83300]">
+          <input type="checkbox" name="is_available" id="avail" <?= ($editItem['is_available'] ?? 1) ? 'checked' : '' ?> class="w-4 h-4 accent-[#f59e0b]">
           <label for="avail" class="text-sm font-bold text-white cursor-pointer">Available for Order</label>
         </div>
 
         <div class="sm:col-span-2 flex gap-3 mt-3">
-          <button type="submit" class="btn-primary text-xs font-bold px-5 py-3 rounded-xl">Save Menu Item</button>
-          <a href="<?= BASE_URL ?>/restaurant-panel/menu.php" class="btn-secondary text-xs font-bold px-5 py-3 rounded-xl flex items-center justify-center">Cancel</a>
+          <button type="submit" class="btn-primary text-xs font-bold px-6 py-2.5 rounded-full">Save Menu Item</button>
+          <a href="<?= BASE_URL ?>/restaurant-panel/menu.php" class="btn-secondary text-xs font-bold px-6 py-2.5 rounded-full flex items-center justify-center">Cancel</a>
         </div>
       </form>
     </div>
@@ -214,9 +214,9 @@ include __DIR__ . '/../../../includes/header.php';
         input.addEventListener('change', function() {
           pills.forEach(p => p.className = "text-center p-2.5 border rounded-lg font-bold transition-all border-white/10 text-white/60 hover:border-gray-400 role-veg-pill");
           if (this.value === '1') {
-            pills[index].className = "text-center p-2.5 border rounded-lg font-bold transition-all border-[#00c853] bg-green-50/20 text-[#00c853] role-veg-pill";
+            pills[index].className = "text-center p-2.5 border rounded-lg font-bold transition-all border-green-500/30 bg-green-500/10 text-green-400 role-veg-pill";
           } else {
-            pills[index].className = "text-center p-2.5 border rounded-lg font-bold transition-all border-red-500 bg-red-50/20 text-red-500 role-veg-pill";
+            pills[index].className = "text-center p-2.5 border rounded-lg font-bold transition-all border-red-500/30 bg-red-500/10 text-red-400 role-veg-pill";
           }
         });
       });
@@ -238,7 +238,7 @@ include __DIR__ . '/../../../includes/header.php';
               <?= $item['is_veg'] ? '●' : '▲' ?>
             </span>
 
-            <span class="absolute top-3 right-3 text-[8px] font-black px-2 py-0.5 rounded shadow-md shadow-black/20 <?= $item['is_available'] ? 'bg-green-550 bg-green-500 text-white' : 'bg-red-500 text-white' ?>">
+            <span class="absolute top-3 right-3 text-[8px] font-black px-2 py-0.5 rounded shadow-md shadow-black/20 <?= $item['is_available'] ? 'bg-green-500/20 border border-green-500/30 text-green-400' : 'bg-red-500/20 border border-red-500/30 text-red-400' ?>">
               <?= $item['is_available'] ? 'Active' : 'Hidden' ?>
             </span>
           </div>
@@ -255,12 +255,12 @@ include __DIR__ . '/../../../includes/header.php';
         <div class="flex justify-between items-center pt-3 border-t border-white/10 mt-3 shrink-0">
           <span class="text-zesto-orange font-black text-sm"><?= formatPrice($item['price']) ?></span>
           <div class="flex gap-1.5">
-            <a href="?edit=<?= $item['id'] ?>" class="text-[10px] px-3.5 py-1.5 rounded-lg border border-white/10 glass-panel hover:bg-white/5 text-white/80 font-bold cursor-pointer transition-colors shadow-md shadow-black/20">Edit</a>
+            <a href="?edit=<?= $item['id'] ?>" class="text-[10px] px-3.5 py-1.5 rounded-full border border-white/10 glass-panel hover:bg-white/5 text-white/80 font-bold cursor-pointer transition-colors shadow-md shadow-black/20">Edit</a>
             <form method="POST" action="<?= BASE_URL ?>/api/restaurants/delete-item.php" class="inline">
               <?= csrfField() ?>
               <input type="hidden" name="item_id" value="<?= $item['id'] ?>">
               <button type="submit" data-confirm="Remove this menu item permanently?"
-                      class="text-[10px] px-3.5 py-1.5 rounded-lg border border-red-100 text-red-500 hover:bg-red-50 font-bold cursor-pointer transition-colors">Delete</button>
+                      class="text-[10px] px-3.5 py-1.5 rounded-full border border-red-500/20 text-red-400 hover:bg-red-500/10 font-bold cursor-pointer transition-colors shadow-md shadow-black/20">Delete</button>
             </form>
           </div>
         </div>

@@ -17,11 +17,18 @@ if (empty($email) || empty($password)) {
     jsonResponse(['success' => false, 'message' => 'Email and password are required.'], 422);
 }
 
-$stmt = db()->prepare("SELECT * FROM users WHERE email = :email AND role = :role AND is_active = 1 LIMIT 1");
+$stmt = db()->prepare("SELECT * FROM users WHERE email = :email AND role = :role LIMIT 1");
 $stmt->execute([':email' => $email, ':role' => $role]);
 $user = $stmt->fetch();
 
 if ($user && password_verify($password, $user['password'])) {
+    if ($user['account_status'] === 'suspended') {
+        jsonResponse(['success' => false, 'message' => 'Your account has been suspended. Contact support.'], 403);
+    }
+    if ($user['account_status'] === 'deleted' || $user['is_active'] == 0) {
+        jsonResponse(['success' => false, 'message' => 'Your account is inactive.'], 403);
+    }
+
     loginUser($user);
     
     // For Delivery Partners, verify if they are approved by admin

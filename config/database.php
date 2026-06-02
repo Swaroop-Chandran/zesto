@@ -95,6 +95,8 @@ class Database {
                             $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `role` ENUM('customer','restaurant_owner','delivery_partner','admin') NOT NULL DEFAULT 'customer'");
                             $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `avatar` VARCHAR(500) DEFAULT NULL");
                             $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `is_active` TINYINT(1) NOT NULL DEFAULT 1");
+                            $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `account_status` ENUM('active','suspended','deleted') NOT NULL DEFAULT 'active'");
+                            $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `session_invalidated_at` TIMESTAMP NULL DEFAULT NULL");
                         }
                     }
 
@@ -118,6 +120,8 @@ class Database {
                         $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `role` ENUM('customer','restaurant_owner','delivery_partner','admin') NOT NULL DEFAULT 'customer'");
                         $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `avatar` VARCHAR(500) DEFAULT NULL");
                         $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `is_active` TINYINT(1) NOT NULL DEFAULT 1");
+                        $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `account_status` ENUM('active','suspended','deleted') NOT NULL DEFAULT 'active'");
+                        $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `session_invalidated_at` TIMESTAMP NULL DEFAULT NULL");
 
                         // Parse and execute statements
                         $queries = preg_split('/;\s*[\r\n]+/', $sql);

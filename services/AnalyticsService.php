@@ -342,4 +342,103 @@ class AnalyticsService {
 
         return $data;
     }
+
+    /**
+     * Get extended KPIs for restaurant owner analytics.
+     */
+    public static function getExtendedMetrics(int $restaurantId): array {
+        $db = db();
+        $metrics = [
+            'aov' => 0.0,
+            'daily_orders' => 0,
+            'weekly_orders' => 0,
+            'monthly_orders' => 0,
+            'peak_hour' => 'None',
+            'repeat_pct' => 0.0,
+            'completion_rate' => 100.0,
+            'cancellation_rate' => 0.0
+        ];
+
+        try {
+            // AOV
+            $stmt = $db->prepare("
+                SELECT COALESCE(AVG(total), 0) 
+                FROM orders 
+                WHERE restaurant_id = :rid AND payment_status = 'paid'
+            ");
+            $stmt->execute([':rid' => $restaurantId]);
+            $metrics['aov'] = (float)$stmt->fetchColumn();
+
+            // Daily, Weekly, Monthly Orders
+            $stmt = $db->prepare("
+                SELECT COUNT(*) FROM orders 
+                WHERE restaurant_id = :rid AND created_at >= CURDATE()
+            ");
+            $stmt->execute([':rid' => $restaurantId]);
+            $metrics['daily_orders'] = (int)$stmt->fetchColumn();
+
+            $stmt = $db->prepare("
+                SELECT COUNT(*) FROM orders 
+                WHERE restaurant_id = :rid AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            ");
+            $stmt->execute([':rid' => $restaurantId]);
+            $metrics['weekly_orders'] = (int)$stmt->fetchColumn();
+
+            $stmt = $db->prepare("
+                SELECT COUNT(*) FROM orders 
+                WHERE restaurant_id = :rid AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            ");
+            $stmt->execute([':rid' => $restaurantId]);
+            $metrics['monthly_orders'] = (int)$stmt->fetchColumn();
+
+            // Peak Order Hour
+            $stmt = $db->prepare("
+                SELECT HOUR(created_at) AS hr, COUNT(*) AS count 
+                FROM orders 
+                WHERE restaurant_id = :rid 
+                GROUP BY HOUR(created_at) 
+                ORDER BY count DESC LIMIT 1
+            ");
+            $stmt->execute([':rid' => $restaurantId]);
+            $peak = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($peak) {
+                $hr = (int)$peak['hr'];
+                $ampm = $hr >= 12 ? 'PM' : 'AM';
+                $displayHr = $hr % 12;
+                if ($displayHr === 0) $displayHr = 12;
+                $nextHr = ($hr + 1) % 12;
+                if ($nextHr === 0) $nextHr = 12;
+                $nextAmpm = ($hr + 1) >= 12 && ($hr + 1) < 24 ? 'PM' : (($hr + 1) >= 24 || ($hr + 1) < 12 ? 'AM' : 'PM');
+                $metrics['peak_hour'] = "{$displayHr}:00 {$ampm} - {$nextHr}:00 {$nextAmpm}";
+            }
+
+            // Repeat Customer %
+            $custStats = self::getCustomerAnalytics($restaurantId);
+            if ($custStats['total'] > 0) {
+                $metrics['repeat_pct'] = round(($custStats['returning'] / $custStats['total']) * 100, 1);
+            }
+
+            // Completion & Cancellation Rates
+            $stmt = $db->prepare("
+                SELECT 
+                  SUM(CASE WHEN order_status = 'completed' THEN 1 ELSE 0 END) AS completed,
+                  SUM(CASE WHEN order_status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled,
+                  COUNT(*) AS total
+                FROM orders
+                WHERE restaurant_id = :rid
+            ");
+            $stmt->execute([':rid' => $restaurantId]);
+            $rates = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($rates && (int)$rates['total'] > 0) {
+                $total = (int)$rates['total'];
+                $metrics['completion_rate'] = round(((int)$rates['completed'] / $total) * 100, 1);
+                $metrics['cancellation_rate'] = round(((int)$rates['cancelled'] / $total) * 100, 1);
+            }
+
+        } catch (PDOException $e) {
+            error_log("AnalyticsService::getExtendedMetrics Error: " . $e->getMessage());
+        }
+
+        return $metrics;
+    }
 }

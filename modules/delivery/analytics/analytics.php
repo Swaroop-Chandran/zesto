@@ -87,7 +87,7 @@ include __DIR__ . '/../../../includes/header.php';
     
     <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-5">
       <div>
-        <span class="text-xs font-bold text-[#00c853] uppercase tracking-widest">Delivery Panel</span>
+        <span class="text-xs font-bold text-[#f59e0b] uppercase tracking-widest">Delivery Panel</span>
         <h1 class="text-2xl md:text-3xl font-black text-white mt-1">Earnings Analytics</h1>
         <p class="text-xs text-white/60 mt-1">Detailed breakdowns of your deliveries log, distance calculations, and payout milestones</p>
       </div>
@@ -97,10 +97,10 @@ include __DIR__ . '/../../../includes/header.php';
     <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
       <?php
       $kpis = [
-        ['Today\'s Payout', formatPrice($stats['today_earnings']), '⚡', 'bg-emerald-50 text-[#00c853]'],
-        ['Avg per Delivery', formatPrice($stats['avg_earnings']), '📈', 'bg-blue-50 text-blue-600'],
-        ['Total Distance', number_format($stats['total_distance'], 1) . ' KM', '🏍', 'bg-amber-50 text-amber-600'],
-        ['Lifetime Payouts', formatPrice($stats['total_earnings']), '💰', 'bg-indigo-50 text-indigo-600']
+        ['Today\'s Payout', formatPrice($stats['today_earnings']), '⚡', 'text-[#f59e0b]'],
+        ['Avg per Delivery', formatPrice($stats['avg_earnings']), '📈', 'text-amber-400'],
+        ['Total Distance', number_format($stats['total_distance'], 1) . ' KM', '🏍', 'text-amber-500'],
+        ['Lifetime Payouts', formatPrice($stats['total_earnings']), '💰', 'text-[#f59e0b]']
       ];
       foreach ($kpis as [$lbl, $val, $ico, $cls]): ?>
       <div class="glass-panel rounded-2xl border border-white/10 p-6 shadow-md shadow-black/20">
@@ -129,7 +129,7 @@ include __DIR__ . '/../../../includes/header.php';
         <h4 class="text-xs font-bold text-white/40 uppercase mb-3">Workflow Queue</h4>
         <div class="flex justify-between text-xs font-semibold mt-2 text-white/80">
           <p>Active Tasks:</p>
-          <p class="font-extrabold text-emerald-600"><?= $stats['active_deliveries'] ?></p>
+          <p class="font-extrabold text-[#f59e0b]"><?= $stats['active_deliveries'] ?></p>
         </div>
         <div class="flex justify-between text-xs font-semibold mt-1.5 text-white/80">
           <p>Completed Log:</p>
@@ -168,10 +168,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         label: 'Earnings (₹)',
                         type: 'line',
                         data: <?= json_encode($chartData) ?>,
-                        borderColor: '#00c853',
-                        backgroundColor: 'rgba(0, 200, 83, 0.05)',
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.05)',
                         borderWidth: 3,
-                        pointBackgroundColor: '#00c853',
+                        pointBackgroundColor: '#f59e0b',
                         fill: true,
                         yAxisID: 'y'
                     },
@@ -179,7 +179,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         label: 'Deliveries Made',
                         type: 'bar',
                         data: <?= json_encode($chartCount) ?>,
-                        backgroundColor: '#ffdbd0',
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        borderWidth: 1,
                         yAxisID: 'y1',
                         borderRadius: 6
                     }
@@ -189,20 +191,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'top', labels: { font: { family: 'Plus Jakarta Sans', size: 10 } } }
+                    legend: { position: 'top', labels: { color: 'rgba(255, 255, 255, 0.6)', font: { family: 'Plus Jakarta Sans', size: 10 } } }
                 },
                 scales: {
-                    x: { grid: { display: false } },
+                    x: { 
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+                    },
                     y: {
                         position: 'left',
-                        title: { display: true, text: 'Earnings (₹)', font: { weight: 'bold' } },
-                        ticks: { callback: v => '₹' + v }
+                        title: { display: true, text: 'Earnings (₹)', color: 'rgba(255, 255, 255, 0.6)', font: { weight: 'bold' } },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: 'rgba(255, 255, 255, 0.6)', callback: v => '₹' + v }
                     },
                     y1: {
                         position: 'right',
-                        title: { display: true, text: 'Deliveries Made', font: { weight: 'bold' } },
+                        title: { display: true, text: 'Deliveries Made', color: 'rgba(255, 255, 255, 0.6)', font: { weight: 'bold' } },
                         grid: { drawOnChartArea: false },
-                        ticks: { stepSize: 1 }
+                        ticks: { color: 'rgba(255, 255, 255, 0.6)', stepSize: 1 }
                     }
                 }
             }

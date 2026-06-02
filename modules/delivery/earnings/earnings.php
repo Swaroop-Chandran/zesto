@@ -30,7 +30,7 @@ include __DIR__ . '/../../../includes/header.php';
     <div class="grid grid-cols-3 gap-5 mb-8">
       <div class="glass-panel rounded-2xl border border-white/10 p-6 shadow-md shadow-black/20">
         <p class="text-xs text-white/40 font-bold uppercase mb-2">Total Earned</p>
-        <p class="text-3xl font-black text-[#00c853]"><?= formatPrice($partner['total_earnings']) ?></p>
+        <p class="text-3xl font-black text-[#f59e0b]"><?= formatPrice($partner['total_earnings']) ?></p>
       </div>
       <div class="glass-panel rounded-2xl border border-white/10 p-6 shadow-md shadow-black/20">
         <p class="text-xs text-white/40 font-bold uppercase mb-2">Total Deliveries</p>
@@ -59,7 +59,7 @@ include __DIR__ . '/../../../includes/header.php';
           <tr class="hover:bg-white/5">
             <td class="px-4 py-3 font-semibold"><?= date('F Y', strtotime($e['month'].'-01')) ?></td>
             <td class="px-4 py-3"><?= $e['deliveries'] ?></td>
-            <td class="px-4 py-3 font-bold text-[#00c853]"><?= formatPrice($e['earned']) ?></td>
+            <td class="px-4 py-3 font-bold text-[#f59e0b]"><?= formatPrice($e['earned']) ?></td>
             <td class="px-4 py-3"><?= $e['deliveries'] > 0 ? formatPrice($e['earned']/$e['deliveries']) : formatPrice(0) ?></td>
           </tr>
           <?php endforeach; ?>

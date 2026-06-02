@@ -101,10 +101,10 @@ include __DIR__ . '/../../../includes/header.php';
   <div class="max-w-2xl w-full space-y-8 glass-panel p-10 rounded-3xl border border-white/10 shadow-md shadow-black/20 relative overflow-hidden">
     
     <!-- Top Brand Accent -->
-    <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-orange-500 to-red-600"></div>
+    <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#f59e0b] to-[#d97706]"></div>
 
     <div class="text-center">
-      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-orange-50 text-orange-600 font-black text-2xl mb-4">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-black text-2xl mb-4">
         🍴
       </div>
       <h2 class="text-3xl font-black text-white">Setup Your Kitchen Profile</h2>
@@ -112,14 +112,14 @@ include __DIR__ . '/../../../includes/header.php';
     </div>
 
     <?php if (!empty($errors)): ?>
-    <div class="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-600 font-semibold space-y-1">
+    <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-xs text-red-400 font-semibold space-y-1">
       <?php foreach ($errors as $e): ?><p>• <?= htmlspecialchars($e) ?></p><?php endforeach; ?>
     </div>
     <?php endif; ?>
 
     <!-- Onboarding Step Indicator -->
     <div class="flex items-center justify-between mb-10 text-[10px] font-bold text-white/40 uppercase tracking-wider select-none">
-      <span class="step-indicator active text-orange-600 border-b-2 border-orange-500 pb-2 flex-1 text-center" data-step="1">1. Profile</span>
+      <span class="step-indicator active text-[#f59e0b] border-b-2 border-[#f59e0b] pb-2 flex-1 text-center" data-step="1">1. Profile</span>
       <span class="step-indicator flex-1 border-b-2 border-white/10 pb-2 text-center" data-step="2">2. Contact</span>
       <span class="step-indicator flex-1 border-b-2 border-white/10 pb-2 text-center" data-step="3">3. Logistics</span>
       <span class="step-indicator flex-1 border-b-2 border-white/10 pb-2 text-center" data-step="4">4. Branding</span>
@@ -135,16 +135,16 @@ include __DIR__ . '/../../../includes/header.php';
         <div class="space-y-4">
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Restaurant Kitchen Name *</label>
-            <input type="text" name="name" required placeholder="e.g. Royal Punjab Dhaba" class="zesto-input bg-gray-50/50 text-xs">
+            <input type="text" name="name" required placeholder="e.g. Royal Punjab Dhaba" class="zesto-input bg-white/5 border-white/10 text-xs">
           </div>
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Cuisines / Specialties *</label>
-            <input type="text" name="tags" required placeholder="e.g. North Indian, Curry, Biryani" class="zesto-input bg-gray-50/50 text-xs">
+            <input type="text" name="tags" required placeholder="e.g. North Indian, Curry, Biryani" class="zesto-input bg-white/5 border-white/10 text-xs">
             <span class="text-[10px] text-white/40 font-medium mt-1 block">Comma-separated tags for display and filtering.</span>
           </div>
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Short Description</label>
-            <textarea name="description" rows="3" placeholder="Describe your kitchen's special recipe, standard of hygiene, or legacy..." class="zesto-input bg-gray-50/50 text-xs resize-none"></textarea>
+            <textarea name="description" rows="3" placeholder="Describe your kitchen's special recipe, standard of hygiene, or legacy..." class="zesto-input bg-white/5 border-white/10 text-xs resize-none"></textarea>
           </div>
         </div>
       </div>
@@ -155,11 +155,11 @@ include __DIR__ . '/../../../includes/header.php';
         <div class="space-y-4">
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Contact Phone Number *</label>
-            <input type="text" name="phone" required placeholder="e.g. +91 98765 43210" class="zesto-input bg-gray-50/50 text-xs">
+            <input type="text" name="phone" required placeholder="e.g. +91 98765 43210" class="zesto-input bg-white/5 border-white/10 text-xs">
           </div>
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">City Location *</label>
-            <select name="city" required class="zesto-input bg-gray-50/50 text-xs text-white/80">
+            <select name="city" required class="zesto-input bg-white/5 border-white/10 text-xs text-white/80">
               <option value="Mumbai">Mumbai</option>
               <option value="Delhi">Delhi</option>
               <option value="Bangalore">Bangalore</option>
@@ -170,7 +170,7 @@ include __DIR__ . '/../../../includes/header.php';
           </div>
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Full Kitchen Address *</label>
-            <textarea name="address" required rows="3" placeholder="e.g. Shop 4, Link Heights, Carter Road, Bandra West" class="zesto-input bg-gray-50/50 text-xs resize-none"></textarea>
+            <textarea name="address" required rows="3" placeholder="e.g. Shop 4, Link Heights, Carter Road, Bandra West" class="zesto-input bg-white/5 border-white/10 text-xs resize-none"></textarea>
           </div>
         </div>
       </div>
@@ -181,11 +181,11 @@ include __DIR__ . '/../../../includes/header.php';
         <div class="space-y-4">
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Operating Hours *</label>
-            <input type="text" name="operating_hours" required value="9:00 AM - 10:00 PM" placeholder="e.g. 10:00 AM - 11:00 PM" class="zesto-input bg-gray-50/50 text-xs">
+            <input type="text" name="operating_hours" required value="9:00 AM - 10:00 PM" placeholder="e.g. 10:00 AM - 11:00 PM" class="zesto-input bg-white/5 border-white/10 text-xs">
           </div>
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Delivery Radius (in km) *</label>
-            <input type="number" name="delivery_radius" required step="0.1" value="5.0" min="0.5" max="30.0" class="zesto-input bg-gray-50/50 text-xs">
+            <input type="number" name="delivery_radius" required step="0.1" value="5.0" min="0.5" max="30.0" class="zesto-input bg-white/5 border-white/10 text-xs">
             <span class="text-[10px] text-white/40 font-medium mt-1 block">Maximum distance you want to serve.</span>
           </div>
         </div>
@@ -195,33 +195,33 @@ include __DIR__ . '/../../../includes/header.php';
       <div class="step-panel hidden" id="step-panel-4">
         <h3 class="text-base font-black text-white mb-4">Kitchen Branding</h3>
         <div class="space-y-5">
-          <div class="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 flex items-start gap-3">
+          <div class="p-4 bg-amber-500/10 rounded-2xl border border-amber-500/20 flex items-start gap-3">
             <span class="text-lg">📸</span>
-            <p class="text-[10px] leading-relaxed text-orange-800 font-semibold">
+            <p class="text-[10px] leading-relaxed text-amber-400 font-semibold">
               High-quality photos increase order rates by up to 80%! Upload square logo and landscape banner for the best appearance. If skipped, premium placeholder images will be used.
             </p>
           </div>
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Upload Restaurant Logo (Square)</label>
-            <input type="file" name="logo" accept="image/*" class="zesto-input bg-gray-50/50 text-xs py-2 px-3 border-dashed border-2">
+            <input type="file" name="logo" accept="image/*" class="zesto-input bg-white/5 border-white/10 text-xs py-2 px-3 border-dashed border-2">
           </div>
           <div>
             <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Upload Restaurant Banner (Landscape)</label>
-            <input type="file" name="banner" accept="image/*" class="zesto-input bg-gray-50/50 text-xs py-2 px-3 border-dashed border-2">
+            <input type="file" name="banner" accept="image/*" class="zesto-input bg-white/5 border-white/10 text-xs py-2 px-3 border-dashed border-2">
           </div>
         </div>
       </div>
 
       <!-- Button Controls -->
       <div class="flex justify-between items-center pt-6 border-t border-white/10">
-        <button type="button" id="prev-btn" class="hidden font-bold border border-white/10 text-white/60 rounded-xl h-11 px-5 hover:bg-white/5 transition-colors">
+        <button type="button" id="prev-btn" class="hidden font-bold border border-white/10 text-white/60 rounded-full h-11 px-5 hover:bg-white/5 transition-colors">
           Back
         </button>
         <div class="flex-1"></div>
-        <button type="button" id="next-btn" class="btn-primary w-fit font-bold rounded-xl h-11 px-6">
+        <button type="button" id="next-btn" class="btn-primary w-fit font-bold rounded-full h-11 px-6 border-none">
           Next Step
         </button>
-        <button type="submit" id="submit-btn" class="hidden btn-primary w-fit font-bold rounded-xl h-11 px-6 bg-gradient-to-r from-orange-500 to-red-600">
+        <button type="submit" id="submit-btn" class="hidden btn-primary w-fit font-bold rounded-full h-11 px-6 bg-[#f59e0b] hover:bg-[#fbbf24] text-black border-none">
           Complete Registration & Launch 🚀
         </button>
       </div>

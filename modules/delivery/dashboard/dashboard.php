@@ -92,13 +92,13 @@ include __DIR__ . '/../../../includes/header.php';
   <div class="flex-1 overflow-auto p-6 md:p-10 max-w-7xl">
     <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-5">
       <div>
-        <span class="text-xs font-bold text-[#00c853] uppercase tracking-widest">Delivery Panel</span>
+        <span class="text-xs font-bold text-[#f59e0b] uppercase tracking-widest">Delivery Panel</span>
         <h1 class="text-2xl md:text-3xl font-black text-white mt-1">Partner Dashboard</h1>
         <p class="text-xs text-white/60 mt-1">Welcome back, <?= e(getCurrentUser()['name']) ?>! Keep moving, keep earning.</p>
       </div>
       <?php if ($dp): ?>
       <div class="flex items-center gap-3">
-        <span class="text-xs font-black px-3.5 py-1.5 rounded-full border bg-emerald-50 border-emerald-200 text-emerald-700">
+        <span class="text-xs font-black px-3.5 py-1.5 rounded-full border bg-amber-500/10 border-amber-500/20 text-amber-400">
           🟢 <?= $dp['is_available'] ? 'Online & Available' : 'Offline' ?>
         </span>
       </div>
@@ -106,9 +106,9 @@ include __DIR__ . '/../../../includes/header.php';
     </div>
 
     <?php if ($dp && !$dp['is_approved']): ?>
-    <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-3xl p-10 border border-amber-200 text-center max-w-2xl mx-auto shadow-md shadow-black/20 my-10">
-      <div class="inline-flex items-center justify-center w-20 h-20 rounded-full glass-panel text-3xl mb-6 shadow-md shadow-black/20">⏳</div>
-      <h2 class="text-2xl font-black text-white">Application Under Review</h2>
+    <div class="glass-panel rounded-3xl p-10 border border-amber-500/30 text-center max-w-2xl mx-auto shadow-md shadow-black/20 my-10 bg-amber-500/5">
+      <div class="inline-flex items-center justify-center w-20 h-20 rounded-full glass-panel text-3xl mb-6 shadow-md shadow-black/20 border border-amber-500/20">⏳</div>
+      <h2 class="text-2xl font-black text-[#f59e0b]">Application Under Review</h2>
       <p class="text-sm text-white/70 mt-3 leading-relaxed font-semibold">
         Your onboarding documents and vehicle license details are currently being reviewed by the Zesto safety team. Accounts are usually activated within 24 hours.
       </p>
@@ -146,10 +146,10 @@ include __DIR__ . '/../../../includes/header.php';
             $custArea .= ', ' . trim($addrParts[1]);
         }
     ?>
-    <div class="glass-panel rounded-3xl border-2 border-emerald-500 p-6 md:p-8 mb-8 shadow-md">
+    <div class="glass-panel rounded-3xl border-2 border-amber-500/50 p-6 md:p-8 mb-8 shadow-md shadow-amber-500/5">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-5 mb-5">
         <div>
-          <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-wider">Active Delivery Tasks</span>
+          <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">Active Delivery Tasks</span>
           <h2 class="text-xl font-black text-white mt-2">Order #<?= e($activeDelivery['order_number']) ?></h2>
           
           <div class="mt-3 space-y-2 text-xs font-semibold text-white/80">
@@ -161,9 +161,9 @@ include __DIR__ . '/../../../includes/header.php';
         
         <div class="text-right">
           <p class="text-[10px] text-white/40 font-bold uppercase">Estimated Earnings</p>
-          <p class="text-3xl font-black text-[#00c853] mt-1"><?= formatPrice($activeDelivery['earnings']) ?></p>
+          <p class="text-3xl font-black text-[#f59e0b] mt-1"><?= formatPrice($activeDelivery['earnings']) ?></p>
           <span class="text-[10px] text-white/40 font-bold mt-1 block">Order Value: <?= formatPrice($activeDelivery['order_value']) ?></span>
-          <span class="text-[10px] text-[#00c853] font-bold block">Distance: <?= number_format($activeDelivery['total_distance'], 1) ?> KM</span>
+          <span class="text-[10px] text-[#f59e0b] font-bold block">Distance: <?= number_format($activeDelivery['total_distance'], 1) ?> KM</span>
         </div>
       </div>
 
@@ -190,10 +190,10 @@ include __DIR__ . '/../../../includes/header.php';
         ?>
         <div class="flex flex-col items-center">
           <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-md shadow-black/20
-                      <?= $done ? 'bg-[#00c853] text-white' : 'bg-white/10 text-white/40' ?>">
+                      <?= $done ? 'bg-[#f59e0b] text-black' : 'bg-white/10 text-white/40' ?>">
             <?= $idx + 1 ?>
           </div>
-          <span class="text-[9px] font-bold text-center mt-2 <?= $current ? 'text-[#00c853]' : ($done ? 'text-white/70' : 'text-white/40') ?>">
+          <span class="text-[9px] font-bold text-center mt-2 <?= $current ? 'text-[#f59e0b]' : ($done ? 'text-white/70' : 'text-white/40') ?>">
             <?= $stageLabels[$idx] ?>
           </span>
         </div>
@@ -208,56 +208,93 @@ include __DIR__ . '/../../../includes/header.php';
       ?>
       <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-white/5 rounded-2xl p-5 border border-white/10">
         <!-- Navigate To Restaurant -->
-        <button <?= $isDisabled ? 'disabled' : '' ?> onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'assigned_to_delivery', this)" 
-                class="py-3 px-4 rounded-xl font-bold text-xs shadow-md shadow-black/20 transition-all cursor-pointer text-center
-                       <?= $oStatus === 'assigned_to_delivery' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200/50 text-white/40 border border-white/10' ?>">
+        <?php if ($oStatus === 'assigned_to_delivery'): ?>
+        <button onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'assigned_to_delivery', this)" 
+                class="py-3 px-4 rounded-full font-bold text-xs shadow-md shadow-black/20 transition-all cursor-pointer text-center bg-[#f59e0b] text-black hover:bg-[#fbbf24]">
           Navigate to Restaurant
         </button>
+        <?php elseif ($activeIdx > 0): ?>
+        <button disabled class="py-3 px-4 rounded-full font-bold text-xs border bg-amber-500/20 border-amber-500/30 text-amber-400 text-center cursor-default">
+          Navigated to Restaurant ✓
+        </button>
+        <?php else: ?>
+        <button disabled class="py-3 px-4 rounded-full font-bold text-xs border bg-white/5 border-white/10 text-white/30 text-center cursor-not-allowed">
+          Navigate to Restaurant
+        </button>
+        <?php endif; ?>
         
         <!-- Picked Up -->
-        <button <?= $isDisabled ? 'disabled' : '' ?> onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'picked_up', this)" 
-                class="py-3 px-4 rounded-xl font-bold text-xs shadow-md shadow-black/20 transition-all cursor-pointer text-center
-                       <?= $oStatus === 'picked_up' ? 'bg-amber-500 text-white hover:bg-amber-600' : ($oStatus === 'assigned_to_delivery' ? 'glass-panel border border-[#00c853] text-[#00c853] hover:bg-[#00c853]/5' : 'bg-white/10 text-white/40') ?>"
-                <?= ($oStatus !== 'assigned_to_delivery' && $oStatus !== 'picked_up') ? 'disabled' : '' ?>>
+        <?php if ($oStatus === 'picked_up'): ?>
+        <button onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'picked_up', this)" 
+                class="py-3 px-4 rounded-full font-bold text-xs shadow-md shadow-black/20 transition-all cursor-pointer text-center bg-[#f59e0b] text-black hover:bg-[#fbbf24]">
           Picked Up Food
         </button>
+        <?php elseif ($oStatus === 'assigned_to_delivery'): ?>
+        <button onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'picked_up', this)" 
+                class="py-3 px-4 rounded-full font-bold text-xs border border-[#f59e0b] text-[#f59e0b] hover:bg-[#f59e0b]/5 transition-all cursor-pointer text-center">
+          Picked Up Food
+        </button>
+        <?php elseif ($activeIdx > 1): ?>
+        <button disabled class="py-3 px-4 rounded-full font-bold text-xs border bg-amber-500/20 border-amber-500/30 text-amber-400 text-center cursor-default">
+          Picked Up Food ✓
+        </button>
+        <?php else: ?>
+        <button disabled class="py-3 px-4 rounded-full font-bold text-xs border bg-white/5 border-white/10 text-white/30 text-center cursor-not-allowed">
+          Picked Up Food
+        </button>
+        <?php endif; ?>
         
         <!-- Out For Delivery -->
-        <button <?= $isDisabled ? 'disabled' : '' ?> onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'out_for_delivery', this)" 
-                class="py-3 px-4 rounded-xl font-bold text-xs shadow-md shadow-black/20 transition-all cursor-pointer text-center
-                       <?= $oStatus === 'out_for_delivery' ? 'bg-emerald-600 text-white hover:bg-emerald-700' : ($oStatus === 'picked_up' ? 'glass-panel border border-[#00c853] text-[#00c853] hover:bg-[#00c853]/5' : 'bg-white/10 text-white/40') ?>"
-                <?= ($oStatus !== 'picked_up' && $oStatus !== 'out_for_delivery') ? 'disabled' : '' ?>>
+        <?php if ($oStatus === 'out_for_delivery'): ?>
+        <button onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'out_for_delivery', this)" 
+                class="py-3 px-4 rounded-full font-bold text-xs shadow-md shadow-black/20 transition-all cursor-pointer text-center bg-[#f59e0b] text-black hover:bg-[#fbbf24]">
           Out for Delivery
         </button>
+        <?php elseif ($oStatus === 'picked_up'): ?>
+        <button onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'out_for_delivery', this)" 
+                class="py-3 px-4 rounded-full font-bold text-xs border border-[#f59e0b] text-[#f59e0b] hover:bg-[#f59e0b]/5 transition-all cursor-pointer text-center">
+          Out for Delivery
+        </button>
+        <?php elseif ($activeIdx > 2): ?>
+        <button disabled class="py-3 px-4 rounded-full font-bold text-xs border bg-amber-500/20 border-amber-500/30 text-amber-400 text-center cursor-default">
+          Out for Delivery ✓
+        </button>
+        <?php else: ?>
+        <button disabled class="py-3 px-4 rounded-full font-bold text-xs border bg-white/5 border-white/10 text-white/30 text-center cursor-not-allowed">
+          Out for Delivery
+        </button>
+        <?php endif; ?>
         
         <!-- Delivered / Waiting Confirmation -->
         <?php if ($isWaiting): ?>
-        <button disabled class="py-3 px-4 rounded-xl font-bold text-xs shadow-md shadow-black/20 transition-all text-center bg-amber-500 text-white cursor-not-allowed sm:col-span-1">
+        <button disabled class="py-3 px-4 rounded-full font-bold text-xs border bg-amber-500/20 border-amber-500/30 text-amber-400 text-center cursor-not-allowed">
           Waiting for Customer...
         </button>
         <?php elseif ($hasIssue): ?>
-        <button disabled class="py-3 px-4 rounded-xl font-bold text-xs shadow-md shadow-black/20 transition-all text-center bg-red-600 text-white cursor-not-allowed sm:col-span-1">
+        <button disabled class="py-3 px-4 rounded-full font-bold text-xs border bg-red-500/20 border-red-500/30 text-red-400 text-center cursor-not-allowed">
           Dispute Opened ⚠️
         </button>
-        <?php else: ?>
+        <?php elseif ($oStatus === 'out_for_delivery'): ?>
         <button onclick="transitionActiveDelivery(<?= $activeDelivery['order_id'] ?>, 'delivered', this)" 
-                class="py-3 px-4 rounded-xl font-bold text-xs shadow-md shadow-black/20 transition-all cursor-pointer text-center
-                       <?= ($oStatus === 'out_for_delivery') ? 'bg-[#00c853] text-white hover:bg-[#00b047]' : 'bg-white/10 text-white/40' ?>"
-                <?= ($oStatus !== 'out_for_delivery') ? 'disabled' : '' ?>>
+                class="py-3 px-4 rounded-full font-bold text-xs shadow-md shadow-black/20 transition-all cursor-pointer text-center bg-[#f59e0b] text-black hover:bg-[#fbbf24]">
+          Delivered
+        </button>
+        <?php else: ?>
+        <button disabled class="py-3 px-4 rounded-full font-bold text-xs border bg-white/5 border-white/10 text-white/30 text-center cursor-not-allowed">
           Delivered
         </button>
         <?php endif; ?>
       </div>
 
       <?php if ($isWaiting): ?>
-      <div class="mt-4 p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center gap-3 text-xs text-amber-800 font-bold">
+      <div class="mt-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3 text-xs text-amber-400 font-bold">
         <span class="text-lg">⏳</span>
         <div>
           <p>Order marked as Delivered. Courier earnings will be released automatically once the customer confirms receipt.</p>
         </div>
       </div>
       <?php elseif ($hasIssue): ?>
-      <div class="mt-4 p-4 rounded-2xl bg-red-50 border border-red-200 flex items-center gap-3 text-xs text-red-800 font-bold animate-pulse">
+      <div class="mt-4 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center gap-3 text-xs text-red-400 font-bold animate-pulse">
         <span class="text-lg">⚠️</span>
         <div>
           <p>The customer reported an issue with this delivery. Payout has been held. Support team and kitchen have been notified.</p>
@@ -271,7 +308,7 @@ include __DIR__ . '/../../../includes/header.php';
     <div class="mb-10">
       <h2 class="text-xl font-black text-white mb-5 flex items-center gap-2">
         📦 Available Deliveries (<?= count($availableList) ?>)
-        <span class="w-2.5 h-2.5 rounded-full bg-[#00c853] animate-pulse"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-[#f59e0b] animate-pulse"></span>
       </h2>
 
       <?php if (empty($availableList)): ?>
@@ -288,7 +325,7 @@ include __DIR__ . '/../../../includes/header.php';
                 $availArea .= ', ' . trim($availAddrParts[1]);
             }
         ?>
-        <div class="glass-panel rounded-3xl border border-white/10 p-6 shadow-md shadow-black/20 hover:border-[#00c853] transition-all flex flex-col gap-4">
+        <div class="glass-panel rounded-3xl border border-white/10 p-6 shadow-md shadow-black/20 hover:border-[#f59e0b]/50 transition-all flex flex-col gap-4">
           <div class="flex justify-between items-start">
             <div>
               <span class="font-extrabold text-zesto-orange text-sm"><?= e($avail['order_number']) ?></span>
@@ -297,7 +334,7 @@ include __DIR__ . '/../../../includes/header.php';
             </div>
             <div class="text-right">
               <span class="text-[9px] font-bold text-white/40 uppercase tracking-wider block">Est. Earnings</span>
-              <span class="text-2xl font-black text-[#00c853]"><?= formatPrice($avail['earnings']) ?></span>
+              <span class="text-2xl font-black text-[#f59e0b]"><?= formatPrice($avail['earnings']) ?></span>
             </div>
           </div>
 
@@ -312,17 +349,17 @@ include __DIR__ . '/../../../includes/header.php';
             </div>
             <div>
               <p class="text-white/40 text-[8px] uppercase font-bold">Est. Earnings</p>
-              <p class="text-xs text-[#00c853] font-extrabold mt-0.5"><?= formatPrice($avail['earnings']) ?></p>
+              <p class="text-xs text-[#f59e0b] font-extrabold mt-0.5"><?= formatPrice($avail['earnings']) ?></p>
             </div>
           </div>
 
           <div class="flex gap-2">
             <button onclick="handleDeliveryAccept(<?= $avail['order_id'] ?>, 'accepted', this)" 
-                    class="btn-primary bg-[#00c853] hover:bg-[#00b047] text-white flex-1 justify-center py-3 rounded-xl font-bold tracking-wide text-xs cursor-pointer shadow-md shadow-black/20">
+                    class="flex-1 justify-center py-3 bg-[#f59e0b] hover:bg-[#fbbf24] text-black font-bold rounded-full tracking-wide text-xs cursor-pointer shadow-md shadow-black/20 transition-all">
               Accept Delivery
             </button>
             <button onclick="handleDeliveryAccept(<?= $avail['order_id'] ?>, 'rejected', this)" 
-                    class="btn-secondary border-white/10 text-white/60 hover:bg-white/5 px-4 py-3 rounded-xl font-bold text-xs cursor-pointer">
+                    class="bg-white/10 hover:bg-white/20 text-white border border-white/10 px-6 py-3 rounded-full font-bold text-xs cursor-pointer transition-all">
               Reject
             </button>
           </div>
@@ -336,7 +373,7 @@ include __DIR__ . '/../../../includes/header.php';
     <div class="glass-panel rounded-3xl border border-white/10 shadow-md shadow-black/20 overflow-hidden mb-8 flex flex-col">
       <div class="p-5 border-b border-white/10 bg-white/5 flex justify-between items-center">
         <h3 class="font-bold text-sm text-white">🏍 Completed Deliveries (Recent)</h3>
-        <a href="<?= BASE_URL ?>/delivery-panel/deliveries.php" class="text-xs text-[#00c853] font-bold hover:underline">View History →</a>
+        <a href="<?= BASE_URL ?>/delivery-panel/deliveries.php" class="text-xs text-[#f59e0b] font-bold hover:underline">View History →</a>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-xs">
@@ -355,13 +392,13 @@ include __DIR__ . '/../../../includes/header.php';
               <td class="px-5 py-3 font-bold text-zesto-orange"><?= e($c['order_number']) ?></td>
               <td class="px-5 py-3 font-semibold"><?= e($c['restaurant_name']) ?></td>
               <td class="px-5 py-3 text-center"><?= number_format($c['total_distance'], 1) ?> KM</td>
-              <td class="px-5 py-3 text-right font-black text-[#00c853]"><?= formatPrice($c['earnings']) ?></td>
+              <td class="px-5 py-3 text-right font-black text-[#f59e0b]"><?= formatPrice($c['earnings']) ?></td>
               <td class="px-5 py-3 text-right text-[10px] text-white/40"><?= date('M j, Y - g:i A', strtotime($c['updated_at'])) ?></td>
             </tr>
             <?php endforeach; ?>
             <?php if (empty($completedList)): ?>
             <tr>
-              <td colspan="5" class="px-5 py-8 text-center text-white/40 font-bold">No completed deliveries found in your log yet.</td>
+              <td colspan="5" class="px-5 py-8 text-center text-white/40 font-bold">No completed deliveries logged in your log yet.</td>
             </tr>
             <?php endif; ?>
           </tbody>

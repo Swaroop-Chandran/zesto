@@ -68,25 +68,25 @@ if ($res) {
 function renderTableStatusButtons($orderId, $status) {
     if ($status === 'pending') {
         return '<div class="flex gap-1.5 justify-center">
-            <button onclick="handleQuickStatus(' . $orderId . ', \'accepted\', this)" class="py-1.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-[10px] shadow-xs cursor-pointer transition-all">Accept</button>
-            <button onclick="handleQuickStatus(' . $orderId . ', \'cancelled\', this)" class="py-1.5 px-2.5 border border-red-200 text-red-500 hover:bg-red-555 hover:bg-red-50 rounded-lg font-bold text-[10px] cursor-pointer transition-all">Reject</button>
+            <button onclick="handleQuickStatus(' . $orderId . ', \'accepted\', this)" class="py-1.5 px-3 bg-[#f59e0b] hover:bg-[#fbbf24] text-black rounded-full font-bold text-[10px] shadow-xs cursor-pointer transition-all">Accept</button>
+            <button onclick="handleQuickStatus(' . $orderId . ', \'cancelled\', this)" class="py-1.5 px-2.5 border border-white/10 text-white/60 hover:bg-white/5 rounded-full font-bold text-[10px] cursor-pointer transition-all">Reject</button>
         </div>';
     } elseif ($status === 'accepted') {
-        return '<button onclick="handleQuickStatus(' . $orderId . ', \'preparing\', this)" class="py-1.5 px-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-[10px] shadow-xs cursor-pointer transition-all w-full">Start Preparing</button>';
+        return '<button onclick="handleQuickStatus(' . $orderId . ', \'preparing\', this)" class="py-1.5 px-3 bg-[#f59e0b] hover:bg-[#fbbf24] text-black rounded-full font-bold text-[10px] shadow-xs cursor-pointer transition-all w-full">Start Preparing</button>';
     } elseif ($status === 'preparing') {
-        return '<button onclick="handleQuickStatus(' . $orderId . ', \'ready_for_pickup\', this)" class="py-1.5 px-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold text-[10px] shadow-xs cursor-pointer transition-all w-full">Ready for Pickup</button>';
+        return '<button onclick="handleQuickStatus(' . $orderId . ', \'ready_for_pickup\', this)" class="py-1.5 px-3 bg-[#f59e0b] hover:bg-[#fbbf24] text-black rounded-full font-bold text-[10px] shadow-xs cursor-pointer transition-all w-full">Ready for Pickup</button>';
     } elseif ($status === 'assigned_to_delivery') {
-        return '<button onclick="handleQuickStatus(' . $orderId . ', \'picked_up\', this)" class="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[10px] shadow-xs cursor-pointer transition-all w-full">Hand to Partner</button>';
+        return '<button onclick="handleQuickStatus(' . $orderId . ', \'picked_up\', this)" class="py-1.5 px-3 bg-[#f59e0b] hover:bg-[#fbbf24] text-black rounded-full font-bold text-[10px] shadow-xs cursor-pointer transition-all w-full">Hand to Partner</button>';
     } elseif ($status === 'ready_for_pickup') {
-        return '<span class="text-[9px] text-purple-650 font-extrabold bg-purple-50 px-2 py-1 rounded border border-purple-150 flex items-center justify-center gap-1 w-full"><span class="w-1.5 h-1.5 bg-purple-500 rounded-full animate-ping"></span> Waiting Dispatch</span>';
+        return '<span class="text-[9px] text-amber-400 font-bold bg-amber-500/10 px-2 py-1 rounded-full border border-amber-500/20 flex items-center justify-center gap-1 w-full"><span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-ping"></span> Waiting Dispatch</span>';
     } elseif ($status === 'picked_up') {
-        return '<span class="text-[9px] text-blue-600 font-extrabold bg-blue-50 px-2 py-1 rounded border border-blue-150 flex items-center justify-center w-full">In Courier Care</span>';
+        return '<span class="text-[9px] text-blue-400 font-bold bg-blue-500/10 px-2 py-1 rounded-full border border-blue-500/20 flex items-center justify-center w-full">In Courier Care</span>';
     } elseif ($status === 'out_for_delivery') {
-        return '<span class="text-[9px] text-emerald-600 font-extrabold bg-emerald-50 px-2 py-1 rounded border border-emerald-150 flex items-center justify-center w-full">Out for Delivery</span>';
+        return '<span class="text-[9px] text-amber-400 font-bold bg-amber-500/10 px-2 py-1 rounded-full border border-amber-500/20 flex items-center justify-center w-full">Out for Delivery</span>';
     } elseif ($status === 'delivered') {
-        return '<span class="text-[9px] text-emerald-800 font-extrabold bg-emerald-50/50 px-2 py-1 rounded border border-emerald-200 flex items-center justify-center w-full">✓ Completed</span>';
+        return '<span class="text-[9px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20 flex items-center justify-center w-full">✓ Completed</span>';
     } else {
-        return '<span class="text-[9px] text-red-650 font-extrabold bg-red-50 px-2 py-1 rounded border border-red-150 flex items-center justify-center w-full">✗ Cancelled</span>';
+        return '<span class="text-[9px] text-red-400 font-bold bg-red-500/10 px-2 py-1 rounded-full border border-red-500/20 flex items-center justify-center w-full">✗ Cancelled</span>';
     }
 }
 
@@ -105,22 +105,22 @@ include __DIR__ . '/../../../includes/header.php';
         <p class="text-xs text-white/60 mt-1">Manage orders, update menu and track store performance</p>
       </div>
       <?php if ($res && $res['rating']): ?>
-      <div class="flex items-center gap-1.5 bg-amber-50 px-3.5 py-1.5 rounded-full border border-amber-200">
+      <div class="flex items-center gap-1.5 bg-amber-500/10 px-3.5 py-1.5 rounded-full border border-amber-500/20">
         <span class="text-amber-500 font-extrabold text-sm">★</span>
-        <span class="text-xs font-black text-amber-700"><?= number_format($res['rating'], 1) ?> (<?= $res['rating_count'] ?> reviews)</span>
+        <span class="text-xs font-black text-amber-400"><?= number_format($res['rating'], 1) ?> (<?= $res['rating_count'] ?> reviews)</span>
       </div>
       <?php endif; ?>
     </div>
 
     <?php if (!$res): ?>
-    <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-3xl p-10 border border-orange-200 text-center max-w-2xl mx-auto shadow-md shadow-black/20 my-10">
+    <div class="glass-panel rounded-3xl p-10 border border-white/10 text-center max-w-2xl mx-auto shadow-md shadow-black/20 my-10 bg-white/5">
       <div class="inline-flex items-center justify-center w-20 h-20 rounded-full glass-panel text-3xl mb-6 shadow-md shadow-black/20">🍳</div>
       <h2 class="text-2xl font-black text-white">Welcome to Zesto Kitchens!</h2>
       <p class="text-sm text-white/70 mt-3 leading-relaxed font-semibold">
         To start managing orders, selling your delicious dishes, and tracking your business, you need to create your restaurant profile first.
       </p>
       <div class="mt-8 flex justify-center">
-        <a href="<?= BASE_URL ?>/restaurant-panel/onboard.php" class="btn-primary flex items-center gap-2 font-bold px-8 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-md hover:scale-[1.02] active:scale-95 transition-all text-xs">
+        <a href="<?= BASE_URL ?>/restaurant-panel/onboard.php" class="btn-primary flex items-center gap-2 font-bold px-8 py-3 rounded-full bg-[#f59e0b] hover:bg-[#fbbf24] text-black shadow-md hover:scale-[1.02] active:scale-95 transition-all text-xs border-none">
           Setup Your Restaurant Profile 🚀
         </a>
       </div>
@@ -131,13 +131,13 @@ include __DIR__ . '/../../../includes/header.php';
     <div class="grid grid-cols-2 md:grid-cols-5 gap-5 mb-8">
       <?php
       $cards = [
-        ["Today's Orders", $stats['today_orders'], '⚡', 'bg-blue-50 text-blue-600'],
-        ["Today's Revenue", formatPrice($stats['today_revenue']), '💰', 'bg-green-50 text-green-600'],
-        ['Pending Orders', $stats['pending'], '⏳', 'bg-amber-50 text-amber-600'],
-        ['Preparing Orders', $stats['preparing'], '👨‍🍳', 'bg-indigo-50 text-indigo-600'],
-        ['Ready for Pickup', $stats['ready_for_pickup'], '🏍', 'bg-emerald-50 text-emerald-600']
+        ["Today's Orders", $stats['today_orders'], '⚡'],
+        ["Today's Revenue", formatPrice($stats['today_revenue']), '💰'],
+        ['Pending Orders', $stats['pending'], '⏳'],
+        ['Preparing Orders', $stats['preparing'], '👨‍🍳'],
+        ['Ready for Pickup', $stats['ready_for_pickup'], '🏍']
       ];
-      foreach ($cards as [$l, $v, $i, $c]): ?>
+      foreach ($cards as [$l, $v, $i]): ?>
       <div class="glass-panel rounded-2xl border border-white/10 p-5 shadow-md shadow-black/20">
         <div class="flex justify-between items-start mb-2">
           <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider"><?= $l ?></p>
@@ -169,7 +169,7 @@ include __DIR__ . '/../../../includes/header.php';
             </thead>
             <tbody class="divide-y divide-white/10 font-semibold text-white/80">
               <?php foreach ($recentOrders as $ord): ?>
-              <tr class="hover:bg-gray-50/50">
+              <tr class="hover:bg-white/5">
                 <td class="px-4 py-4 font-bold text-zesto-orange"><?= e($ord['order_number']) ?></td>
                 <td class="px-4 py-4 font-semibold"><?= e($ord['customer']) ?></td>
                 <td class="px-4 py-4 font-extrabold"><?= formatPrice($ord['total']) ?></td>

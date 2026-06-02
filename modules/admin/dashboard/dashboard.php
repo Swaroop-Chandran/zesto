@@ -9,13 +9,13 @@ requireRole(ROLE_ADMIN);
 $stats = [];
 $stats['total_orders']      = db()->query("SELECT COUNT(*) FROM orders")->fetchColumn();
 $stats['total_revenue']     = db()->query("SELECT COALESCE(SUM(total),0) FROM orders WHERE payment_status='paid'")->fetchColumn();
-$stats['total_users']       = db()->query("SELECT COUNT(*) FROM users WHERE role='customer'")->fetchColumn();
+$stats['total_users']       = db()->query("SELECT COUNT(*) FROM users WHERE role='customer' AND account_status='active'")->fetchColumn();
 $stats['total_restaurants'] = db()->query("SELECT COUNT(*) FROM restaurants WHERE is_active=1")->fetchColumn();
 $stats['pending_orders']    = db()->query("SELECT COUNT(*) FROM orders WHERE order_status='pending'")->fetchColumn();
 
 // ── NEW DELIVERY STATS ──────────────────────────────────────────────
 $stats['total_deliveries']  = db()->query("SELECT COUNT(*) FROM delivery_assignments WHERE status='completed'")->fetchColumn();
-$stats['active_partners']   = db()->query("SELECT COUNT(*) FROM delivery_partners dp JOIN users u ON u.id=dp.user_id WHERE dp.is_approved=1 AND dp.is_available=1")->fetchColumn();
+$stats['active_partners']   = db()->query("SELECT COUNT(*) FROM delivery_partners dp JOIN users u ON u.id=dp.user_id WHERE dp.is_approved=1 AND dp.is_available=1 AND u.account_status='active'")->fetchColumn();
 $stats['disbursed_earnings'] = db()->query("SELECT COALESCE(SUM(total_earnings),0) FROM delivery_earnings")->fetchColumn();
 
 // Calculate Average Confirmation Time

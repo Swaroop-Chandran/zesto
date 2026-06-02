@@ -257,3 +257,50 @@ function redirectToDashboard(): void {
     header('Location: ' . ($map[$role] ?? BASE_URL . '/index.php'));
     exit;
 }
+
+/**
+ * Check if the active session is valid against database state.
+ * If the user is suspended, deleted, or session was invalidated, force logout.
+ */
+function checkSessionValidity(): void {
+    if (!isset($_SESSION['user_id'])) return;
+
+    require_once __DIR__ . '/database.php';
+    try {
+        $stmt = db()->prepare("SELECT account_status, session_invalidated_at FROM users WHERE id = :id LIMIT 1");
+        $stmt->execute([':id' => $_SESSION['user_id']]);
+        $user = $stmt->fetch();
+
+        if (!$user) {
+            logoutUser();
+            header('Location: ' . BASE_URL . '/login.php');
+            exit;
+        }
+
+        if ($user['account_status'] !== 'active') {
+            logoutUser();
+            session_start();
+            $_SESSION['flash'] = ['type' => 'error', 'message' => 'Your account has been suspended. Contact support.'];
+            header('Location: ' . BASE_URL . '/login.php');
+            exit;
+        }
+
+        if ($user['session_invalidated_at']) {
+            $invalidatedAt = strtotime($user['session_invalidated_at']);
+            $loggedInAt = $_SESSION['logged_in_at'] ?? 0;
+            if ($loggedInAt < $invalidatedAt) {
+                logoutUser();
+                session_start();
+                $_SESSION['flash'] = ['type' => 'error', 'message' => 'Your session has expired. Please log in again.'];
+                header('Location: ' . BASE_URL . '/login.php');
+                exit;
+            }
+        }
+    } catch (Exception $e) {
+        // Fail silently
+    }
+}
+
+// Run check on every load
+checkSessionValidity();
+
