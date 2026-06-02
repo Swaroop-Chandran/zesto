@@ -133,6 +133,18 @@ $csrfToken   = csrfToken();
       font-family: 'Be Vietnam Pro', sans-serif;
       overflow-x: hidden;
     }
+    #search-results a p {
+      color: #ffffff !important;
+    }
+    #search-results a p.text-zinc-500 {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+    #search-results a:hover p {
+      color: #f59e0b !important;
+    }
+    #search-results a:hover p.text-zinc-500 {
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
   </style>
 
   <!-- Custom Global Base URL for AJAX routing -->
