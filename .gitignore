@@ -6,3 +6,10 @@ coverage/
 *.log
 .env*
 !.env.example
+vendor/
+scratch/
+logs/
+.vscode/
+.antigravity/
+old_*
+

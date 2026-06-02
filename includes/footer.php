@@ -84,6 +84,7 @@
   </div>
 </footer>
 
+<script src="<?= BASE_URL ?>/assets/js/cart.js"></script>
 <script>
   if (typeof lucide !== 'undefined') {
     lucide.createIcons();

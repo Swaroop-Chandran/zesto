@@ -513,5 +513,4 @@ function triggerCheckout(event) {
 }
 </script>
 
-<script src="<?= BASE_URL ?>/assets/js/cart.js"></script>
 <?php include __DIR__ . '/../../../includes/footer.php'; ?>

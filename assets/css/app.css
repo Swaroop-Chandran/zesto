@@ -639,8 +639,8 @@ body {
 }
 
 .zesto-add-btn {
-  background-color: #f59e0b !important;
-  color: #000000 !important;
+  background: linear-gradient(to right, #fbbf24, #f59e0b) !important;
+  color: #09090b !important;
   font-weight: 700 !important;
   border-radius: 999px !important;
   font-size: 0.75rem !important;
@@ -653,10 +653,12 @@ body {
   justify-content: center !important;
   gap: 0.25rem !important;
   user-select: none !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15) !important;
 }
 
 .zesto-add-btn:hover {
-  background-color: #fbbf24 !important;
+  opacity: 0.9 !important;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25) !important;
 }
 
 .zesto-add-btn:active {

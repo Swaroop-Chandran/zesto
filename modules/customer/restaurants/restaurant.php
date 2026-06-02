@@ -279,5 +279,4 @@ include __DIR__ . '/../../../includes/navbar.php';
 // Global initialization for cartQty if not already done.
 window.cartQty = window.cartQty || {};
 </script>
-<script src="<?= BASE_URL ?>/assets/js/cart.js"></script>
 <?php include __DIR__ . '/../../../includes/footer.php'; ?>
