@@ -37,31 +37,7 @@
     <!-- ── SIGN IN FORM ────────────────────────────────────────── -->
     <div id="auth-view-login" class="space-y-4">
 
-      <!-- Demo Accounts Quick Fill -->
-      <div class="bg-white/5 border border-white/10 rounded-xl p-4">
-        <div class="flex items-center justify-between mb-2.5">
-          <p class="text-[10px] font-black text-zesto-orange uppercase tracking-widest">⚡ Demo Accounts</p>
-          <span class="text-[9px] text-white/40 font-semibold">Pass: Zesto@123</span>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" onclick="ZestoAuth.fillDemo('admin@zesto.com','admin')" class="text-left p-2.5 bg-white/5 hover:bg-zesto-orange/20 border border-transparent hover:border-zesto-orange/50 rounded-lg transition-all group cursor-pointer">
-            <p class="text-[10px] font-black text-white group-hover:text-zesto-orange">🔐 Admin</p>
-            <p class="text-[9px] text-white/40 mt-0.5 truncate">admin@zesto.com</p>
-          </button>
-          <button type="button" onclick="ZestoAuth.fillDemo('alex@example.com','customer')" class="text-left p-2.5 bg-white/5 hover:bg-zesto-orange/20 border border-transparent hover:border-zesto-orange/50 rounded-lg transition-all group cursor-pointer">
-            <p class="text-[10px] font-black text-white group-hover:text-zesto-orange">🛍 Customer</p>
-            <p class="text-[9px] text-white/40 mt-0.5 truncate">alex@example.com</p>
-          </button>
-          <button type="button" onclick="ZestoAuth.fillDemo('mario@zesto.com','restaurant_owner')" class="text-left p-2.5 bg-white/5 hover:bg-zesto-orange/20 border border-transparent hover:border-zesto-orange/50 rounded-lg transition-all group cursor-pointer">
-            <p class="text-[10px] font-black text-white group-hover:text-zesto-orange">🍽 Owner</p>
-            <p class="text-[9px] text-white/40 mt-0.5 truncate">mario@zesto.com</p>
-          </button>
-          <button type="button" onclick="ZestoAuth.fillDemo('marcus@zesto.com','delivery_partner')" class="text-left p-2.5 bg-white/5 hover:bg-zesto-orange/20 border border-transparent hover:border-zesto-orange/50 rounded-lg transition-all group cursor-pointer">
-            <p class="text-[10px] font-black text-white group-hover:text-zesto-orange">🚴 Delivery</p>
-            <p class="text-[9px] text-white/40 mt-0.5 truncate">marcus@zesto.com</p>
-          </button>
-        </div>
-      </div>
+      <!-- Demo accounts quick fill panel disabled/removed -->
 
       <form id="ajax-login-form" class="space-y-4">
         <?= csrfField() ?>
@@ -247,17 +223,6 @@
       });
     });
     
-    // Also override fillDemo role style update 
-    const origFillDemo = window.ZestoAuth.fillDemo;
-    window.ZestoAuth.fillDemo = function(email, role) {
-      origFillDemo.call(this, email, role);
-      // Let the change event handler above handle the UI classes by manually dispatching event
-      const roleInputs = document.querySelectorAll('input[name="login_role"]');
-      roleInputs.forEach((input) => {
-        if (input.value === role) {
-          input.dispatchEvent(new Event('change'));
-        }
-      });
-    };
+    // fillDemo override removed
   });
 </script>
