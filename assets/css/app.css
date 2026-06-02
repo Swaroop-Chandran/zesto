@@ -660,7 +660,14 @@ body {
   transform: none;
 }
 
-/* ── Live Search Results Dropdown Text Visibility ────────────────── */
+/* ── Live Search Results Dropdown Text Visibility & Hover Fix ────── */
+#search-results a {
+  background-color: transparent !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+#search-results a:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important; /* Subtle translucent white/grey hover highlight */
+}
 #search-results a p.text-white {
   color: #ffffff !important;
 }
