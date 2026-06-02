@@ -50,21 +50,29 @@ $currentLoc = htmlspecialchars(getCurrentLocation());
 
   <!-- Global Search Bar -->
   <div class="flex-1 max-w-xl min-w-[240px]">
-    <form action="<?= BASE_URL ?>/menu.php" method="GET" class="relative w-full m-0 p-0">
-      <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-        <i data-lucide="search" class="h-4 w-4 text-white/40"></i>
-      </span>
-      <input
-        type="text"
-        name="search"
-        value="<?= e($searchQuery) ?>"
-        placeholder="Search for Porotta, Beef Roast, Thattukada..."
-        class="w-full bg-white/5 border border-white/10 text-white rounded-lg pl-9 pr-10 py-1.5 text-sm focus:outline-none focus:border-zesto-orange focus:ring-1 focus:ring-zesto-orange transition-all placeholder:text-white/30"
-      />
-      <button type="submit" class="absolute inset-y-0 right-0 pr-3 flex items-center text-white/40 hover:text-white/80 cursor-pointer bg-transparent border-none">
-        <i data-lucide="filter" class="w-4 h-4"></i>
-      </button>
-    </form>
+    <div class="relative w-full">
+      <form action="<?= BASE_URL ?>/index.php" method="GET" class="relative w-full m-0 p-0" id="navbar-search-form">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+          <i data-lucide="search" class="h-4 w-4 text-white/40"></i>
+        </span>
+        <input
+          type="text"
+          name="search"
+          id="search-input"
+          value="<?= e($searchQuery) ?>"
+          placeholder="Search for Porotta, Beef Roast, Thattukada..."
+          class="w-full bg-white/5 border border-white/10 text-white rounded-lg pl-9 pr-10 py-1.5 text-sm focus:outline-none focus:border-zesto-orange focus:ring-1 focus:ring-zesto-orange transition-all placeholder:text-white/30"
+          autocomplete="off"
+        />
+        <button type="submit" class="absolute inset-y-0 right-0 pr-3 flex items-center text-white/40 hover:text-white/80 cursor-pointer bg-transparent border-none">
+          <i data-lucide="filter" class="w-4 h-4"></i>
+        </button>
+      </form>
+      <!-- Live Search Results Dropdown -->
+      <div id="search-results"
+           class="hidden absolute top-full left-0 right-0 mt-1.5 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden max-h-80 overflow-y-auto">
+      </div>
+    </div>
   </div>
 
   <!-- Secondary Nav Controls -->

@@ -47,24 +47,47 @@ $search = trim($_GET['search'] ?? '');
 $catTag = trim($_GET['category'] ?? '');
 $sortBy = $_GET['sort'] ?? 'none';
 
-$sql    = "SELECT * FROM restaurants WHERE is_active=1 AND city=:city";
-$params = [':city' => $city];
+$validSorts = [
+    'rating'   => 'rating DESC',
+    'time'     => 'delivery_time_value ASC',
+    'distance' => 'distance ASC',
+    'none'     => 'is_featured DESC, rating DESC',
+];
+$orderClause = $validSorts[$sortBy] ?? $validSorts['none'];
 
 if ($search !== '') {
-    $sql .= " AND (name LIKE :s OR tags LIKE :s2)";
-    $params[':s'] = "%$search%"; $params[':s2'] = "%$search%";
+    // Search restaurants by name/tags OR by menu item name/description
+    $sql = "
+        SELECT DISTINCT r.* FROM restaurants r
+        WHERE r.is_active = 1 AND r.city = :city
+          AND (r.name LIKE :s OR r.tags LIKE :s2)
+        UNION
+        SELECT DISTINCT r.* FROM restaurants r
+        INNER JOIN menu_items mi ON mi.restaurant_id = r.id
+        WHERE r.is_active = 1 AND r.city = :city2
+          AND mi.is_available = 1
+          AND (mi.name LIKE :s3 OR mi.description LIKE :s4)
+        ORDER BY $orderClause
+    ";
+    $params = [
+        ':city'  => $city,
+        ':s'     => "%$search%",
+        ':s2'    => "%$search%",
+        ':city2' => $city,
+        ':s3'    => "%$search%",
+        ':s4'    => "%$search%",
+    ];
+} else {
+    $sql    = "SELECT * FROM restaurants WHERE is_active=1 AND city=:city";
+    $params = [':city' => $city];
+
+    if ($catTag !== '') {
+        $sql .= " AND tags LIKE :cat";
+        $params[':cat'] = "%$catTag%";
+    }
+    $sql .= ' ORDER BY ' . $orderClause;
 }
-if ($catTag !== '') {
-    $sql .= " AND tags LIKE :cat";
-    $params[':cat'] = "%$catTag%";
-}
-$validSorts = [
-    'rating'   => 'ORDER BY rating DESC',
-    'time'     => 'ORDER BY delivery_time_value ASC',
-    'distance' => 'ORDER BY distance ASC',
-    'none'     => 'ORDER BY is_featured DESC, rating DESC',
-];
-$sql .= ' ' . ($validSorts[$sortBy] ?? $validSorts['none']);
+
 $stmt = db()->prepare($sql);
 $stmt->execute($params);
 $restaurants = $stmt->fetchAll();
@@ -257,12 +280,31 @@ include __DIR__ . '/../../../includes/navbar.php';
       <button onclick="resetFilters()" class="btn-primary py-2 px-6 text-xs bg-[#fbbf24] text-zinc-950">Reset All Filters</button>
     </div>
 
+    <?php if ($search !== ''): ?>
+    <div class="flex items-center gap-3 bg-amber-400/5 border border-amber-400/20 rounded-2xl px-5 py-3 text-sm">
+      <i data-lucide="search" class="w-4 h-4 text-amber-400 shrink-0"></i>
+      <span class="text-zinc-400">Showing restaurants for <strong class="text-white">"<?= e($search) ?>"</strong></span>
+      <a href="<?= BASE_URL ?>/menu.php?search=<?= urlencode($search) ?>" class="ml-auto text-amber-400 font-bold text-xs hover:underline shrink-0 no-underline">
+        See matching dishes →
+      </a>
+    </div>
+    <?php endif; ?>
+
     <?php if (empty($restaurants)): ?>
     <div class="bg-zinc-950/40 rounded-3xl p-16 text-center border border-white/5">
       <div class="text-5xl mb-4">🍽️</div>
+      <?php if ($search !== ''): ?>
+      <h3 class="text-xl font-black text-white mb-2">No restaurants found for "<?= e($search) ?>"</h3>
+      <p class="text-zinc-500 mb-6">Try searching by a dish name, cuisine type, or restaurant name.</p>
+      <div class="flex flex-wrap gap-3 justify-center">
+        <a href="<?= BASE_URL ?>/menu.php?search=<?= urlencode($search) ?>" class="btn-primary bg-[#fbbf24] text-zinc-950 font-bold rounded-full px-6 py-2.5 no-underline">Browse Matching Dishes</a>
+        <a href="<?= BASE_URL ?>/" class="btn-secondary font-bold rounded-full px-6 py-2.5 no-underline">View All Restaurants</a>
+      </div>
+      <?php else: ?>
       <h3 class="text-xl font-black text-white mb-2">No Restaurants Open</h3>
       <p class="text-zinc-500 mb-6">Currently there are no registered restaurants operating in <?= e($city) ?>.</p>
       <button onclick="Zesto.modal.open('location-modal')" class="btn-primary bg-[#fbbf24] text-zinc-950 font-bold rounded-full px-6 py-2.5">Change Location</button>
+      <?php endif; ?>
     </div>
     <?php else: ?>
     <!-- Grid elements -->

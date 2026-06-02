@@ -81,26 +81,44 @@ function initSearch() {
     }
 
     try {
-      const res = await fetch(`${window.ZESTO_BASE || '/Zesto'}/api/restaurants/search.php?q=${encodeURIComponent(q)}`);
+      const res = await fetch(`${window.ZESTO_BASE || ''}/api/restaurants/search.php?q=${encodeURIComponent(q)}`);
       const data = await res.json();
       if (!searchResults) return;
 
       if (data.results && data.results.length > 0) {
-        searchResults.innerHTML = data.results.map(r => `
-          <a href="${window.ZESTO_BASE || '/Zesto'}/restaurant.php?id=${r.slug}" 
-             class="flex items-center gap-3 px-4 py-3 hover:bg-[#f5f3f3] transition-colors">
-            <img src="${r.image || ''}" alt="${r.name}" 
-                 class="w-10 h-10 rounded-lg object-cover border border-gray-100">
-            <div>
-              <p class="text-sm font-bold text-[#1b1c1c]">${r.name}</p>
-              <p class="text-xs text-gray-500">${r.tags}</p>
+        searchResults.innerHTML = data.results.map(r => {
+          const icon = r.result_type === 'menu'
+            ? `<span class="text-[10px] font-bold text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded uppercase tracking-wide shrink-0">🍽 Dish</span>`
+            : `<span class="text-[10px] font-bold text-zinc-400 bg-white/5 px-1.5 py-0.5 rounded uppercase tracking-wide shrink-0">🏠 Place</span>`;
+          return `
+          <a href="${window.ZESTO_BASE || ''}/restaurant.php?id=${r.slug}"
+             class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 no-underline group">
+            <img src="${r.image || ''}" alt="${r.name}"
+                 class="w-10 h-10 rounded-lg object-cover border border-white/10 shrink-0"
+                 onerror="this.src='https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=80&q=60'">
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-bold text-white truncate group-hover:text-amber-400 transition-colors">${r.name}</p>
+              <p class="text-xs text-zinc-500 truncate mt-0.5">${r.subtitle || r.tags}</p>
             </div>
-            <span class="ml-auto text-xs text-[#a83300] font-bold">★ ${r.rating}</span>
-          </a>
-        `).join('');
+            <div class="flex flex-col items-end gap-1 shrink-0">
+              ${icon}
+              <span class="text-[10px] text-amber-400 font-bold">★ ${r.rating}</span>
+            </div>
+          </a>`;
+        }).join('');
+
+        // Add "See all results" footer
+        searchResults.innerHTML += `
+          <a href="${window.ZESTO_BASE || ''}/index.php?search=${encodeURIComponent(q)}"
+             class="flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-400/5 hover:bg-amber-400/10 transition-colors text-amber-400 text-xs font-bold no-underline">
+            <i data-lucide="search" class="w-3.5 h-3.5"></i>
+            See all results for "${q}"
+          </a>`;
+
         searchResults.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
       } else {
-        searchResults.innerHTML = `<div class="px-4 py-3 text-sm text-gray-500">No restaurants found for "${q}"</div>`;
+        searchResults.innerHTML = `<div class="px-4 py-4 text-sm text-zinc-500 text-center">No restaurants or dishes found for "<strong class="text-white">${q}</strong>"</div>`;
         searchResults.classList.remove('hidden');
       }
     } catch(e) {
@@ -109,6 +127,14 @@ function initSearch() {
   }, 350);
 
   searchInput.addEventListener('input', doSearch);
+
+  // Submit form on Enter (regular behaviour) — results are just a preview
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      searchResults && searchResults.classList.add('hidden');
+      searchInput.blur();
+    }
+  });
 
   // Close results on outside click
   document.addEventListener('click', function(e) {

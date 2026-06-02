@@ -146,6 +146,7 @@ $csrfToken   = csrfToken();
   <!-- Core JavaScript modules -->
   <script src="<?= BASE_URL ?>/assets/js/app.js" defer></script>
   <script src="<?= BASE_URL ?>/assets/js/auth.js" defer></script>
+  <script src="<?= BASE_URL ?>/assets/js/cart.js" defer></script>
 
   <?php if (!empty($extraCss)): foreach ($extraCss as $css): ?>
   <link rel="stylesheet" href="<?= e($css) ?>">
