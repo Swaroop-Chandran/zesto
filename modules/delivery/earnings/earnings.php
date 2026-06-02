@@ -21,42 +21,42 @@ $pageTitle = 'Earnings — Delivery Panel';
 $sidebarType = 'delivery'; $activePage = 'earnings.php';
 include __DIR__ . '/../../../includes/header.php';
 ?>
-<div class="admin-layout">
+<div class="admin-layout font-sans bg-zesto-dark text-[#dfe2eb] min-h-screen flex">
   <?php include __DIR__ . '/../../../includes/sidebar.php'; ?>
   <div class="flex-1 overflow-auto p-6 md:p-10 max-w-7xl">
-    <h1 class="text-2xl font-extrabold text-[#1b1c1c] mb-8">My Earnings</h1>
+    <h1 class="text-2xl font-extrabold text-white mb-8">My Earnings</h1>
 
     <?php if ($partner): ?>
     <div class="grid grid-cols-3 gap-5 mb-8">
-      <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-        <p class="text-xs text-gray-400 font-bold uppercase mb-2">Total Earned</p>
+      <div class="glass-panel rounded-2xl border border-white/10 p-6 shadow-md shadow-black/20">
+        <p class="text-xs text-white/40 font-bold uppercase mb-2">Total Earned</p>
         <p class="text-3xl font-black text-[#00c853]"><?= formatPrice($partner['total_earnings']) ?></p>
       </div>
-      <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-        <p class="text-xs text-gray-400 font-bold uppercase mb-2">Total Deliveries</p>
-        <p class="text-3xl font-black text-[#1b1c1c]"><?= number_format($partner['total_deliveries']) ?></p>
+      <div class="glass-panel rounded-2xl border border-white/10 p-6 shadow-md shadow-black/20">
+        <p class="text-xs text-white/40 font-bold uppercase mb-2">Total Deliveries</p>
+        <p class="text-3xl font-black text-white"><?= number_format($partner['total_deliveries']) ?></p>
       </div>
-      <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-        <p class="text-xs text-gray-400 font-bold uppercase mb-2">Rating</p>
+      <div class="glass-panel rounded-2xl border border-white/10 p-6 shadow-md shadow-black/20">
+        <p class="text-xs text-white/40 font-bold uppercase mb-2">Rating</p>
         <p class="text-3xl font-black text-amber-500">★ <?= number_format($partner['rating'],1) ?></p>
       </div>
     </div>
     <?php endif; ?>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      <div class="p-5 border-b border-gray-100"><h3 class="font-bold text-sm text-[#1b1c1c]">Monthly Earnings Breakdown</h3></div>
+    <div class="glass-panel rounded-2xl border border-white/10 shadow-md shadow-black/20 overflow-hidden">
+      <div class="p-5 border-b border-white/10"><h3 class="font-bold text-sm text-white">Monthly Earnings Breakdown</h3></div>
       <table class="w-full text-sm">
-        <thead class="bg-[#f5f3f3]">
+        <thead class="bg-white/5">
           <tr>
-            <th class="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase">Month</th>
-            <th class="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase">Deliveries</th>
-            <th class="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase">Earned</th>
-            <th class="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase">Avg/Delivery</th>
+            <th class="text-left px-4 py-3 text-xs font-bold text-white/40 uppercase">Month</th>
+            <th class="text-left px-4 py-3 text-xs font-bold text-white/40 uppercase">Deliveries</th>
+            <th class="text-left px-4 py-3 text-xs font-bold text-white/40 uppercase">Earned</th>
+            <th class="text-left px-4 py-3 text-xs font-bold text-white/40 uppercase">Avg/Delivery</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-50">
+        <tbody class="divide-y divide-white/5">
           <?php foreach ($earning as $e): ?>
-          <tr class="hover:bg-[#f5f3f3]/50">
+          <tr class="hover:bg-white/5">
             <td class="px-4 py-3 font-semibold"><?= date('F Y', strtotime($e['month'].'-01')) ?></td>
             <td class="px-4 py-3"><?= $e['deliveries'] ?></td>
             <td class="px-4 py-3 font-bold text-[#00c853]"><?= formatPrice($e['earned']) ?></td>
@@ -64,7 +64,7 @@ include __DIR__ . '/../../../includes/header.php';
           </tr>
           <?php endforeach; ?>
           <?php if (empty($earning)): ?>
-          <tr><td colspan="4" class="px-4 py-8 text-center text-gray-400">No earnings data yet. Complete your first delivery!</td></tr>
+          <tr><td colspan="4" class="px-4 py-8 text-center text-white/40">No earnings data yet. Complete your first delivery!</td></tr>
           <?php endif; ?>
         </tbody>
       </table>

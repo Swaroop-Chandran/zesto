@@ -3,7 +3,7 @@
  * Zesto — Footer Include (Zesto UI)
  */
 ?>
-<footer class="w-full bg-[#0a0e14]/90 border-t border-white/5 py-10 mt-16 px-4 sm:px-10">
+<footer class="w-full bg-[#050505] border-t border-white/5 py-10 mt-16 px-4 sm:px-10">
   <div class="max-w-7xl mx-auto">
     
     <!-- Core Value Badges -->

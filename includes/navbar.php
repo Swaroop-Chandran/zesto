@@ -13,29 +13,29 @@ $currentUser = getCurrentUser();
 $currentPage = basename($_SERVER['PHP_SELF']);
 $searchQuery = $_GET['search'] ?? '';
 
-$currentLoc = htmlspecialchars(explode(',', getCurrentLocation())[0]);
+$currentLoc = htmlspecialchars(getCurrentLocation());
 ?>
 
-<header class="sticky top-0 z-40 w-full glass-panel border-b border-white/10 px-4 sm:px-10 py-3 flex flex-wrap items-center justify-between gap-4">
+<header class="sticky top-0 z-40 w-full bg-black/45 backdrop-blur-xl border-b border-white/5 px-4 sm:px-10 py-3.5 flex flex-wrap items-center justify-between gap-4 shadow-lg shadow-black/30">
   <!-- Brand & Location -->
   <div class="flex items-center gap-6">
     <a href="<?= BASE_URL ?>/index.php" class="flex items-center gap-3 cursor-pointer hover:opacity-90 no-underline">
       <div class="relative">
-        <i data-lucide="moon" class="w-5 h-5 text-zesto-orange fill-zesto-orange animate-pulse"></i>
-        <div class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-zesto-cyan fire-glow"></div>
+        <i data-lucide="moon" class="w-5 h-5 text-zesto-orange fill-zesto-orange"></i>
+        <div class="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-zesto-orange fire-glow"></div>
       </div>
       <div class="flex flex-col text-left">
-        <span class="text-xl sm:text-2xl font-bold tracking-tighter text-zesto-orange uppercase" style="font-family: 'Georgia', serif">ZESTO NIGHTS</span>
-        <span class="text-[9px] tracking-[0.25em] -mt-0.5 uppercase opacity-50 font-sans font-semibold text-white">KERALA NIGHT FOOD CULTURE</span>
+        <span class="text-xl sm:text-2xl font-bold tracking-tighter text-zesto-orange uppercase" style="font-family: 'Georgia', serif; color: #fbbf24;">ZESTO NIGHTS</span>
+        <span class="text-[9px] tracking-[0.25em] -mt-0.5 uppercase opacity-60 font-sans font-extrabold text-white">KERALA NIGHT FOOD CULTURE</span>
       </div>
     </a>
 
     <!-- Location Dropdown -->
     <div class="relative hidden sm:block">
-      <button onclick="toggleLocDropdown()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-white/90 hover:bg-white/10 transition cursor-pointer border-none">
-        <i data-lucide="map-pin" class="w-4 h-4 text-zesto-orange"></i>
+      <button onclick="toggleLocDropdown()" class="flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/80 border border-white/5 text-xs font-bold text-white hover:bg-zinc-800/80 transition cursor-pointer border-none shadow-md shadow-black/30">
+        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-zesto-orange"></i>
         <span><?= $currentLoc ?></span>
-        <span class="text-xs text-white/50">▼</span>
+        <span class="text-[8px] text-white/55">▼</span>
       </button>
       
       <div id="loc-dropdown" class="hidden absolute left-0 mt-2 w-48 rounded-lg glass-panel-heavy p-1 shadow-2xl z-50 animate-fade-in">
@@ -101,12 +101,15 @@ $currentLoc = htmlspecialchars(explode(',', getCurrentLocation())[0]);
     <?php endif; ?>
 
     <!-- Floating Cart Button -->
-    <a href="<?= BASE_URL ?>/cart.php" class="relative flex items-center gap-2 bg-zesto-orange text-white hover:bg-zesto-orange/90 active:scale-95 px-4 py-2 rounded-full font-semibold text-sm transition-all shadow-lg shadow-zesto-orange/20 no-underline cursor-pointer">
-      <i data-lucide="shopping-cart" class="w-4 h-4"></i>
-      <span class="hidden sm:inline">Cart</span>
+    <a href="<?= BASE_URL ?>/cart.php" class="relative flex items-center gap-2 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-zinc-950 hover:opacity-90 active:scale-95 px-5 py-2.5 rounded-full font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-amber-500/10 no-underline cursor-pointer">
+      <i data-lucide="shopping-cart" class="w-3.5 h-3.5 text-zinc-950 stroke-[3]"></i>
+      <span>Cart</span>
       <?php if ($cartCount > 0): ?>
-        <div class="absolute -top-1.5 -right-1.5 bg-zesto-amber text-[#402d00] min-w-[20px] h-5 rounded-full flex items-center justify-center text-[10px] font-extrabold px-1 border border-[#10141a]">
+        <div class="cart-badge absolute -top-1.5 -right-1.5 bg-white text-zinc-950 min-w-[20px] h-5 rounded-full flex items-center justify-center text-[10px] font-black px-1 border border-zinc-950 shadow-md">
           <?= $cartCount ?>
+        </div>
+      <?php else: ?>
+        <div class="cart-badge hidden absolute -top-1.5 -right-1.5 bg-white text-zinc-950 min-w-[20px] h-5 rounded-full flex items-center justify-center text-[10px] font-black px-1 border border-zinc-950 shadow-md">
         </div>
       <?php endif; ?>
     </a>
@@ -121,7 +124,9 @@ $currentLoc = htmlspecialchars(explode(',', getCurrentLocation())[0]);
   <a href="<?= BASE_URL ?>/cart.php" class="flex flex-col items-center justify-center p-2 rounded-xl transition-all relative <?= $currentPage === 'cart.php' ? 'text-zesto-orange' : 'text-white/60 hover:text-zesto-orange' ?> no-underline">
     <i data-lucide="shopping-cart" class="h-5 w-5"></i>
     <?php if ($cartCount > 0): ?>
-    <span class="absolute top-1 right-2 bg-zesto-orange text-white rounded-full w-4 h-4 text-[9px] flex items-center justify-center font-bold"><?= $cartCount ?></span>
+    <span class="cart-badge absolute top-1 right-2 bg-zesto-orange text-white rounded-full w-4 h-4 text-[9px] flex items-center justify-center font-bold"><?= $cartCount ?></span>
+    <?php else: ?>
+    <span class="cart-badge hidden absolute top-1 right-2 bg-zesto-orange text-white rounded-full w-4 h-4 text-[9px] flex items-center justify-center font-bold"></span>
     <?php endif; ?>
   </a>
   <a href="<?= BASE_URL ?>/orders.php" class="flex flex-col items-center justify-center p-2 rounded-xl transition-all <?= $currentPage === 'orders.php' ? 'text-zesto-orange' : 'text-white/60 hover:text-zesto-orange' ?> no-underline">

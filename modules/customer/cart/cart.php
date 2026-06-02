@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../../config/config.php';
 require_once __DIR__ . '/../../../config/auth.php';
 require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../../includes/location_helper.php';
+require_once __DIR__ . '/../../../includes/image_helper.php';
 
 $pageTitle   = 'Checkout — Zesto Nights';
 $description = 'Review items, select from your saved addresses, choose payment, and complete your order.';
@@ -155,7 +156,7 @@ include __DIR__ . '/../../../includes/navbar.php';
                 type="button"
                 id="btn-add-new-address-toggle"
                 onclick="document.getElementById('cart-new-address-form').classList.toggle('hidden')"
-                class="w-full py-2.5 px-4 rounded-xl border border-dashed border-white/10 hover:border-zesto-orange/40 text-xs text-left font-semibold text-white/70 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer bg-white/5"
+                class="w-full py-2.5 px-4 rounded-xl border border-dashed border-white/20 hover:border-zesto-orange/40 text-xs text-left font-semibold text-white/70 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer bg-white/5"
               >
                 <i data-lucide="plus" class="w-3.5 h-3.5 text-zesto-orange"></i>
                 <span>Add New Address</span>
@@ -512,4 +513,5 @@ function triggerCheckout(event) {
 }
 </script>
 
+<script src="<?= BASE_URL ?>/assets/js/cart.js"></script>
 <?php include __DIR__ . '/../../../includes/footer.php'; ?>

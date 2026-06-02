@@ -22,47 +22,153 @@ function updateCartBadge(count) {
   });
 }
 
-// ── Add item to cart ──────────────────────────────────────────
-async function addToCart(menuItemId, restaurantId, restaurantSlug, customization = '') {
-  const btn = document.querySelector(`[data-add-cart="${menuItemId}"]`);
+window.cartQty = window.cartQty || {};
+
+async function cartAdd(itemId, restaurantId, restaurantSlug, customization = '') {
+  const wrap = document.getElementById('wrap-' + itemId);
+  let btn = null;
+  if (wrap) {
+    btn = wrap.querySelector('button');
+  } else {
+    btn = document.querySelector(`[data-add-cart="${itemId}"]`);
+  }
+  
   if (btn) {
     btn.disabled = true;
-    btn.innerHTML = `<span class="spinner" style="width:1rem;height:1rem;border-width:2px;"></span>`;
+    btn.innerHTML = `<span class="spinner" style="width:1rem;height:1rem;border-width:2px;display:inline-block;vertical-align:middle;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin 1s linear infinite;"></span>`;
   }
 
   try {
-    const res = await fetch((window.ZESTO_BASE || '/Zesto') + '/api/cart/add.php', {
+    const res = await fetch((window.ZESTO_BASE || '') + '/api/cart/add.php', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': getCsrfToken(),
-      },
-      body: JSON.stringify({ menu_item_id: menuItemId, restaurant_id: restaurantId, customization }),
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
+      body: JSON.stringify({ menu_item_id: itemId, restaurant_id: restaurantId, customization })
     });
-
     const data = await res.json();
 
     if (data.success) {
-      updateCartBadge(data.cart_count);
-      Zesto.toast(`🛒 Added to your cart!`, 'cart');
-
-      // Close menu modal if open
-      const modal = document.getElementById('menu-modal');
-      if (modal && !modal.classList.contains('hidden')) {
-        // Keep modal open, user can add more
+      window.cartQty[itemId] = (window.cartQty[itemId] || 0) + 1;
+      
+      if (wrap) {
+        renderStepper(itemId, restaurantId, restaurantSlug);
+      } else if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `Added ✓`;
       }
+      
+      updateCartBadge(data.cart_count);
+      Zesto.toast('🛒 Added to your cart!', 'cart');
     } else {
+      restoreAddBtn(itemId, restaurantId, restaurantSlug, wrap, btn);
+      if (window.lucide) lucide.createIcons();
       Zesto.toast(data.message || 'Could not add item.', 'error');
     }
-  } catch (e) {
-    Zesto.toast('Network error. Please try again.', 'error');
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add to Cart`;
-    }
+  } catch(e) {
+    restoreAddBtn(itemId, restaurantId, restaurantSlug, wrap, btn);
+    if (window.lucide) lucide.createIcons();
+    Zesto.toast('Network error.', 'error');
   }
 }
+
+function restoreAddBtn(itemId, restaurantId, restaurantSlug, wrap, btn) {
+  if (wrap) {
+    const theme = wrap.dataset.theme || 'light';
+    const img = wrap.querySelector('img');
+    if (theme === 'modal') {
+      wrap.innerHTML = `
+        ${img ? img.outerHTML : ''}
+        <span class="text-zesto-orange font-extrabold text-sm">$${parseFloat(wrap.dataset.price || 0).toFixed(2)}</span>
+        <button data-add-cart="${itemId}"
+                onclick="cartAdd('${itemId}', '${restaurantId}', '${restaurantSlug}', document.getElementById('custom-${itemId}') ? document.getElementById('custom-${itemId}').value : '')"
+                class="bg-zesto-orange hover:bg-zesto-orange/90 text-white h-8 w-32 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-md shadow-black/20 cursor-pointer border-none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add to Cart
+        </button>`;
+    } else {
+      wrap.innerHTML = `
+        ${img ? img.outerHTML : ''}
+        <button
+          onclick="event.preventDefault(); event.stopPropagation(); cartAdd(${itemId}, ${restaurantId}, '${restaurantSlug}')"
+          class="zesto-add-btn w-full mt-auto"
+        >
+          <span>+ Add</span>
+        </button>`;
+    }
+  } else if (btn) {
+    btn.disabled = false;
+    btn.className = "zesto-add-btn";
+    btn.innerHTML = `+ Add`;
+  }
+}
+
+function renderStepper(itemId, restaurantId, restaurantSlug) {
+  const wrap = document.getElementById('wrap-' + itemId);
+  if (!wrap) return;
+  const qty = window.cartQty[itemId] || 1;
+  
+  const img = wrap.querySelector('img');
+  const theme = wrap.dataset.theme || 'light';
+  const priceSpan = theme === 'modal' ? `<span class="text-zesto-orange font-extrabold text-sm">$${parseFloat(wrap.dataset.price || 0).toFixed(2)}</span>` : '';
+  const containerClass = theme === 'modal' ? 'w-32 mt-auto' : 'w-full mt-auto';
+  
+  wrap.innerHTML = `
+    ${img ? img.outerHTML : ''}
+    ${priceSpan}
+    <div class="qty-stepper ${containerClass}">
+      <button class="qty-stepper-btn" onclick="event.preventDefault(); event.stopPropagation(); cartDecrement(${itemId},${restaurantId},'${restaurantSlug}')">−</button>
+      <span class="qty-stepper-count">${qty}</span>
+      <button class="qty-stepper-btn" onclick="event.preventDefault(); event.stopPropagation(); cartIncrement(${itemId},${restaurantId},'${restaurantSlug}')">+</button>
+    </div>`;
+}
+
+async function cartIncrement(itemId, restaurantId, restaurantSlug) {
+  try {
+    const res = await fetch((window.ZESTO_BASE || '') + '/api/cart/add.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
+      body: JSON.stringify({ menu_item_id: itemId, restaurant_id: restaurantId, delta: 1 })
+    });
+    const data = await res.json();
+    if (data.success) {
+      window.cartQty[itemId] = (window.cartQty[itemId] || 1) + 1;
+      renderStepper(itemId, restaurantId, restaurantSlug);
+      updateCartBadge(data.cart_count);
+    }
+  } catch(e) {}
+}
+
+async function cartDecrement(itemId, restaurantId, restaurantSlug) {
+  window.cartQty[itemId] = Math.max(0, (window.cartQty[itemId] || 1) - 1);
+  if (window.cartQty[itemId] === 0) {
+    try {
+      const res = await fetch((window.ZESTO_BASE || '') + '/api/cart/remove.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
+        body: JSON.stringify({ menu_item_id: itemId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        updateCartBadge(data.cart_count);
+      }
+    } catch(e) {}
+    
+    const wrap = document.getElementById('wrap-' + itemId);
+    restoreAddBtn(itemId, restaurantId, restaurantSlug, wrap, null);
+    if (window.lucide) lucide.createIcons();
+  } else {
+    renderStepper(itemId, restaurantId, restaurantSlug);
+    try {
+      await fetch((window.ZESTO_BASE || '') + '/api/cart/update.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
+        body: JSON.stringify({ menu_item_id: itemId, delta: -1 })
+      });
+    } catch(e) {}
+  }
+}
+
+// ── Alias for backwards compatibility ───────────────────────────
+window.addToCart = cartAdd;
 
 // ── Update item quantity in cart ──────────────────────────────
 async function updateCartQuantity(cartKey, delta) {
@@ -135,11 +241,11 @@ async function openRestaurantMenu(slug) {
 
     const r = data.restaurant;
     modalBody.innerHTML = `
-      <!-- Banner -->
-      <div class="relative h-44 md:h-52 shrink-0">
-        <img src="${r.image}" alt="${r.name}" class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex flex-col justify-end p-6 text-white">
-          <span class="bg-[#ffdbd0] text-[#a83300] px-2 py-0.5 rounded text-[10px] font-bold uppercase w-fit mb-2">Zesto Partner Kitchen</span>
+      <div class="relative bg-black/40 h-40 md:h-56 shrink-0 flex flex-col justify-end p-6">
+        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('${(window.ZESTO_BASE||'')+'/assets/img/restaurants/'+r.image}')"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-zesto-dark via-zesto-dark/70 to-transparent"></div>
+        <div class="relative z-10 text-white">
+          <span class="bg-zesto-orange/20 text-zesto-orange border border-zesto-orange/30 px-2 py-0.5 rounded text-[10px] font-bold uppercase w-fit mb-2">Zesto Partner Kitchen</span>
           <h3 class="text-xl md:text-2xl font-extrabold tracking-tight">${r.name}</h3>
           <div class="flex items-center gap-4 text-xs mt-1.5 opacity-90">
             <span class="flex items-center gap-1 text-amber-400 font-bold">★ ${r.rating}</span>
@@ -148,40 +254,40 @@ async function openRestaurantMenu(slug) {
           </div>
         </div>
         <button onclick="Zesto.modal.close('menu-modal')"
-                class="absolute top-4 right-4 bg-black/50 hover:bg-black/80 text-white p-1.5 rounded-full shadow-md transition-colors">
+                class="absolute top-4 right-4 bg-black/50 hover:bg-black/80 text-white p-1.5 rounded-full shadow-md transition-colors cursor-pointer border-none">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
 
       <!-- Menu List -->
-      <div class="p-6 overflow-y-auto flex-1 flex flex-col gap-6">
-        <div class="flex justify-between items-center border-b border-gray-100 pb-3">
-          <h4 class="font-bold text-[#1b1c1c] text-sm uppercase tracking-wider">Presenting Menu</h4>
-          <p class="text-xs text-gray-400">Select item to add to Cart</p>
+      <div class="p-6 overflow-y-auto flex-1 flex flex-col gap-6 bg-zesto-dark">
+        <div class="flex justify-between items-center border-b border-white/10 pb-3">
+          <h4 class="font-bold text-white text-sm uppercase tracking-wider">Presenting Menu</h4>
+          <p class="text-xs text-white/50">Select item to add to Cart</p>
         </div>
         <div class="space-y-4">
           ${data.menu.map(item => `
-            <div class="p-4 bg-[#f5f3f3]/40 border border-gray-100 rounded-xl hover:border-[#e5beb2] transition-colors flex flex-col sm:flex-row gap-4 justify-between">
+            <div class="p-4 glass-panel border border-white/10 rounded-xl hover:border-zesto-orange/30 transition-colors flex flex-col sm:flex-row gap-4 justify-between">
               <div class="flex-1">
-                <h5 class="font-bold text-sm text-[#1b1c1c]">${item.name}</h5>
-                <p class="text-xs text-gray-500 mt-1 leading-relaxed">${item.description}</p>
+                <h5 class="font-bold text-sm text-white">${item.name}</h5>
+                <p class="text-xs text-white/60 mt-1 leading-relaxed">${item.description}</p>
                 ${item.customization_options && item.customization_options.length > 0 ? `
                   <div class="mt-3.5 flex flex-wrap gap-1.5 items-center">
-                    <span class="text-[9px] text-[#5c4037] font-bold uppercase tracking-wide mr-1">Customize:</span>
+                    <span class="text-[9px] text-white/50 font-bold uppercase tracking-wide mr-1">Customize:</span>
                     ${item.customization_options.map(opt => `
                       <button onclick="this.classList.toggle('active-opt'); document.getElementById('custom-${item.id}').value = this.classList.contains('active-opt') ? '${opt}' : ''"
-                              class="px-2 py-0.5 rounded text-[10px] font-semibold border transition-all bg-white text-gray-500 border-gray-200 hover:bg-[#ffdbd0] hover:text-[#a83300] hover:border-[#a83300]">
+                              class="px-2 py-0.5 rounded text-[10px] font-semibold border transition-all bg-white/5 text-white/70 border-white/10 hover:bg-zesto-orange/20 hover:text-zesto-orange hover:border-zesto-orange cursor-pointer">
                         ${opt}
                       </button>
                     `).join('')}
                     <input type="hidden" id="custom-${item.id}" value="">
                   </div>` : ''}
               </div>
-              <div class="flex sm:flex-col justify-between items-end gap-3 shrink-0">
-                <span class="text-[#a83300] font-extrabold text-sm">$${parseFloat(item.price).toFixed(2)}</span>
+              <div id="wrap-${item.id}" data-theme="modal" data-price="${item.price}" class="flex sm:flex-col justify-between items-end gap-3 shrink-0 w-32">
+                <span class="text-zesto-orange font-extrabold text-sm">$${parseFloat(item.price).toFixed(2)}</span>
                 <button data-add-cart="${item.id}"
-                        onclick="addToCart('${item.id}', '${r.id}', '${r.slug}', document.getElementById('custom-${item.id}') ? document.getElementById('custom-${item.id}').value : '')"
-                        class="bg-[#a83300] hover:bg-[#d24200] text-white h-8 w-32 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-sm">
+                        onclick="cartAdd('${item.id}', '${r.id}', '${r.slug}', document.getElementById('custom-${item.id}') ? document.getElementById('custom-${item.id}').value : '')"
+                        class="bg-zesto-orange hover:bg-zesto-orange/90 text-white h-8 w-32 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-md shadow-black/20 cursor-pointer border-none">
                   <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   Add to Cart
                 </button>

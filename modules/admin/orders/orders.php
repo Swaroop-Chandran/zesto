@@ -23,11 +23,11 @@ $extraJs   = [BASE_URL . '/assets/js/admin.js'];
 $sidebarType = 'admin'; $activePage = 'orders.php';
 include __DIR__ . '/../../../includes/header.php';
 ?>
-<div class="admin-layout">
+<div class="admin-layout font-sans bg-zesto-dark text-[#dfe2eb] min-h-screen flex">
   <?php include __DIR__ . '/../../../includes/sidebar.php'; ?>
   <div class="flex-1 overflow-auto p-6 md:p-10 max-w-7xl">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-      <h1 class="text-2xl font-extrabold text-[#1b1c1c]">Orders Management</h1>
+      <h1 class="text-2xl font-extrabold text-white">Orders Management</h1>
       <form method="GET" class="flex gap-2 flex-wrap">
         <input type="text" name="search" value="<?= e($search) ?>" placeholder="Search order / customer..."
                class="zesto-input w-56 py-2 text-xs">
@@ -41,29 +41,29 @@ include __DIR__ . '/../../../includes/header.php';
       </form>
     </div>
 
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div class="glass-panel rounded-2xl border border-white/10 shadow-md shadow-black/20 overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
-          <thead class="bg-[#f5f3f3]">
+          <thead class="bg-white/5">
             <tr>
               <?php foreach(['Order #','Customer','Restaurant','Total','Payment','Status','Date','Actions'] as $h): ?>
-              <th class="text-left px-4 py-3 text-xs font-bold text-gray-400 uppercase whitespace-nowrap"><?= $h ?></th>
+              <th class="text-left px-4 py-3 text-xs font-bold text-white/40 uppercase whitespace-nowrap"><?= $h ?></th>
               <?php endforeach; ?>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-50">
+          <tbody class="divide-y divide-white/5">
             <?php foreach ($orders as $ord): ?>
-            <tr class="hover:bg-[#f5f3f3]/50 transition-colors">
-              <td class="px-4 py-4 font-bold text-[#a83300] whitespace-nowrap"><?= e($ord['order_number']) ?></td>
-              <td class="px-4 py-4"><p class="font-semibold text-gray-800"><?= e($ord['customer_name']) ?></p><p class="text-xs text-gray-400"><?= e($ord['customer_email']) ?></p></td>
-              <td class="px-4 py-4 text-gray-600"><?= e($ord['restaurant_name']) ?></td>
+            <tr class="hover:bg-white/5 transition-colors">
+              <td class="px-4 py-4 font-bold text-zesto-orange whitespace-nowrap"><?= e($ord['order_number']) ?></td>
+              <td class="px-4 py-4"><p class="font-semibold text-white/90"><?= e($ord['customer_name']) ?></p><p class="text-xs text-white/40"><?= e($ord['customer_email']) ?></p></td>
+              <td class="px-4 py-4 text-white/70"><?= e($ord['restaurant_name']) ?></td>
               <td class="px-4 py-4 font-bold"><?= formatPrice($ord['total']) ?></td>
               <td class="px-4 py-4"><span class="badge badge-<?= e($ord['payment_status']) ?>"><?= e($ord['payment_status']) ?></span></td>
               <td class="px-4 py-4"><span id="order-status-<?= $ord['id'] ?>" class="badge badge-<?= e($ord['order_status']) ?>"><?= e(str_replace('_',' ',$ord['order_status'])) ?></span></td>
-              <td class="px-4 py-4 text-xs text-gray-400 whitespace-nowrap"><?= date('M j, g:i A', strtotime($ord['created_at'])) ?></td>
+              <td class="px-4 py-4 text-xs text-white/40 whitespace-nowrap"><?= date('M j, g:i A', strtotime($ord['created_at'])) ?></td>
               <td class="px-4 py-4">
                 <select id="status-select-<?= $ord['id'] ?>" data-order-id="<?= $ord['id'] ?>" data-status-select
-                        class="text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none cursor-pointer hover:border-[#a83300]">
+                        class="text-xs border border-white/10 rounded-lg px-2 py-1 outline-none cursor-pointer hover:border-zesto-orange/50">
                   <?php foreach(['pending', 'accepted', 'preparing', 'ready_for_pickup', 'assigned_to_delivery', 'picked_up', 'out_for_delivery', 'delivered', 'cancelled'] as $s): ?>
                   <option value="<?= $s ?>" <?= $ord['order_status'] === $s ? 'selected' : '' ?>><?= ucfirst(str_replace('_',' ',$s)) ?></option>
                   <?php endforeach; ?>

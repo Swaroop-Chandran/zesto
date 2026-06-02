@@ -97,8 +97,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $pageTitle = 'Restaurant Onboarding — Zesto';
 include __DIR__ . '/../../../includes/header.php';
 ?>
-<div class="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
-  <div class="max-w-2xl w-full space-y-8 bg-white p-10 rounded-3xl border border-gray-150 shadow-sm relative overflow-hidden">
+<div class="min-h-screen bg-white/5 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
+  <div class="max-w-2xl w-full space-y-8 glass-panel p-10 rounded-3xl border border-white/10 shadow-md shadow-black/20 relative overflow-hidden">
     
     <!-- Top Brand Accent -->
     <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-orange-500 to-red-600"></div>
@@ -107,8 +107,8 @@ include __DIR__ . '/../../../includes/header.php';
       <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-orange-50 text-orange-600 font-black text-2xl mb-4">
         🍴
       </div>
-      <h2 class="text-3xl font-black text-[#1b1c1c]">Setup Your Kitchen Profile</h2>
-      <p class="text-sm text-gray-500 mt-2">Get started and reach thousands of hungry customers nearby.</p>
+      <h2 class="text-3xl font-black text-white">Setup Your Kitchen Profile</h2>
+      <p class="text-sm text-white/60 mt-2">Get started and reach thousands of hungry customers nearby.</p>
     </div>
 
     <?php if (!empty($errors)): ?>
@@ -118,32 +118,32 @@ include __DIR__ . '/../../../includes/header.php';
     <?php endif; ?>
 
     <!-- Onboarding Step Indicator -->
-    <div class="flex items-center justify-between mb-10 text-[10px] font-bold text-gray-400 uppercase tracking-wider select-none">
+    <div class="flex items-center justify-between mb-10 text-[10px] font-bold text-white/40 uppercase tracking-wider select-none">
       <span class="step-indicator active text-orange-600 border-b-2 border-orange-500 pb-2 flex-1 text-center" data-step="1">1. Profile</span>
-      <span class="step-indicator flex-1 border-b-2 border-gray-100 pb-2 text-center" data-step="2">2. Contact</span>
-      <span class="step-indicator flex-1 border-b-2 border-gray-100 pb-2 text-center" data-step="3">3. Logistics</span>
-      <span class="step-indicator flex-1 border-b-2 border-gray-100 pb-2 text-center" data-step="4">4. Branding</span>
+      <span class="step-indicator flex-1 border-b-2 border-white/10 pb-2 text-center" data-step="2">2. Contact</span>
+      <span class="step-indicator flex-1 border-b-2 border-white/10 pb-2 text-center" data-step="3">3. Logistics</span>
+      <span class="step-indicator flex-1 border-b-2 border-white/10 pb-2 text-center" data-step="4">4. Branding</span>
     </div>
 
     <!-- Onboarding Form -->
-    <form method="POST" enctype="multipart/form-data" id="onboard-form" class="space-y-6 text-xs text-gray-600 font-semibold">
+    <form method="POST" enctype="multipart/form-data" id="onboard-form" class="space-y-6 text-xs text-white/70 font-semibold">
       <?= csrfField() ?>
 
       <!-- STEP 1: KITCHEN PROFILE -->
       <div class="step-panel" id="step-panel-1">
-        <h3 class="text-base font-black text-[#1b1c1c] mb-4">Tell us about your Kitchen</h3>
+        <h3 class="text-base font-black text-white mb-4">Tell us about your Kitchen</h3>
         <div class="space-y-4">
           <div>
-            <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Restaurant Kitchen Name *</label>
+            <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Restaurant Kitchen Name *</label>
             <input type="text" name="name" required placeholder="e.g. Royal Punjab Dhaba" class="zesto-input bg-gray-50/50 text-xs">
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Cuisines / Specialties *</label>
+            <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Cuisines / Specialties *</label>
             <input type="text" name="tags" required placeholder="e.g. North Indian, Curry, Biryani" class="zesto-input bg-gray-50/50 text-xs">
-            <span class="text-[10px] text-gray-400 font-medium mt-1 block">Comma-separated tags for display and filtering.</span>
+            <span class="text-[10px] text-white/40 font-medium mt-1 block">Comma-separated tags for display and filtering.</span>
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Short Description</label>
+            <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Short Description</label>
             <textarea name="description" rows="3" placeholder="Describe your kitchen's special recipe, standard of hygiene, or legacy..." class="zesto-input bg-gray-50/50 text-xs resize-none"></textarea>
           </div>
         </div>
@@ -151,15 +151,15 @@ include __DIR__ . '/../../../includes/header.php';
 
       <!-- STEP 2: CONTACT DETAILS -->
       <div class="step-panel hidden" id="step-panel-2">
-        <h3 class="text-base font-black text-[#1b1c1c] mb-4">Contact & Location</h3>
+        <h3 class="text-base font-black text-white mb-4">Contact & Location</h3>
         <div class="space-y-4">
           <div>
-            <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Contact Phone Number *</label>
+            <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Contact Phone Number *</label>
             <input type="text" name="phone" required placeholder="e.g. +91 98765 43210" class="zesto-input bg-gray-50/50 text-xs">
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">City Location *</label>
-            <select name="city" required class="zesto-input bg-gray-50/50 text-xs text-gray-700">
+            <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">City Location *</label>
+            <select name="city" required class="zesto-input bg-gray-50/50 text-xs text-white/80">
               <option value="Mumbai">Mumbai</option>
               <option value="Delhi">Delhi</option>
               <option value="Bangalore">Bangalore</option>
@@ -169,7 +169,7 @@ include __DIR__ . '/../../../includes/header.php';
             </select>
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Full Kitchen Address *</label>
+            <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Full Kitchen Address *</label>
             <textarea name="address" required rows="3" placeholder="e.g. Shop 4, Link Heights, Carter Road, Bandra West" class="zesto-input bg-gray-50/50 text-xs resize-none"></textarea>
           </div>
         </div>
@@ -177,23 +177,23 @@ include __DIR__ . '/../../../includes/header.php';
 
       <!-- STEP 3: LOGISTICS & HOURS -->
       <div class="step-panel hidden" id="step-panel-3">
-        <h3 class="text-base font-black text-[#1b1c1c] mb-4">Operating Parameters</h3>
+        <h3 class="text-base font-black text-white mb-4">Operating Parameters</h3>
         <div class="space-y-4">
           <div>
-            <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Operating Hours *</label>
+            <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Operating Hours *</label>
             <input type="text" name="operating_hours" required value="9:00 AM - 10:00 PM" placeholder="e.g. 10:00 AM - 11:00 PM" class="zesto-input bg-gray-50/50 text-xs">
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Delivery Radius (in km) *</label>
+            <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Delivery Radius (in km) *</label>
             <input type="number" name="delivery_radius" required step="0.1" value="5.0" min="0.5" max="30.0" class="zesto-input bg-gray-50/50 text-xs">
-            <span class="text-[10px] text-gray-400 font-medium mt-1 block">Maximum distance you want to serve.</span>
+            <span class="text-[10px] text-white/40 font-medium mt-1 block">Maximum distance you want to serve.</span>
           </div>
         </div>
       </div>
 
       <!-- STEP 4: BRANDING -->
       <div class="step-panel hidden" id="step-panel-4">
-        <h3 class="text-base font-black text-[#1b1c1c] mb-4">Kitchen Branding</h3>
+        <h3 class="text-base font-black text-white mb-4">Kitchen Branding</h3>
         <div class="space-y-5">
           <div class="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 flex items-start gap-3">
             <span class="text-lg">📸</span>
@@ -202,19 +202,19 @@ include __DIR__ . '/../../../includes/header.php';
             </p>
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Upload Restaurant Logo (Square)</label>
+            <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Upload Restaurant Logo (Square)</label>
             <input type="file" name="logo" accept="image/*" class="zesto-input bg-gray-50/50 text-xs py-2 px-3 border-dashed border-2">
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-[#1b1c1c] mb-1.5 uppercase tracking-wider">Upload Restaurant Banner (Landscape)</label>
+            <label class="block text-[10px] font-bold text-white mb-1.5 uppercase tracking-wider">Upload Restaurant Banner (Landscape)</label>
             <input type="file" name="banner" accept="image/*" class="zesto-input bg-gray-50/50 text-xs py-2 px-3 border-dashed border-2">
           </div>
         </div>
       </div>
 
       <!-- Button Controls -->
-      <div class="flex justify-between items-center pt-6 border-t border-gray-100">
-        <button type="button" id="prev-btn" class="hidden font-bold border border-gray-200 text-gray-500 rounded-xl h-11 px-5 hover:bg-gray-50 transition-colors">
+      <div class="flex justify-between items-center pt-6 border-t border-white/10">
+        <button type="button" id="prev-btn" class="hidden font-bold border border-white/10 text-white/60 rounded-xl h-11 px-5 hover:bg-white/5 transition-colors">
           Back
         </button>
         <div class="flex-1"></div>

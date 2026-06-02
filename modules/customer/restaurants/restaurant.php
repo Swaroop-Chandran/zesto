@@ -28,10 +28,11 @@ $pageTitle = e($restaurant['name']) . ' - Zesto Nights Menu';
 
 // Fetch Categories for this restaurant
 $catStmt = db()->prepare("
-    SELECT DISTINCT category 
-    FROM menu_items 
-    WHERE restaurant_id = ? AND is_available = 1 
-    ORDER BY category ASC
+    SELECT DISTINCT c.name as category 
+    FROM menu_items mi
+    JOIN categories c ON c.id = mi.category_id
+    WHERE mi.restaurant_id = ? AND mi.is_available = 1 
+    ORDER BY c.name ASC
 ");
 $catStmt->execute([$restaurant['id']]);
 $categories = $catStmt->fetchAll(PDO::FETCH_COLUMN);
@@ -42,19 +43,19 @@ $selectedCat = $_GET['cat'] ?? 'All';
 $searchQuery = $_GET['q'] ?? '';
 
 // Fetch Menu Items
-$sql = "SELECT * FROM menu_items WHERE restaurant_id = :rid AND is_available = 1";
+$sql = "SELECT mi.* FROM menu_items mi WHERE mi.restaurant_id = :rid AND mi.is_available = 1";
 $params = [':rid' => $restaurant['id']];
 
 if ($selectedCat !== 'All') {
-    $sql .= " AND category = :cat";
+    $sql .= " AND mi.category_id IN (SELECT id FROM categories WHERE name = :cat)";
     $params[':cat'] = $selectedCat;
 }
 if (!empty($searchQuery)) {
-    $sql .= " AND (name LIKE :q OR description LIKE :q2)";
+    $sql .= " AND (mi.name LIKE :q OR mi.description LIKE :q2)";
     $params[':q'] = "%$searchQuery%";
     $params[':q2'] = "%$searchQuery%";
 }
-$sql .= " ORDER BY is_bestseller DESC, name ASC";
+$sql .= " ORDER BY mi.is_bestseller DESC, mi.name ASC";
 
 $itemStmt = db()->prepare($sql);
 $itemStmt->execute($params);
@@ -235,20 +236,32 @@ include __DIR__ . '/../../../includes/navbar.php';
                 </div>
               </div>
 
-              <!-- Right Side: Media thumbnail & Add CTA -->
-              <div class="w-full sm:w-28 flex flex-row sm:flex-col items-center sm:justify-start gap-4 flex-shrink-0">
+              <div class="w-full sm:w-28 flex flex-row sm:flex-col items-center sm:justify-start gap-4 flex-shrink-0" id="wrap-<?= $item['id'] ?>" data-theme="dark">
                 <img 
                   src="<?= getFoodImage($item['image'], $item['name']) ?>" 
                   alt="<?= e($item['name']) ?>"
                   class="w-24 h-24 sm:w-28 sm:h-24 rounded-xl object-cover border border-white/10 group-hover:scale-102 transition"
                 />
-                <button
-                  onclick="ZestoCart.add(<?= $item['id'] ?>)"
-                  class="flex-1 sm:w-full py-2.5 px-4 bg-zesto-orange hover:bg-zesto-orange/90 text-white font-extrabold text-xs rounded-full flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg shadow-zesto-orange/10 cursor-pointer border-none"
-                >
-                  <i data-lucide="plus" class="w-3.5 h-3.5 stroke-[2.5]"></i>
-                  <span><?= $qtyInCart > 0 ? 'Add More' : 'Add to Cart' ?></span>
-                </button>
+                
+                <?php if ($qtyInCart > 0): ?>
+                  <!-- Render Stepper directly if already in cart -->
+                  <div class="qty-stepper w-full mt-auto">
+                    <button class="qty-stepper-btn" onclick="event.preventDefault(); event.stopPropagation(); cartDecrement(<?= $item['id'] ?>, <?= $restaurant['id'] ?>, '<?= e($restaurant['slug']) ?>')">−</button>
+                    <span class="qty-stepper-count"><?= $qtyInCart ?></span>
+                    <button class="qty-stepper-btn" onclick="event.preventDefault(); event.stopPropagation(); cartIncrement(<?= $item['id'] ?>, <?= $restaurant['id'] ?>, '<?= e($restaurant['slug']) ?>')">+</button>
+                  </div>
+                  <script>
+                    window.cartQty = window.cartQty || {};
+                    window.cartQty[<?= $item['id'] ?>] = <?= $qtyInCart ?>;
+                  </script>
+                <?php else: ?>
+                  <button
+                    onclick="event.preventDefault(); event.stopPropagation(); cartAdd(<?= $item['id'] ?>, <?= $restaurant['id'] ?>, '<?= e($restaurant['slug']) ?>')"
+                    class="zesto-add-btn w-full mt-auto"
+                  >
+                    <span>+ Add</span>
+                  </button>
+                <?php endif; ?>
               </div>
 
             </div>
@@ -262,4 +275,9 @@ include __DIR__ . '/../../../includes/navbar.php';
 </div>
 </main>
 
+<script>
+// Global initialization for cartQty if not already done.
+window.cartQty = window.cartQty || {};
+</script>
+<script src="<?= BASE_URL ?>/assets/js/cart.js"></script>
 <?php include __DIR__ . '/../../../includes/footer.php'; ?>

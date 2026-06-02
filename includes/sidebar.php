@@ -69,19 +69,22 @@ $icons = [
 ];
 ?>
 
-<aside class="admin-sidebar">
+<aside class="admin-sidebar glass-panel border-r border-white/10 h-screen overflow-y-auto w-64 flex-shrink-0 flex flex-col pt-6 pb-6 shadow-xl">
   <!-- Logo -->
-  <div class="mb-8 px-2">
-    <a href="<?= BASE_URL ?>/index.php" class="text-xl font-extrabold text-[#a83300]">Zesto</a>
-    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1"><?= e($menu['title']) ?></p>
+  <div class="mb-8 px-6">
+    <a href="<?= BASE_URL ?>/index.php" class="text-2xl font-extrabold text-zesto-orange no-underline flex items-center gap-2">
+      <i data-lucide="flame" class="w-6 h-6"></i>
+      Zesto
+    </a>
+    <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider mt-1"><?= e($menu['title']) ?></p>
   </div>
 
   <!-- Nav Links -->
-  <nav class="flex flex-col gap-1">
+  <nav class="flex flex-col gap-1 px-4">
     <?php foreach ($menu['links'] as $link): ?>
     <a href="<?= e($link['href']) ?>"
-       class="sidebar-link <?= $activePage === $link['file'] ? 'active' : '' ?>">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition no-underline <?= $activePage === $link['file'] ? 'bg-zesto-orange text-white shadow-md shadow-zesto-orange/20' : 'text-white/70 hover:bg-white/5 hover:text-white' ?>">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
         <?= $icons[$link['icon']] ?? '' ?>
       </svg>
       <?= e($link['label']) ?>
@@ -90,28 +93,30 @@ $icons = [
   </nav>
 
   <!-- Divider -->
-  <div class="border-t border-gray-100 my-6"></div>
+  <div class="border-t border-white/10 my-6 mx-4"></div>
 
   <!-- Back to site -->
-  <a href="<?= BASE_URL ?>/index.php" class="sidebar-link text-[#5c4037]">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    Back to Site
-  </a>
-  <a href="<?= BASE_URL ?>/api/auth/logout.php" class="sidebar-link text-red-500 hover:bg-red-50">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-    Logout
-  </a>
+  <div class="px-4 flex flex-col gap-1">
+    <a href="<?= BASE_URL ?>/index.php" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-white/60 hover:text-white hover:bg-white/5 transition no-underline">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Back to Site
+    </a>
+    <a href="<?= BASE_URL ?>/api/auth/logout.php" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-red-400 hover:text-red-200 hover:bg-red-500/10 transition no-underline">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Logout
+    </a>
+  </div>
 
   <!-- User info -->
   <?php if ($currentUser): ?>
-  <div class="mt-auto pt-6 border-t border-gray-100">
+  <div class="mt-auto pt-6 border-t border-white/10 mx-4">
     <div class="flex items-center gap-3 px-2">
-      <div class="w-8 h-8 rounded-full bg-[#ffdbd0] flex items-center justify-center text-[#a83300] font-bold text-sm shrink-0">
+      <div class="w-8 h-8 rounded-full bg-zesto-orange/20 border border-zesto-orange/30 flex items-center justify-center text-zesto-orange font-bold text-sm shrink-0 shadow-inner">
         <?= strtoupper(substr($currentUser['name'], 0, 1)) ?>
       </div>
       <div class="min-w-0">
-        <p class="text-xs font-bold text-[#1b1c1c] truncate"><?= e($currentUser['name']) ?></p>
-        <p class="text-[10px] text-gray-400 font-medium capitalize"><?= e(str_replace('_', ' ', $currentUser['role'])) ?></p>
+        <p class="text-xs font-bold text-white truncate leading-none"><?= e($currentUser['name']) ?></p>
+        <p class="text-[10px] text-white/40 font-medium capitalize mt-0.5"><?= e(str_replace('_', ' ', $currentUser['role'])) ?></p>
       </div>
     </div>
   </div>

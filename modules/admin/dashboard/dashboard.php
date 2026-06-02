@@ -79,100 +79,101 @@ $sidebarType = 'admin';
 $activePage  = 'dashboard.php';
 include __DIR__ . '/../../../includes/header.php';
 ?>
-<div class="admin-layout font-sans">
+<div class="admin-layout font-sans bg-zesto-dark text-[#dfe2eb] min-h-screen flex">
   <?php include __DIR__ . '/../../../includes/sidebar.php'; ?>
 
   <div class="flex-1 overflow-auto p-6 md:p-10 max-w-7xl">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-5">
+    <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-5">
       <div>
-        <span class="text-xs font-bold text-[#a83300] uppercase tracking-widest">Admin Control Panel</span>
-        <h1 class="text-2xl md:text-3xl font-black text-[#1b1c1c] mt-1">Admin Dashboard</h1>
-        <p class="text-xs text-gray-500 mt-1">Welcome back, <?= e(getCurrentUser()['name']) ?>! Real-time operations status overview.</p>
+        <span class="text-xs font-bold text-zesto-orange uppercase tracking-widest">Admin Control Panel</span>
+        <h1 class="text-2xl md:text-3xl font-black text-white mt-1">Admin Dashboard</h1>
+        <p class="text-xs text-white/50 mt-1">Welcome back, <?= e(getCurrentUser()['name']) ?>! Real-time operations status overview.</p>
       </div>
-      <span class="text-xs text-gray-400 font-semibold"><?= date('l, F j, Y') ?></span>
+      <span class="text-xs text-white/40 font-semibold"><?= date('l, F j, Y') ?></span>
     </div>
 
     <!-- Core KPI Stats Grid -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
       <?php
       $statCards = [
-        ['Total Orders', number_format($stats['total_orders']), '📦', 'bg-blue-50 text-blue-600'],
-        ['Total Revenue', formatPrice($stats['total_revenue']), '💰', 'bg-green-50 text-green-600'],
-        ['Customers', number_format($stats['total_users']), '👥', 'bg-purple-50 text-purple-600'],
-        ['Restaurants', number_format($stats['total_restaurants']), '🍴', 'bg-orange-50 text-orange-600'],
+        ['Total Orders', number_format($stats['total_orders']), '📦', 'bg-blue-500/10 text-blue-400 border-blue-500/20'],
+        ['Total Revenue', formatPrice($stats['total_revenue']), '💰', 'bg-green-500/10 text-green-400 border-green-500/20'],
+        ['Customers', number_format($stats['total_users']), '👥', 'bg-purple-500/10 text-purple-400 border-purple-500/20'],
+        ['Restaurants', number_format($stats['total_restaurants']), '🍴', 'bg-zesto-orange/10 text-zesto-orange border-zesto-orange/20'],
       ];
       foreach ($statCards as $sc): ?>
-      <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-sm">
-        <div class="flex justify-between items-start mb-2">
-          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider"><?= $sc[0] ?></p>
+      <div class="glass-panel rounded-2xl border border-white/10 p-5 shadow-sm relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 <?= $sc[3] ?>"></div>
+        <div class="flex justify-between items-start mb-2 relative z-10">
+          <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider"><?= $sc[0] ?></p>
           <span class="text-lg"><?= $sc[2] ?></span>
         </div>
-        <p class="text-2xl font-black text-[#1b1c1c]"><?= $sc[1] ?></p>
+        <p class="text-2xl font-black text-white relative z-10"><?= $sc[1] ?></p>
       </div>
       <?php endforeach; ?>
     </div>
 
     <!-- Delivery KPIs Grid -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-      <div class="bg-white rounded-2xl border border-emerald-300 p-5 shadow-sm">
+      <div class="glass-panel rounded-2xl border border-emerald-500/30 p-5 shadow-sm">
         <div class="flex justify-between items-start mb-2">
-          <p class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Completed Deliveries</p>
+          <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Completed Deliveries</p>
           <span class="text-lg">🏍</span>
         </div>
-        <p class="text-2xl font-black text-emerald-700"><?= number_format($stats['total_deliveries']) ?></p>
+        <p class="text-2xl font-black text-emerald-400"><?= number_format($stats['total_deliveries']) ?></p>
       </div>
-      <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-sm">
+      <div class="glass-panel rounded-2xl border border-white/10 p-5 shadow-sm">
         <div class="flex justify-between items-start mb-2">
-          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Active Delivery Partners</p>
+          <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider">Active Delivery Partners</p>
           <span class="text-lg">🟢</span>
         </div>
-        <p class="text-2xl font-black text-[#1b1c1c]"><?= number_format($stats['active_partners']) ?></p>
+        <p class="text-2xl font-black text-white"><?= number_format($stats['active_partners']) ?></p>
       </div>
-      <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-sm">
+      <div class="glass-panel rounded-2xl border border-white/10 p-5 shadow-sm">
         <div class="flex justify-between items-start mb-2">
-          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Partner Earnings Disbursed</p>
+          <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider">Partner Earnings Disbursed</p>
           <span class="text-lg">💵</span>
         </div>
-        <p class="text-2xl font-black text-[#1b1c1c]"><?= formatPrice($stats['disbursed_earnings']) ?></p>
+        <p class="text-2xl font-black text-white"><?= formatPrice($stats['disbursed_earnings']) ?></p>
       </div>
-      <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-sm">
+      <div class="glass-panel rounded-2xl border border-white/10 p-5 shadow-sm">
         <div class="flex justify-between items-start mb-2">
-          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Avg Confirmation Time</p>
+          <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider">Avg Confirmation Time</p>
           <span class="text-lg">⏱️</span>
         </div>
-        <p class="text-2xl font-black text-[#1b1c1c]"><?= $avgConfTimeText ?></p>
+        <p class="text-2xl font-black text-white"><?= $avgConfTimeText ?></p>
       </div>
     </div>
 
     <!-- Charts and Quick Stats Row -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-150 p-6 shadow-sm flex flex-col">
-        <h3 class="font-bold text-sm text-[#1b1c1c] mb-4 pb-2 border-b">📈 Revenue — Last 7 Days</h3>
+      <div class="lg:col-span-2 glass-panel rounded-2xl border border-white/10 p-6 shadow-sm flex flex-col">
+        <h3 class="font-bold text-sm text-white mb-4 pb-2 border-b border-white/10">📈 Revenue — Last 7 Days</h3>
         <div class="h-64 flex-1">
           <canvas id="revenue-chart"></canvas>
         </div>
       </div>
       
-      <div class="bg-white rounded-2xl border border-gray-150 p-6 shadow-sm flex flex-col justify-between">
+      <div class="glass-panel rounded-2xl border border-white/10 p-6 shadow-sm flex flex-col justify-between">
         <div>
-          <h3 class="font-bold text-sm text-[#1b1c1c] mb-4 pb-2 border-b">⚡ Quick Operations Stats</h3>
+          <h3 class="font-bold text-sm text-white mb-4 pb-2 border-b border-white/10">⚡ Quick Operations Stats</h3>
           <div class="space-y-4 text-xs font-semibold">
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
-              <span class="text-gray-500">Pending Orders</span>
-              <span class="font-black text-[#a83300] text-sm"><?= $stats['pending_orders'] ?></span>
+            <div class="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/10">
+              <span class="text-white/50">Pending Orders</span>
+              <span class="font-black text-zesto-orange text-sm"><?= $stats['pending_orders'] ?></span>
             </div>
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
-              <span class="text-gray-500">Active Restaurants</span>
-              <span class="font-black text-gray-800 text-sm"><?= $stats['total_restaurants'] ?></span>
+            <div class="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/10">
+              <span class="text-white/50">Active Restaurants</span>
+              <span class="font-black text-white/80 text-sm"><?= $stats['total_restaurants'] ?></span>
             </div>
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
-              <span class="text-gray-500">System Platform Fee Rate</span>
-              <span class="font-black text-emerald-600 text-sm"><?= formatPrice(PLATFORM_FEE) ?></span>
+            <div class="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/10">
+              <span class="text-white/50">System Platform Fee Rate</span>
+              <span class="font-black text-emerald-400 text-sm"><?= formatPrice(PLATFORM_FEE) ?></span>
             </div>
           </div>
         </div>
-        <a href="<?= BASE_URL ?>/admin/delivery_settings.php" class="btn-primary justify-center bg-[#a83300] hover:bg-[#c93c02] text-white py-2.5 rounded-xl font-bold mt-4 text-xs">
+        <a href="<?= BASE_URL ?>/admin/delivery_settings.php" class="btn-primary justify-center bg-zesto-orange hover:bg-zesto-orange/90 text-white py-2.5 rounded-xl font-bold mt-4 text-xs flex items-center gap-2 border-none no-underline">
           Manage Delivery Rates Settings ⚙️
         </a>
       </div>
@@ -181,11 +182,11 @@ include __DIR__ . '/../../../includes/header.php';
     <!-- Performance rankings -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
       <!-- Restaurant Performance -->
-      <div class="bg-white rounded-2xl border border-gray-150 shadow-sm overflow-hidden flex flex-col">
-        <div class="p-5 border-b border-gray-100 bg-[#fdfdfd]"><h3 class="font-bold text-sm text-[#1b1c1c]">🍴 Restaurant Performance Rank</h3></div>
+      <div class="glass-panel rounded-2xl border border-white/10 shadow-sm overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-white/10 bg-white/5"><h3 class="font-bold text-sm text-white">🍴 Restaurant Performance Rank</h3></div>
         <div class="overflow-x-auto flex-1">
           <table class="w-full text-xs">
-            <thead class="bg-[#f5f3f3] text-gray-400 font-bold uppercase tracking-wider">
+            <thead class="bg-white/5 text-white/40 font-bold uppercase tracking-wider">
               <tr>
                 <th class="px-4 py-3 text-left">Restaurant</th>
                 <th class="px-4 py-3 text-center">Rating</th>
@@ -193,13 +194,13 @@ include __DIR__ . '/../../../includes/header.php';
                 <th class="px-4 py-3 text-right">Revenue</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100 font-semibold text-gray-700">
+            <tbody class="divide-y divide-white/10 font-semibold text-white/70">
               <?php foreach ($restaurantPerformance as $rp): ?>
               <tr>
-                <td class="px-4 py-3 font-bold text-[#1b1c1c]"><?= e($rp['name']) ?></td>
+                <td class="px-4 py-3 font-bold text-white"><?= e($rp['name']) ?></td>
                 <td class="px-4 py-3 text-center text-amber-500">★ <?= number_format($rp['rating'], 1) ?></td>
                 <td class="px-4 py-3 text-center"><?= $rp['total_orders'] ?> orders</td>
-                <td class="px-4 py-3 text-right font-black text-[#a83300]"><?= formatPrice($rp['revenue']) ?></td>
+                <td class="px-4 py-3 text-right font-black text-zesto-orange"><?= formatPrice($rp['revenue']) ?></td>
               </tr>
               <?php endforeach; ?>
             </tbody>
@@ -208,11 +209,11 @@ include __DIR__ . '/../../../includes/header.php';
       </div>
 
       <!-- Delivery Performance -->
-      <div class="bg-white rounded-2xl border border-gray-150 shadow-sm overflow-hidden flex flex-col">
-        <div class="p-5 border-b border-gray-100 bg-[#fdfdfd]"><h3 class="font-bold text-sm text-[#1b1c1c]">🏍 Delivery Partner Performance Rank</h3></div>
+      <div class="glass-panel rounded-2xl border border-white/10 shadow-sm overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-white/10 bg-white/5"><h3 class="font-bold text-sm text-white">🏍 Delivery Partner Performance Rank</h3></div>
         <div class="overflow-x-auto flex-1">
           <table class="w-full text-xs">
-            <thead class="bg-[#f5f3f3] text-gray-400 font-bold uppercase tracking-wider">
+            <thead class="bg-white/5 text-white/40 font-bold uppercase tracking-wider">
               <tr>
                 <th class="px-4 py-3 text-left">Partner Executive</th>
                 <th class="px-4 py-3 text-center">Rating</th>
@@ -220,13 +221,13 @@ include __DIR__ . '/../../../includes/header.php';
                 <th class="px-4 py-3 text-right">Earnings</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100 font-semibold text-gray-700">
+            <tbody class="divide-y divide-white/10 font-semibold text-white/70">
               <?php foreach ($deliveryPerformance as $dp): ?>
               <tr>
-                <td class="px-4 py-3 font-bold text-[#1b1c1c]"><?= e($dp['name']) ?></td>
+                <td class="px-4 py-3 font-bold text-white"><?= e($dp['name']) ?></td>
                 <td class="px-4 py-3 text-center text-amber-500">★ <?= number_format($dp['rating'], 1) ?></td>
                 <td class="px-4 py-3 text-center"><?= $dp['total_deliveries'] ?> done</td>
-                <td class="px-4 py-3 text-right font-black text-emerald-600"><?= formatPrice($dp['total_earnings']) ?></td>
+                <td class="px-4 py-3 text-right font-black text-emerald-400"><?= formatPrice($dp['total_earnings']) ?></td>
               </tr>
               <?php endforeach; ?>
             </tbody>
@@ -236,14 +237,14 @@ include __DIR__ . '/../../../includes/header.php';
     </div>
 
     <!-- Recent Orders Table -->
-    <div class="bg-white rounded-3xl border border-gray-150 shadow-sm overflow-hidden flex flex-col">
-      <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-[#fdfdfd]">
-        <h3 class="font-bold text-sm text-[#1b1c1c]">Recent Global Orders</h3>
-        <a href="<?= BASE_URL ?>/admin/orders.php" class="text-xs text-[#a83300] font-bold hover:underline">View All Orders →</a>
+    <div class="glass-panel rounded-3xl border border-white/10 shadow-sm overflow-hidden flex flex-col">
+      <div class="p-5 border-b border-white/10 flex justify-between items-center bg-white/5">
+        <h3 class="font-bold text-sm text-white">Recent Global Orders</h3>
+        <a href="<?= BASE_URL ?>/admin/orders.php" class="text-xs text-zesto-orange font-bold hover:underline">View All Orders →</a>
       </div>
       <div class="overflow-x-auto">
         <table id="recent-orders-table" class="w-full text-xs">
-          <thead class="bg-[#f5f3f3] text-gray-400 font-bold uppercase tracking-wider">
+          <thead class="bg-white/5 text-white/40 font-bold uppercase tracking-wider">
             <tr>
               <th class="text-left px-5 py-3.5">Order #</th>
               <th class="text-left px-5 py-3.5">Customer</th>
@@ -253,15 +254,15 @@ include __DIR__ . '/../../../includes/header.php';
               <th class="text-left px-5 py-3.5">Date</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-150 font-semibold text-gray-700">
+          <tbody class="divide-y divide-white/10 font-semibold text-white/70">
             <?php foreach ($recentOrders as $ord): ?>
-            <tr class="hover:bg-gray-50/50 transition-colors">
-              <td class="px-5 py-4 font-bold text-[#a83300]"><?= e($ord['order_number']) ?></td>
-              <td class="px-5 py-4 font-semibold text-gray-800"><?= e($ord['customer']) ?></td>
-              <td class="px-5 py-4 text-gray-600"><?= e($ord['restaurant']) ?></td>
-              <td class="px-5 py-4 font-bold"><?= formatPrice($ord['total']) ?></td>
-              <td class="px-5 py-4"><span id="order-status-<?= $ord['order_number'] ?>" class="badge badge-<?= e($ord['order_status']) ?>"><?= e(str_replace('_', ' ', $ord['order_status'])) ?></span></td>
-              <td class="px-5 py-4 text-gray-500 text-[10px]"><?= date('M j, g:i A', strtotime($ord['created_at'])) ?></td>
+            <tr class="hover:bg-white/5 transition-colors">
+              <td class="px-5 py-4 font-bold text-zesto-orange"><?= e($ord['order_number']) ?></td>
+              <td class="px-5 py-4 font-semibold text-white/80"><?= e($ord['customer']) ?></td>
+              <td class="px-5 py-4 text-white/60"><?= e($ord['restaurant']) ?></td>
+              <td class="px-5 py-4 font-bold text-white"><?= formatPrice($ord['total']) ?></td>
+              <td class="px-5 py-4"><span id="order-status-<?= $ord['order_number'] ?>" class="bg-zesto-orange/10 text-zesto-orange border border-zesto-orange/20 px-2 py-1 rounded text-[10px] uppercase font-bold"><?= e(str_replace('_', ' ', $ord['order_status'])) ?></span></td>
+              <td class="px-5 py-4 text-white/50 text-[10px]"><?= date('M j, g:i A', strtotime($ord['created_at'])) ?></td>
             </tr>
             <?php endforeach; ?>
           </tbody>

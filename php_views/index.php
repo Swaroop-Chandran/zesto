@@ -174,6 +174,35 @@ $restaurants = [
     </div>
   </section>
 
+  <!-- Promo Banner -->
+  <section class="mt-8 relative bg-[#1c2026]/40 border border-white/5 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden hover:border-orange-500/30 transition">
+    <div class="relative z-10 space-y-3 md:max-w-xl text-left">
+      <span class="text-[10px] font-black text-orange-500 uppercase tracking-widest flex items-center gap-1.5">
+        🔥 TRENDING MIDNIGHT COMBO
+      </span>
+      <h2 class="text-2xl sm:text-3xl font-display font-extrabold text-white leading-tight">
+        Crispy Flaky Porotta + Spicy Red Beef Fry
+      </h2>
+      <p class="text-xs text-white/70 leading-relaxed font-sans">
+        The legendary combination—slow-roasted dry beef tossed in Ernakulam-style Thattukada spices, served with smoking hot porotta layers. Perfect at this hour for you or a late-night duo.
+      </p>
+      
+      <div class="flex items-center gap-4 pt-4">
+        <a href="cart_actions.php?action=add_combo&id=beef_porotta" class="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-full transition shadow-lg shadow-orange-600/30">
+          Order Combo (₹180)
+        </a>
+        <span class="text-[10px] font-semibold text-white/50 uppercase tracking-wider">
+          Delivered in 20 mins
+        </span>
+      </div>
+    </div>
+    
+    <div class="relative z-10 flex gap-4 mt-4 md:mt-0 flex-shrink-0">
+      <img src="https://images.unsplash.com/photo-1603360946369-dc9bb6258143?auto=format&fit=crop&q=80&w=200" class="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-xl shadow-2xl border border-white/10" alt="Beef Fry">
+      <img src="https://images.unsplash.com/photo-1626132647523-66f5bf380027?auto=format&fit=crop&q=80&w=200" class="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-xl shadow-2xl border border-white/10" alt="Porotta">
+    </div>
+  </section>
+
 </div>
 
 <?php 

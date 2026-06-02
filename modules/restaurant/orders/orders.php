@@ -70,14 +70,14 @@ include __DIR__ . '/../../../includes/header.php';
 <div class="admin-layout font-sans">
   <?php include __DIR__ . '/../../../includes/sidebar.php'; ?>
   <div class="flex-1 overflow-auto p-6 md:p-10 max-w-7xl">
-    <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-5">
+    <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-5">
       <div>
-        <span class="text-xs font-bold text-[#a83300] uppercase tracking-widest">Restaurant Panel</span>
-        <h1 class="text-2xl md:text-3xl font-black text-[#1b1c1c] mt-1">Order Queue</h1>
-        <p class="text-xs text-gray-500 mt-1">Monitor real-time incoming delivery orders and update status instantly</p>
+        <span class="text-xs font-bold text-zesto-orange uppercase tracking-widest">Restaurant Panel</span>
+        <h1 class="text-2xl md:text-3xl font-black text-white mt-1">Order Queue</h1>
+        <p class="text-xs text-white/60 mt-1">Monitor real-time incoming delivery orders and update status instantly</p>
       </div>
       <form method="GET" class="flex gap-2">
-        <select name="status" onchange="this.form.submit()" class="zesto-input py-2 text-xs w-48 bg-white font-semibold">
+        <select name="status" onchange="this.form.submit()" class="zesto-input py-2 text-xs w-48 glass-panel font-semibold">
           <option value="">All Orders</option>
           <?php foreach($workflow as $s => $label): ?>
           <option value="<?= $s ?>" <?= (filter_input(INPUT_GET,'status',FILTER_SANITIZE_SPECIAL_CHARS)??'')===$s?'selected':'' ?>><?= $label ?></option>
@@ -88,33 +88,33 @@ include __DIR__ . '/../../../includes/header.php';
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <?php foreach ($orders as $ord): ?>
-      <div class="bg-white rounded-3xl border border-gray-150 p-6 shadow-sm flex flex-col justify-between hover:border-gray-300 transition-all">
+      <div class="glass-panel rounded-3xl border border-white/10 p-6 shadow-md shadow-black/20 flex flex-col justify-between hover:border-white/20 transition-all">
         <div>
           <div class="flex justify-between items-center mb-3">
-            <span class="font-extrabold text-[#a83300] text-sm"><?= e($ord['order_number']) ?></span>
+            <span class="font-extrabold text-zesto-orange text-sm"><?= e($ord['order_number']) ?></span>
             <span id="order-status-<?= $ord['id'] ?>" class="badge badge-<?= e($ord['order_status']) ?>"><?= e(str_replace('_', ' ', $ord['order_status'])) ?></span>
           </div>
           <div class="text-sm">
-            <p class="font-bold text-gray-800 text-base"><?= e($ord['customer']) ?></p>
-            <p class="text-xs text-gray-500 mt-1 leading-relaxed"><?= e($ord['delivery_address']) ?></p>
+            <p class="font-bold text-white/90 text-base"><?= e($ord['customer']) ?></p>
+            <p class="text-xs text-white/60 mt-1 leading-relaxed"><?= e($ord['delivery_address']) ?></p>
           </div>
         </div>
         
-        <div class="mt-4 border-t border-gray-100 pt-4 flex flex-col gap-3">
+        <div class="mt-4 border-t border-white/10 pt-4 flex flex-col gap-3">
           <div class="flex justify-between items-center">
-            <span class="text-gray-400 font-bold uppercase text-[9px]">Grand Total</span>
-            <span class="font-black text-[#a83300] text-xl"><?= formatPrice($ord['total']) ?></span>
+            <span class="text-white/40 font-bold uppercase text-[9px]">Grand Total</span>
+            <span class="font-black text-zesto-orange text-xl"><?= formatPrice($ord['total']) ?></span>
           </div>
           
           <!-- One-click status management interface -->
           <?= renderCardStatusButtons($ord['id'], $ord['order_status']) ?>
         </div>
         
-        <p class="text-[10px] text-gray-400 text-right mt-3 font-semibold"><?= date('M j, g:i A', strtotime($ord['created_at'])) ?></p>
+        <p class="text-[10px] text-white/40 text-right mt-3 font-semibold"><?= date('M j, g:i A', strtotime($ord['created_at'])) ?></p>
       </div>
       <?php endforeach; ?>
       <?php if (empty($orders)): ?>
-      <div class="col-span-2 bg-white rounded-2xl border border-dashed border-gray-200 text-center py-16 text-gray-400 font-semibold text-sm">
+      <div class="col-span-2 glass-panel rounded-2xl border border-dashed border-white/20 text-center py-16 text-white/40 font-semibold text-sm">
         🏍 No orders found matching filter criteria.
       </div>
       <?php endif; ?>

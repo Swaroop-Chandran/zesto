@@ -28,18 +28,18 @@ include __DIR__ . '/../../../includes/header.php';
 <div class="admin-layout font-sans">
   <?php include __DIR__ . '/../../../includes/sidebar.php'; ?>
   <div class="flex-1 overflow-auto p-6 md:p-10 max-w-7xl">
-    <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-5">
+    <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-5">
       <div>
         <span class="text-xs font-bold text-[#00c853] uppercase tracking-widest">Delivery Panel</span>
-        <h1 class="text-2xl md:text-3xl font-black text-[#1b1c1c] mt-1">My Deliveries Log</h1>
-        <p class="text-xs text-gray-500 mt-1">Detailed history of all completed and past delivery assignments</p>
+        <h1 class="text-2xl md:text-3xl font-black text-white mt-1">My Deliveries Log</h1>
+        <p class="text-xs text-white/60 mt-1">Detailed history of all completed and past delivery assignments</p>
       </div>
     </div>
 
-    <div class="bg-white rounded-3xl border border-gray-150 shadow-sm overflow-hidden">
+    <div class="glass-panel rounded-3xl border border-white/10 shadow-md shadow-black/20 overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-xs">
-          <thead class="bg-[#f5f3f3] text-gray-400 font-bold uppercase tracking-wider">
+          <thead class="bg-white/5 text-white/40 font-bold uppercase tracking-wider">
             <tr>
               <th class="px-5 py-3.5 text-left">Order #</th>
               <th class="px-5 py-3.5 text-left">Restaurant</th>
@@ -49,13 +49,13 @@ include __DIR__ . '/../../../includes/header.php';
               <th class="px-5 py-3.5 text-right">Delivered Date/Time</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100 font-semibold text-gray-700">
+          <tbody class="divide-y divide-white/10 font-semibold text-white/80">
             <?php foreach ($rows as $del): ?>
             <tr class="hover:bg-gray-50/50">
-              <td class="px-5 py-4 font-bold text-[#a83300]"><?= e($del['order_number']) ?></td>
+              <td class="px-5 py-4 font-bold text-zesto-orange"><?= e($del['order_number']) ?></td>
               <td class="px-5 py-4">
-                <p class="font-extrabold text-gray-800"><?= e($del['restaurant_name']) ?></p>
-                <p class="text-[10px] text-gray-400 font-medium mt-0.5"><?= e(substr($del['restaurant_address'], 0, 45)) ?>...</p>
+                <p class="font-extrabold text-white/90"><?= e($del['restaurant_name']) ?></p>
+                <p class="text-[10px] text-white/40 font-medium mt-0.5"><?= e(substr($del['restaurant_address'], 0, 45)) ?>...</p>
               </td>
               <td class="px-5 py-4 text-center font-mono font-bold">
                 <?= $del['total_distance'] ? number_format($del['total_distance'], 1) . ' KM' : '—' ?>
@@ -68,14 +68,14 @@ include __DIR__ . '/../../../includes/header.php';
                   <?= e(str_replace('_', ' ', $del['order_status'])) ?>
                 </span>
               </td>
-              <td class="px-5 py-4 text-right text-gray-400 text-[10px]">
+              <td class="px-5 py-4 text-right text-white/40 text-[10px]">
                 <?= $del['delivered_at'] ? date('M j, Y - g:i A', strtotime($del['delivered_at'])) : ($del['accepted_at'] ? 'Accepted at ' . date('g:i A', strtotime($del['accepted_at'])) : '—') ?>
               </td>
             </tr>
             <?php endforeach; ?>
             <?php if (empty($rows)): ?>
             <tr>
-              <td colspan="6" class="px-5 py-16 text-center text-gray-400 font-bold">
+              <td colspan="6" class="px-5 py-16 text-center text-white/40 font-bold">
                 🏍 You have not claimed or completed any delivery tasks yet.
               </td>
             </tr>

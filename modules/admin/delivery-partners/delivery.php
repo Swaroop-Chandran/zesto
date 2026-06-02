@@ -40,23 +40,23 @@ include __DIR__ . '/../../../includes/header.php';
   
   <div class="flex-1 overflow-auto p-6 md:p-10 max-w-7xl">
     
-    <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-5">
+    <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-5">
       <div>
-        <span class="text-xs font-bold text-[#a83300] uppercase tracking-widest">Admin Control Panel</span>
-        <h1 class="text-2xl md:text-3xl font-black text-[#1b1c1c] mt-1">Delivery Partners Onboarding</h1>
+        <span class="text-xs font-bold text-zesto-orange uppercase tracking-widest">Admin Control Panel</span>
+        <h1 class="text-2xl md:text-3xl font-black text-white mt-1">Delivery Partners Onboarding</h1>
       </div>
-      <span class="text-xs font-bold bg-[#ffdbd0] text-[#a83300] px-3.5 py-1 rounded-full uppercase tracking-wider"><?= count($partners) ?> Applications</span>
+      <span class="text-xs font-bold bg-zesto-orange/20 text-zesto-orange px-3.5 py-1 rounded-full uppercase tracking-wider"><?= count($partners) ?> Applications</span>
     </div>
 
     <?php if (empty($partners)): ?>
-    <div class="bg-white border rounded-3xl p-12 text-center text-gray-500 text-xs">
+    <div class="glass-panel border rounded-3xl p-12 text-center text-white/60 text-xs">
       🏍 No delivery partner applications found.
     </div>
     <?php else: ?>
-    <div class="bg-white rounded-3xl border border-gray-150 shadow-sm overflow-hidden">
+    <div class="glass-panel rounded-3xl border border-white/10 shadow-md shadow-black/20 overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-xs text-left">
-          <thead class="bg-gray-50 text-gray-400 font-bold uppercase tracking-wider">
+          <thead class="bg-white/5 text-white/40 font-bold uppercase tracking-wider">
             <tr>
               <th class="px-5 py-3.5">Partner Details</th>
               <th class="px-5 py-3.5">Vehicle Type / Plate</th>
@@ -66,7 +66,7 @@ include __DIR__ . '/../../../includes/header.php';
               <th class="px-5 py-3.5 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100 font-semibold text-gray-700">
+          <tbody class="divide-y divide-white/10 font-semibold text-white/80">
             <?php foreach ($partners as $p): 
               $bank = json_decode($p['bank_details'] ?? '{}', true) ?: [];
             ?>
@@ -80,37 +80,37 @@ include __DIR__ . '/../../../includes/header.php';
                          class="w-full h-full object-cover rounded-lg" alt="selfie">
                   </div>
                   <div>
-                    <h4 class="font-extrabold text-[#1b1c1c] text-sm"><?= e($p['name']) ?></h4>
-                    <p class="text-[10px] text-gray-400 mt-0.5"><?= e($p['email']) ?> • <?= e($p['phone']) ?></p>
-                    <p class="text-[9px] text-gray-400 mt-0.5 max-w-[180px] truncate"><?= e($p['address'] ?? 'No address') ?></p>
+                    <h4 class="font-extrabold text-white text-sm"><?= e($p['name']) ?></h4>
+                    <p class="text-[10px] text-white/40 mt-0.5"><?= e($p['email']) ?> • <?= e($p['phone']) ?></p>
+                    <p class="text-[9px] text-white/40 mt-0.5 max-w-[180px] truncate"><?= e($p['address'] ?? 'No address') ?></p>
                   </div>
                 </div>
               </td>
 
               <!-- Vehicle Details -->
               <td class="px-5 py-4">
-                <span class="inline-block px-2 py-0.5 bg-gray-100 text-gray-700 text-[9px] rounded uppercase font-extrabold"><?= e($p['vehicle_type']) ?></span>
-                <p class="font-mono font-bold mt-1 text-[#1b1c1c] uppercase"><?= e($p['vehicle_number'] ?: '—') ?></p>
+                <span class="inline-block px-2 py-0.5 bg-white/10 text-white/80 text-[9px] rounded uppercase font-extrabold"><?= e($p['vehicle_type']) ?></span>
+                <p class="font-mono font-bold mt-1 text-white uppercase"><?= e($p['vehicle_number'] ?: '—') ?></p>
               </td>
 
               <!-- License Details -->
               <td class="px-5 py-4">
-                <p class="font-mono text-gray-800"><?= e($p['driving_license_number'] ?: '—') ?></p>
+                <p class="font-mono text-white/90"><?= e($p['driving_license_number'] ?: '—') ?></p>
                 <?php if ($p['driving_license_image']): ?>
-                <a href="<?= e($p['driving_license_image']) ?>" target="_blank" class="text-[9px] font-bold text-[#a83300] hover:underline mt-1 block">View License Image ➔</a>
+                <a href="<?= e($p['driving_license_image']) ?>" target="_blank" class="text-[9px] font-bold text-zesto-orange hover:underline mt-1 block">View License Image ➔</a>
                 <?php else: ?>
-                <span class="text-[9px] text-gray-400 block mt-1">No Doc File</span>
+                <span class="text-[9px] text-white/40 block mt-1">No Doc File</span>
                 <?php endif; ?>
               </td>
 
               <!-- Bank Transfer Info -->
               <td class="px-5 py-4 text-[10px]">
                 <?php if (!empty($bank)): ?>
-                <p><span class="text-gray-400">Acc:</span> <span class="font-mono font-bold"><?= e($bank['account_number'] ?? '—') ?></span></p>
-                <p class="mt-0.5"><span class="text-gray-400">Bank:</span> <?= e($bank['bank_name'] ?? '—') ?></p>
-                <p class="mt-0.5"><span class="text-gray-400">IFSC:</span> <span class="font-mono"><?= e($bank['ifsc_code'] ?? '—') ?></span></p>
+                <p><span class="text-white/40">Acc:</span> <span class="font-mono font-bold"><?= e($bank['account_number'] ?? '—') ?></span></p>
+                <p class="mt-0.5"><span class="text-white/40">Bank:</span> <?= e($bank['bank_name'] ?? '—') ?></p>
+                <p class="mt-0.5"><span class="text-white/40">IFSC:</span> <span class="font-mono"><?= e($bank['ifsc_code'] ?? '—') ?></span></p>
                 <?php else: ?>
-                <span class="text-gray-400">No bank credentials</span>
+                <span class="text-white/40">No bank credentials</span>
                 <?php endif; ?>
               </td>
 
@@ -130,7 +130,7 @@ include __DIR__ . '/../../../includes/header.php';
                   <input type="hidden" name="status" value="<?= $p['is_approved'] ? 0 : 1 ?>">
                   <button type="submit" 
                           data-confirm="<?= $p['is_approved'] ? 'Suspend this partner?' : 'Approve and activate this partner application?' ?>" 
-                          class="px-4 py-2 border rounded-xl text-[10px] font-bold transition-all shadow-sm cursor-pointer <?= $p['is_approved'] ? 'border-red-100 text-red-500 hover:bg-red-555 hover:bg-red-50' : 'border-green-150 text-green-600 hover:bg-green-50' ?>">
+                          class="px-4 py-2 border rounded-xl text-[10px] font-bold transition-all shadow-md shadow-black/20 cursor-pointer <?= $p['is_approved'] ? 'border-red-100 text-red-500 hover:bg-red-555 hover:bg-red-50' : 'border-green-150 text-green-600 hover:bg-green-50' ?>">
                     <?= $p['is_approved'] ? 'Suspend' : 'Approve Application' ?>
                   </button>
                 </form>

@@ -85,11 +85,11 @@ include __DIR__ . '/../../../includes/header.php';
   <?php include __DIR__ . '/../../../includes/sidebar.php'; ?>
   <div class="flex-1 overflow-auto p-6 md:p-10 max-w-7xl">
     
-    <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-5">
+    <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-5">
       <div>
         <span class="text-xs font-bold text-[#00c853] uppercase tracking-widest">Delivery Panel</span>
-        <h1 class="text-2xl md:text-3xl font-black text-[#1b1c1c] mt-1">Earnings Analytics</h1>
-        <p class="text-xs text-gray-500 mt-1">Detailed breakdowns of your deliveries log, distance calculations, and payout milestones</p>
+        <h1 class="text-2xl md:text-3xl font-black text-white mt-1">Earnings Analytics</h1>
+        <p class="text-xs text-white/60 mt-1">Detailed breakdowns of your deliveries log, distance calculations, and payout milestones</p>
       </div>
     </div>
 
@@ -103,47 +103,47 @@ include __DIR__ . '/../../../includes/header.php';
         ['Lifetime Payouts', formatPrice($stats['total_earnings']), '💰', 'bg-indigo-50 text-indigo-600']
       ];
       foreach ($kpis as [$lbl, $val, $ico, $cls]): ?>
-      <div class="bg-white rounded-2xl border border-gray-150 p-6 shadow-sm">
+      <div class="glass-panel rounded-2xl border border-white/10 p-6 shadow-md shadow-black/20">
         <div class="flex justify-between items-start mb-2">
-          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider"><?= $lbl ?></p>
+          <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider"><?= $lbl ?></p>
           <span class="text-lg"><?= $ico ?></span>
         </div>
-        <p class="text-2xl font-black text-[#1b1c1c]"><?= $val ?></p>
+        <p class="text-2xl font-black text-white"><?= $val ?></p>
       </div>
       <?php endforeach; ?>
     </div>
 
     <!-- Statistics widgets -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
-      <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-sm">
-        <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Weekly Milestones</h4>
-        <p class="text-xl font-bold text-gray-800"><?= formatPrice($stats['weekly_earnings']) ?></p>
-        <span class="text-[10px] text-gray-400 block mt-1">Payout aggregated for the last 7 active days</span>
+      <div class="glass-panel rounded-2xl border border-white/10 p-5 shadow-md shadow-black/20">
+        <h4 class="text-xs font-bold text-white/40 uppercase mb-3">Weekly Milestones</h4>
+        <p class="text-xl font-bold text-white/90"><?= formatPrice($stats['weekly_earnings']) ?></p>
+        <span class="text-[10px] text-white/40 block mt-1">Payout aggregated for the last 7 active days</span>
       </div>
-      <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-sm">
-        <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Monthly Aggregation</h4>
-        <p class="text-xl font-bold text-gray-800"><?= formatPrice($stats['monthly_earnings']) ?></p>
-        <span class="text-[10px] text-gray-400 block mt-1">Total earnings for current billing period</span>
+      <div class="glass-panel rounded-2xl border border-white/10 p-5 shadow-md shadow-black/20">
+        <h4 class="text-xs font-bold text-white/40 uppercase mb-3">Monthly Aggregation</h4>
+        <p class="text-xl font-bold text-white/90"><?= formatPrice($stats['monthly_earnings']) ?></p>
+        <span class="text-[10px] text-white/40 block mt-1">Total earnings for current billing period</span>
       </div>
-      <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-sm">
-        <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Workflow Queue</h4>
-        <div class="flex justify-between text-xs font-semibold mt-2 text-gray-700">
+      <div class="glass-panel rounded-2xl border border-white/10 p-5 shadow-md shadow-black/20">
+        <h4 class="text-xs font-bold text-white/40 uppercase mb-3">Workflow Queue</h4>
+        <div class="flex justify-between text-xs font-semibold mt-2 text-white/80">
           <p>Active Tasks:</p>
           <p class="font-extrabold text-emerald-600"><?= $stats['active_deliveries'] ?></p>
         </div>
-        <div class="flex justify-between text-xs font-semibold mt-1.5 text-gray-700">
+        <div class="flex justify-between text-xs font-semibold mt-1.5 text-white/80">
           <p>Completed Log:</p>
-          <p class="font-extrabold text-[#1b1c1c]"><?= $stats['total_deliveries'] ?></p>
+          <p class="font-extrabold text-white"><?= $stats['total_deliveries'] ?></p>
         </div>
       </div>
     </div>
 
     <!-- Interactive Earnings trend graph -->
-    <div class="bg-white rounded-3xl border border-gray-150 p-6 shadow-sm flex flex-col mb-8">
-      <h3 class="font-bold text-sm text-[#1b1c1c] mb-4 pb-2 border-b">📈 Earnings &amp; Deliveries Trend (Last 10 Days)</h3>
+    <div class="glass-panel rounded-3xl border border-white/10 p-6 shadow-md shadow-black/20 flex flex-col mb-8">
+      <h3 class="font-bold text-sm text-white mb-4 pb-2 border-b">📈 Earnings &amp; Deliveries Trend (Last 10 Days)</h3>
       <div class="h-80 flex-1">
         <?php if (empty($dailyTrend)): ?>
-        <div class="w-full h-full flex items-center justify-center text-center text-gray-400 font-bold text-xs">
+        <div class="w-full h-full flex items-center justify-center text-center text-white/40 font-bold text-xs">
           No delivery earnings logged in the last 10 days. Complete a delivery to start recording statistics!
         </div>
         <?php else: ?>

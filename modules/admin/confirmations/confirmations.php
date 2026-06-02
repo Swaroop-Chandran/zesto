@@ -43,18 +43,18 @@ $extraJs   = [BASE_URL . '/assets/js/admin.js'];
 $sidebarType = 'admin'; $activePage = 'confirmations.php';
 include __DIR__ . '/../../../includes/header.php';
 ?>
-<div class="admin-layout font-sans text-[#1b1c1c]">
+<div class="admin-layout font-sans text-white">
   <?php include __DIR__ . '/../../../includes/sidebar.php'; ?>
 
   <div class="flex-1 overflow-auto p-6 md:p-10 max-w-7xl">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-5">
+    <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-5">
       <div>
         <span class="text-xs font-bold text-red-600 uppercase tracking-widest">System Operations</span>
-        <h1 class="text-2xl md:text-3xl font-black text-[#1b1c1c] mt-1">Confirmations &amp; Disputes</h1>
-        <p class="text-xs text-gray-500 mt-1">Oversee pending customer confirmations and resolve delivery partner payout disputes.</p>
+        <h1 class="text-2xl md:text-3xl font-black text-white mt-1">Confirmations &amp; Disputes</h1>
+        <p class="text-xs text-white/60 mt-1">Oversee pending customer confirmations and resolve delivery partner payout disputes.</p>
       </div>
-      <span class="text-xs text-gray-400 font-semibold"><?= date('l, F j, Y') ?></span>
+      <span class="text-xs text-white/40 font-semibold"><?= date('l, F j, Y') ?></span>
     </div>
 
     <!-- TABS -->
@@ -62,16 +62,16 @@ include __DIR__ . '/../../../includes/header.php';
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         <!-- PENDING CONFIRMATIONS PANEL -->
-        <div class="bg-white rounded-3xl border border-gray-150 shadow-sm overflow-hidden flex flex-col">
-          <div class="p-5 border-b border-gray-100 bg-[#fdfdfd] flex justify-between items-center">
-            <h3 class="font-extrabold text-sm text-[#1b1c1c] flex items-center gap-2">
+        <div class="glass-panel rounded-3xl border border-white/10 shadow-md shadow-black/20 overflow-hidden flex flex-col">
+          <div class="p-5 border-b border-white/10 bg-white/5 flex justify-between items-center">
+            <h3 class="font-extrabold text-sm text-white flex items-center gap-2">
               ⏳ Pending Customer Confirmations 
               <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black"><?= count($pendingConfirmations) ?></span>
             </h3>
           </div>
           <div class="overflow-x-auto flex-1">
             <table class="w-full text-xs text-left">
-              <thead class="bg-[#f5f3f3] text-gray-400 font-bold uppercase tracking-wider">
+              <thead class="bg-white/5 text-white/40 font-bold uppercase tracking-wider">
                 <tr>
                   <th class="px-4 py-3">Order / Customer</th>
                   <th class="px-4 py-3">Restaurant</th>
@@ -80,16 +80,16 @@ include __DIR__ . '/../../../includes/header.php';
                   <th class="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-100 font-semibold text-gray-700">
+              <tbody class="divide-y divide-white/10 font-semibold text-white/80">
                 <?php foreach ($pendingConfirmations as $pc): ?>
                 <tr class="hover:bg-gray-50/50">
                   <td class="px-4 py-3.5">
-                    <p class="font-bold text-[#a83300]"><?= e($pc['order_number']) ?></p>
-                    <p class="text-[10px] text-gray-400 mt-0.5"><?= e($pc['customer_name']) ?></p>
+                    <p class="font-bold text-zesto-orange"><?= e($pc['order_number']) ?></p>
+                    <p class="text-[10px] text-white/40 mt-0.5"><?= e($pc['customer_name']) ?></p>
                   </td>
                   <td class="px-4 py-3.5"><?= e($pc['restaurant_name']) ?></td>
                   <td class="px-4 py-3.5 text-emerald-700 font-bold">🏍 <?= e($pc['partner_name'] ?: 'Marcus') ?></td>
-                  <td class="px-4 py-3.5 text-gray-400 text-[10px]"><?= date('g:i A', strtotime($pc['updated_at'])) ?></td>
+                  <td class="px-4 py-3.5 text-white/40 text-[10px]"><?= date('g:i A', strtotime($pc['updated_at'])) ?></td>
                   <td class="px-4 py-3.5 text-right">
                     <button onclick="resolveDispute(<?= $pc['id'] ?>, 'release')" class="py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[10px] shadow-xs cursor-pointer">
                       Release Payout ✓
@@ -99,7 +99,7 @@ include __DIR__ . '/../../../includes/header.php';
                 <?php endforeach; ?>
                 <?php if (empty($pendingConfirmations)): ?>
                 <tr>
-                  <td colspan="5" class="px-4 py-10 text-center text-gray-400 font-bold">No orders currently awaiting customer confirmation.</td>
+                  <td colspan="5" class="px-4 py-10 text-center text-white/40 font-bold">No orders currently awaiting customer confirmation.</td>
                 </tr>
                 <?php endif; ?>
               </tbody>
@@ -108,7 +108,7 @@ include __DIR__ . '/../../../includes/header.php';
         </div>
 
         <!-- DISPUTED DELIVERIES PANEL -->
-        <div class="bg-white rounded-3xl border border-red-200 shadow-sm overflow-hidden flex flex-col">
+        <div class="glass-panel rounded-3xl border border-red-200 shadow-md shadow-black/20 overflow-hidden flex flex-col">
           <div class="p-5 border-b border-red-100 bg-red-50/50 flex justify-between items-center">
             <h3 class="font-extrabold text-sm text-red-800 flex items-center gap-2">
               ⚠️ Active Disputes &amp; Issues
@@ -124,13 +124,13 @@ include __DIR__ . '/../../../includes/header.php';
                   <th class="px-4 py-3 text-right" style="width: 190px;">Operational Resolution</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-red-100 font-semibold text-gray-700">
+              <tbody class="divide-y divide-red-100 font-semibold text-white/80">
                 <?php foreach ($disputedOrders as $do): ?>
                 <tr class="hover:bg-red-50/10">
                   <td class="px-4 py-3.5">
                     <p class="font-bold text-red-700"><?= e($do['order_number']) ?></p>
-                    <p class="text-[10px] text-gray-400 mt-0.5"><?= e($do['customer_name']) ?></p>
-                    <p class="text-[10px] font-bold text-gray-600 mt-1">🍴 <?= e($do['restaurant_name']) ?></p>
+                    <p class="text-[10px] text-white/40 mt-0.5"><?= e($do['customer_name']) ?></p>
+                    <p class="text-[10px] font-bold text-white/70 mt-1">🍴 <?= e($do['restaurant_name']) ?></p>
                   </td>
                   <td class="px-4 py-3.5">
                     <p class="text-emerald-700 font-extrabold">🏍 <?= e($do['partner_name'] ?: 'Marcus') ?></p>
@@ -150,7 +150,7 @@ include __DIR__ . '/../../../includes/header.php';
                 <?php endforeach; ?>
                 <?php if (empty($disputedOrders)): ?>
                 <tr>
-                  <td colspan="3" class="px-4 py-10 text-center text-gray-400 font-bold">No active delivery partner disputes open. Great job!</td>
+                  <td colspan="3" class="px-4 py-10 text-center text-white/40 font-bold">No active delivery partner disputes open. Great job!</td>
                 </tr>
                 <?php endif; ?>
               </tbody>

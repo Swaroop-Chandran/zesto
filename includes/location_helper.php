@@ -7,10 +7,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-define('DEFAULT_LOCATION', 'Mumbai, Maharashtra');
+define('DEFAULT_LOCATION', 'Kochi, Kerala');
 
 // Predefined available Indian locations
 $predefinedLocations = [
+    'Kochi, Kerala' => ['city' => 'Kochi', 'lat' => 9.9312, 'lng' => 76.2673, 'desc' => 'Edappally, Fort Kochi, Kakkanad'],
     'Mumbai, Maharashtra' => ['city' => 'Mumbai', 'lat' => 19.0760, 'lng' => 72.8777, 'desc' => 'Andheri West, Bandra, Colaba'],
     'Delhi, NCR' => ['city' => 'Delhi', 'lat' => 28.7041, 'lng' => 77.1025, 'desc' => 'Connaught Place, Karol Bagh, Saket'],
     'Bangalore, Karnataka' => ['city' => 'Bangalore', 'lat' => 12.9716, 'lng' => 77.5946, 'desc' => 'Koramangala, Indiranagar, HSR Layout'],

@@ -98,11 +98,11 @@ include __DIR__ . '/../../../includes/header.php';
 <div class="admin-layout font-sans">
   <?php include __DIR__ . '/../../../includes/sidebar.php'; ?>
   <div class="flex-1 overflow-auto p-6 md:p-10 max-w-7xl">
-    <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-5">
+    <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-5">
       <div>
-        <span class="text-xs font-bold text-[#a83300] uppercase tracking-widest">Restaurant Panel</span>
-        <h1 class="text-2xl md:text-3xl font-black text-[#1b1c1c] mt-1"><?= $res ? e($res['name']) : 'Dashboard' ?></h1>
-        <p class="text-xs text-gray-500 mt-1">Manage orders, update menu and track store performance</p>
+        <span class="text-xs font-bold text-zesto-orange uppercase tracking-widest">Restaurant Panel</span>
+        <h1 class="text-2xl md:text-3xl font-black text-white mt-1"><?= $res ? e($res['name']) : 'Dashboard' ?></h1>
+        <p class="text-xs text-white/60 mt-1">Manage orders, update menu and track store performance</p>
       </div>
       <?php if ($res && $res['rating']): ?>
       <div class="flex items-center gap-1.5 bg-amber-50 px-3.5 py-1.5 rounded-full border border-amber-200">
@@ -113,10 +113,10 @@ include __DIR__ . '/../../../includes/header.php';
     </div>
 
     <?php if (!$res): ?>
-    <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-3xl p-10 border border-orange-200 text-center max-w-2xl mx-auto shadow-sm my-10">
-      <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white text-3xl mb-6 shadow-sm">🍳</div>
-      <h2 class="text-2xl font-black text-[#1b1c1c]">Welcome to Zesto Kitchens!</h2>
-      <p class="text-sm text-gray-600 mt-3 leading-relaxed font-semibold">
+    <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-3xl p-10 border border-orange-200 text-center max-w-2xl mx-auto shadow-md shadow-black/20 my-10">
+      <div class="inline-flex items-center justify-center w-20 h-20 rounded-full glass-panel text-3xl mb-6 shadow-md shadow-black/20">🍳</div>
+      <h2 class="text-2xl font-black text-white">Welcome to Zesto Kitchens!</h2>
+      <p class="text-sm text-white/70 mt-3 leading-relaxed font-semibold">
         To start managing orders, selling your delicious dishes, and tracking your business, you need to create your restaurant profile first.
       </p>
       <div class="mt-8 flex justify-center">
@@ -138,26 +138,26 @@ include __DIR__ . '/../../../includes/header.php';
         ['Ready for Pickup', $stats['ready_for_pickup'], '🏍', 'bg-emerald-50 text-emerald-600']
       ];
       foreach ($cards as [$l, $v, $i, $c]): ?>
-      <div class="bg-white rounded-2xl border border-gray-150 p-5 shadow-sm">
+      <div class="glass-panel rounded-2xl border border-white/10 p-5 shadow-md shadow-black/20">
         <div class="flex justify-between items-start mb-2">
-          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider"><?= $l ?></p>
+          <p class="text-[10px] text-white/40 font-bold uppercase tracking-wider"><?= $l ?></p>
           <span class="text-lg"><?= $i ?></span>
         </div>
-        <p class="text-2xl font-extrabold text-[#1b1c1c]"><?= $v ?></p>
+        <p class="text-2xl font-extrabold text-white"><?= $v ?></p>
       </div>
       <?php endforeach; ?>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Recent Orders Queue -->
-      <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-150 shadow-sm overflow-hidden flex flex-col">
-        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-[#fdfdfd]">
-          <h3 class="font-bold text-sm text-[#1b1c1c]">Recent Order Queue</h3>
-          <a href="<?= BASE_URL ?>/restaurant-panel/orders.php" class="text-xs text-[#a83300] font-bold hover:underline">View All Queue →</a>
+      <div class="lg:col-span-2 glass-panel rounded-2xl border border-white/10 shadow-md shadow-black/20 overflow-hidden flex flex-col">
+        <div class="p-5 border-b border-white/10 flex justify-between items-center bg-white/5">
+          <h3 class="font-bold text-sm text-white">Recent Order Queue</h3>
+          <a href="<?= BASE_URL ?>/restaurant-panel/orders.php" class="text-xs text-zesto-orange font-bold hover:underline">View All Queue →</a>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-xs">
-            <thead class="bg-[#f5f3f3] text-gray-400 font-bold uppercase tracking-wider">
+            <thead class="bg-white/5 text-white/40 font-bold uppercase tracking-wider">
               <tr>
                 <th class="text-left px-4 py-3.5">Order #</th>
                 <th class="text-left px-4 py-3.5">Customer</th>
@@ -167,10 +167,10 @@ include __DIR__ . '/../../../includes/header.php';
                 <th class="text-center px-4 py-3.5" style="width: 170px;">One-Click Action</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100 font-semibold text-gray-700">
+            <tbody class="divide-y divide-white/10 font-semibold text-white/80">
               <?php foreach ($recentOrders as $ord): ?>
               <tr class="hover:bg-gray-50/50">
-                <td class="px-4 py-4 font-bold text-[#a83300]"><?= e($ord['order_number']) ?></td>
+                <td class="px-4 py-4 font-bold text-zesto-orange"><?= e($ord['order_number']) ?></td>
                 <td class="px-4 py-4 font-semibold"><?= e($ord['customer']) ?></td>
                 <td class="px-4 py-4 font-extrabold"><?= formatPrice($ord['total']) ?></td>
                 <td class="px-4 py-4">
@@ -178,7 +178,7 @@ include __DIR__ . '/../../../includes/header.php';
                     <?= e(str_replace('_',' ',$ord['order_status'])) ?>
                   </span>
                 </td>
-                <td class="px-4 py-4 text-[10px] text-gray-400"><?= date('g:i A', strtotime($ord['created_at'])) ?></td>
+                <td class="px-4 py-4 text-[10px] text-white/40"><?= date('g:i A', strtotime($ord['created_at'])) ?></td>
                 <td class="px-4 py-4 text-center">
                   <?= renderTableStatusButtons($ord['id'], $ord['order_status']) ?>
                 </td>
@@ -186,7 +186,7 @@ include __DIR__ . '/../../../includes/header.php';
               <?php endforeach; ?>
               <?php if (empty($recentOrders)): ?>
               <tr>
-                <td colspan="6" class="px-4 py-12 text-center text-gray-400">No orders received yet. Make sure your menu is active!</td>
+                <td colspan="6" class="px-4 py-12 text-center text-white/40">No orders received yet. Make sure your menu is active!</td>
               </tr>
               <?php endif; ?>
             </tbody>
@@ -195,10 +195,10 @@ include __DIR__ . '/../../../includes/header.php';
       </div>
 
       <!-- Top Selling Foods -->
-      <div class="bg-white rounded-2xl border border-gray-150 shadow-sm p-6 flex flex-col">
-        <h3 class="font-bold text-sm text-[#1b1c1c] mb-4 pb-2 border-b">🔥 Top Selling Dishes</h3>
+      <div class="glass-panel rounded-2xl border border-white/10 shadow-md shadow-black/20 p-6 flex flex-col">
+        <h3 class="font-bold text-sm text-white mb-4 pb-2 border-b">🔥 Top Selling Dishes</h3>
         <?php if (empty($topItems)): ?>
-        <div class="flex-1 flex items-center justify-center text-center text-gray-400 text-xs py-8">
+        <div class="flex-1 flex items-center justify-center text-center text-white/40 text-xs py-8">
           No item sales recorded yet.
         </div>
         <?php else: ?>
@@ -206,10 +206,10 @@ include __DIR__ . '/../../../includes/header.php';
           <?php foreach ($topItems as $item): ?>
           <div class="flex justify-between items-center text-xs font-semibold">
             <div>
-              <p class="font-bold text-gray-800 text-sm"><?= e($item['item_name']) ?></p>
-              <p class="text-[10px] text-gray-400 mt-0.5"><?= $item['total_qty'] ?> units sold</p>
+              <p class="font-bold text-white/90 text-sm"><?= e($item['item_name']) ?></p>
+              <p class="text-[10px] text-white/40 mt-0.5"><?= $item['total_qty'] ?> units sold</p>
             </div>
-            <span class="font-black text-[#a83300] text-sm"><?= formatPrice($item['total_rev']) ?></span>
+            <span class="font-black text-zesto-orange text-sm"><?= formatPrice($item['total_rev']) ?></span>
           </div>
           <?php endforeach; ?>
         </div>

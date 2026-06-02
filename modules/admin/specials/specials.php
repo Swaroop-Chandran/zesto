@@ -130,15 +130,15 @@ $sidebarType = 'admin';
 $activePage = 'specials.php';
 include __DIR__ . '/../../../includes/header.php';
 ?>
-<div class="admin-layout">
+<div class="admin-layout font-sans bg-zesto-dark text-[#dfe2eb] min-h-screen flex">
   <?php include __DIR__ . '/../../../includes/sidebar.php'; ?>
   
   <div class="flex-1 overflow-auto p-6 md:p-10 max-w-7xl">
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
       <div>
-        <h1 class="text-2xl font-extrabold text-[#1b1c1c]">Featured Specials & Categories</h1>
-        <p class="text-sm text-gray-500 mt-1">Configure homepage Today's Specials, Viral, Trending items, and manage platform food categories.</p>
+        <h1 class="text-2xl font-extrabold text-white">Featured Specials & Categories</h1>
+        <p class="text-sm text-white/60 mt-1">Configure homepage Today's Specials, Viral, Trending items, and manage platform food categories.</p>
       </div>
       <div>
         <button onclick="openCategoryModal('add')" class="btn-primary flex items-center gap-2 text-sm px-4 py-2 bg-[#a83300] hover:bg-[#d24200] text-white rounded-xl font-bold transition-all">
@@ -168,11 +168,11 @@ include __DIR__ . '/../../../includes/header.php';
     <?php endif; ?>
 
     <!-- Tabs Header -->
-    <div class="flex border-b border-gray-200 mb-8 gap-6">
-      <button onclick="switchTab('specials')" id="tab-btn-specials" class="tab-btn pb-4 font-bold text-sm border-b-2 border-[#a83300] text-[#a83300] transition-all">
+    <div class="flex border-b border-white/10 mb-8 gap-6">
+      <button onclick="switchTab('specials')" id="tab-btn-specials" class="tab-btn pb-4 font-bold text-sm border-b-2 border-zesto-orange/50 text-zesto-orange transition-all">
         Featured Dishes / Flag Manager (<?= count($dishesList) ?>)
       </button>
-      <button onclick="switchTab('categories')" id="tab-btn-categories" class="tab-btn pb-4 font-bold text-sm text-gray-500 hover:text-gray-800 transition-all">
+      <button onclick="switchTab('categories')" id="tab-btn-categories" class="tab-btn pb-4 font-bold text-sm text-white/60 hover:text-white/90 transition-all">
         Menu Categories (<?= count($categories) ?>)
       </button>
     </div>
@@ -180,15 +180,15 @@ include __DIR__ . '/../../../includes/header.php';
     <!-- Specials / Flag Manager Content -->
     <div id="tab-content-specials" class="tab-pane">
       <!-- Filter Bar -->
-      <form method="GET" class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm mb-6 flex flex-wrap gap-4 items-end">
+      <form method="GET" class="glass-panel rounded-2xl border border-white/10 p-5 shadow-md shadow-black/20 mb-6 flex flex-wrap gap-4 items-end">
         <div class="flex-1 min-w-[200px]">
-          <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Search Dishes</label>
+          <label class="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Search Dishes</label>
           <input type="text" name="search" value="<?= e($search) ?>" placeholder="Search dish name..."
-                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#a83300] text-sm text-gray-700 font-semibold">
+                 class="w-full px-4 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-zesto-orange/50 text-sm text-white/80 font-semibold">
         </div>
         <div class="min-w-[180px]">
-          <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Restaurant</label>
-          <select name="restaurant_id" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#a83300] text-sm text-gray-700 bg-white font-semibold">
+          <label class="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Restaurant</label>
+          <select name="restaurant_id" class="w-full px-4 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-zesto-orange/50 text-sm text-white/80 glass-panel font-semibold">
             <option value="">All Restaurants</option>
             <?php foreach ($restaurants as $rest): ?>
             <option value="<?= $rest['id'] ?>" <?= $rest_id == $rest['id'] ? 'selected' : '' ?>><?= e($rest['name']) ?></option>
@@ -196,8 +196,8 @@ include __DIR__ . '/../../../includes/header.php';
           </select>
         </div>
         <div class="min-w-[180px]">
-          <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Category</label>
-          <select name="category_id" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#a83300] text-sm text-gray-700 bg-white font-semibold">
+          <label class="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Category</label>
+          <select name="category_id" class="w-full px-4 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-zesto-orange/50 text-sm text-white/80 glass-panel font-semibold">
             <option value="">All Categories</option>
             <?php foreach ($categories as $cat): ?>
             <option value="<?= $cat['id'] ?>" <?= $cat_id == $cat['id'] ? 'selected' : '' ?>><?= e($cat['name']) ?></option>
@@ -206,59 +206,59 @@ include __DIR__ . '/../../../includes/header.php';
         </div>
         <div class="flex gap-2">
           <button type="submit" class="px-5 py-2.5 bg-[#a83300] hover:bg-[#d24200] text-white rounded-xl font-bold text-sm transition-colors">Filter</button>
-          <a href="specials.php" class="px-4 py-2.5 border border-gray-200 rounded-xl font-bold text-sm hover:bg-gray-50 bg-white text-gray-600 transition-colors flex items-center">Reset</a>
+          <a href="specials.php" class="px-4 py-2.5 border border-white/10 rounded-xl font-bold text-sm hover:bg-white/5 glass-panel text-white/70 transition-colors flex items-center">Reset</a>
         </div>
       </form>
 
       <!-- Dishes Table -->
-      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div class="glass-panel rounded-2xl border border-white/10 shadow-md shadow-black/20 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-sm text-left">
-            <thead class="bg-[#f5f3f3]">
+            <thead class="bg-white/5">
               <tr>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider w-16">Image</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Dish Name</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Restaurant</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Category</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Price</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-center">Today's Special</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-center">Viral/Popular</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-center">Trending</th>
+                <th class="px-6 py-4 text-xs font-bold text-white/40 uppercase tracking-wider w-16">Image</th>
+                <th class="px-6 py-4 text-xs font-bold text-white/40 uppercase tracking-wider">Dish Name</th>
+                <th class="px-6 py-4 text-xs font-bold text-white/40 uppercase tracking-wider">Restaurant</th>
+                <th class="px-6 py-4 text-xs font-bold text-white/40 uppercase tracking-wider">Category</th>
+                <th class="px-6 py-4 text-xs font-bold text-white/40 uppercase tracking-wider">Price</th>
+                <th class="px-6 py-4 text-xs font-bold text-white/40 uppercase tracking-wider text-center">Today's Special</th>
+                <th class="px-6 py-4 text-xs font-bold text-white/40 uppercase tracking-wider text-center">Viral/Popular</th>
+                <th class="px-6 py-4 text-xs font-bold text-white/40 uppercase tracking-wider text-center">Trending</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-50">
+            <tbody class="divide-y divide-white/5">
               <?php if (empty($dishesList)): ?>
               <tr>
-                <td colspan="8" class="px-6 py-10 text-center text-gray-400 font-semibold">No dishes match the selected filters.</td>
+                <td colspan="8" class="px-6 py-10 text-center text-white/40 font-semibold">No dishes match the selected filters.</td>
               </tr>
               <?php endif; ?>
               <?php foreach ($dishesList as $dish): ?>
-              <tr class="hover:bg-[#f5f3f3]/30 transition-colors">
+              <tr class="hover:bg-white/5 transition-colors">
                 <td class="px-6 py-4">
                   <?php if ($dish['image']): ?>
-                  <img src="<?= e($dish['image']) ?>" alt="<?= e($dish['name']) ?>" class="w-12 h-12 rounded-xl object-cover border border-gray-100 bg-gray-50 shrink-0">
+                  <img src="<?= e($dish['image']) ?>" alt="<?= e($dish['name']) ?>" class="w-12 h-12 rounded-xl object-cover border border-white/10 bg-white/5 shrink-0">
                   <?php else: ?>
-                  <div class="w-12 h-12 rounded-xl bg-[#ffdbd0] flex items-center justify-center text-[#a83300] font-bold text-xs shrink-0">🍔</div>
+                  <div class="w-12 h-12 rounded-xl bg-zesto-orange/20 flex items-center justify-center text-zesto-orange font-bold text-xs shrink-0">🍔</div>
                   <?php endif; ?>
                 </td>
                 <td class="px-6 py-4">
-                  <div class="font-bold text-gray-800 flex items-center gap-1.5">
+                  <div class="font-bold text-white/90 flex items-center gap-1.5">
                     <span class="w-2.5 h-2.5 rounded-full shrink-0 <?= $dish['is_veg'] ? 'bg-green-600' : 'bg-red-600' ?>" title="<?= $dish['is_veg'] ? 'Veg' : 'Non-Veg' ?>"></span>
                     <?= e($dish['name']) ?>
                   </div>
                   <?php if ($dish['description']): ?>
-                  <p class="text-xs text-gray-400 line-clamp-1 max-w-sm mt-0.5"><?= e($dish['description']) ?></p>
+                  <p class="text-xs text-white/40 line-clamp-1 max-w-sm mt-0.5"><?= e($dish['description']) ?></p>
                   <?php endif; ?>
                 </td>
-                <td class="px-6 py-4 font-semibold text-gray-600">
+                <td class="px-6 py-4 font-semibold text-white/70">
                   <?= e($dish['restaurant_name']) ?>
                 </td>
                 <td class="px-6 py-4">
-                  <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-md font-semibold text-xs border border-gray-200">
+                  <span class="px-2 py-1 bg-white/10 text-white/70 rounded-md font-semibold text-xs border border-white/10">
                     <?= e($dish['category_name'] ?? 'Uncategorized') ?>
                   </span>
                 </td>
-                <td class="px-6 py-4 font-extrabold text-[#a83300]">
+                <td class="px-6 py-4 font-extrabold text-zesto-orange">
                   <?= formatPrice($dish['price']) ?>
                 </td>
                 
@@ -276,7 +276,7 @@ include __DIR__ . '/../../../includes/header.php';
                         ⭐ Special
                       </span>
                       <?php else: ?>
-                      <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-50 text-gray-400 hover:text-gray-600 rounded-full font-bold text-xs border border-gray-100">
+                      <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 text-white/40 hover:text-white/70 rounded-full font-bold text-xs border border-white/10">
                         ☆ Enable
                       </span>
                       <?php endif; ?>
@@ -298,7 +298,7 @@ include __DIR__ . '/../../../includes/header.php';
                         🔥 Viral
                       </span>
                       <?php else: ?>
-                      <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-50 text-gray-400 hover:text-gray-600 rounded-full font-bold text-xs border border-gray-100">
+                      <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 text-white/40 hover:text-white/70 rounded-full font-bold text-xs border border-white/10">
                         ♢ Enable
                       </span>
                       <?php endif; ?>
@@ -320,7 +320,7 @@ include __DIR__ . '/../../../includes/header.php';
                         📈 Trending
                       </span>
                       <?php else: ?>
-                      <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-50 text-gray-400 hover:text-gray-600 rounded-full font-bold text-xs border border-gray-100">
+                      <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 text-white/40 hover:text-white/70 rounded-full font-bold text-xs border border-white/10">
                         ⬈ Enable
                       </span>
                       <?php endif; ?>
@@ -337,38 +337,38 @@ include __DIR__ . '/../../../includes/header.php';
 
     <!-- Menu Categories Tab Content -->
     <div id="tab-content-categories" class="tab-pane hidden">
-      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div class="glass-panel rounded-2xl border border-white/10 shadow-md shadow-black/20 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-sm text-left">
-            <thead class="bg-[#f5f3f3]">
+            <thead class="bg-white/5">
               <tr>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider w-20">Preview</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Category Name</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Display Order</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Actions</th>
+                <th class="px-6 py-4 text-xs font-bold text-white/40 uppercase tracking-wider w-20">Preview</th>
+                <th class="px-6 py-4 text-xs font-bold text-white/40 uppercase tracking-wider">Category Name</th>
+                <th class="px-6 py-4 text-xs font-bold text-white/40 uppercase tracking-wider">Display Order</th>
+                <th class="px-6 py-4 text-xs font-bold text-white/40 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-4 text-xs font-bold text-white/40 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-50">
+            <tbody class="divide-y divide-white/5">
               <?php if (empty($categories)): ?>
               <tr>
-                <td colspan="5" class="px-6 py-10 text-center text-gray-400 font-semibold">No food categories registered. Click "Add Food Category" to create one.</td>
+                <td colspan="5" class="px-6 py-10 text-center text-white/40 font-semibold">No food categories registered. Click "Add Food Category" to create one.</td>
               </tr>
               <?php endif; ?>
               <?php foreach ($categories as $cat): ?>
-              <tr class="hover:bg-[#f5f3f3]/30 transition-colors">
+              <tr class="hover:bg-white/5 transition-colors">
                 <td class="px-6 py-4">
                   <?php if ($cat['image']): ?>
-                  <img src="<?= e($cat['image']) ?>" alt="<?= e($cat['name']) ?>" class="w-14 h-14 rounded-2xl object-cover border border-gray-100 bg-gray-50 shrink-0 shadow-sm">
+                  <img src="<?= e($cat['image']) ?>" alt="<?= e($cat['name']) ?>" class="w-14 h-14 rounded-2xl object-cover border border-white/10 bg-white/5 shrink-0 shadow-md shadow-black/20">
                   <?php else: ?>
-                  <div class="w-14 h-14 rounded-2xl bg-[#ffdbd0] flex items-center justify-center text-[#a83300] font-extrabold text-sm shrink-0 shadow-sm">🍽️</div>
+                  <div class="w-14 h-14 rounded-2xl bg-zesto-orange/20 flex items-center justify-center text-zesto-orange font-extrabold text-sm shrink-0 shadow-md shadow-black/20">🍽️</div>
                   <?php endif; ?>
                 </td>
-                <td class="px-6 py-4 font-bold text-gray-800 text-base">
+                <td class="px-6 py-4 font-bold text-white/90 text-base">
                   <?= e($cat['name']) ?>
                 </td>
                 <td class="px-6 py-4">
-                  <span class="inline-block px-3 py-1 bg-gray-100 text-gray-700 border border-gray-200 rounded-lg text-xs font-extrabold">
+                  <span class="inline-block px-3 py-1 bg-white/10 text-white/80 border border-white/10 rounded-lg text-xs font-extrabold">
                     Order #<?= $cat['display_order'] ?>
                   </span>
                 </td>
@@ -378,7 +378,7 @@ include __DIR__ . '/../../../includes/header.php';
                   </span>
                 </td>
                 <td class="px-6 py-4 text-right space-x-3 whitespace-nowrap">
-                  <button onclick="editCategory(<?= htmlspecialchars(json_encode($cat), ENT_QUOTES, 'UTF-8') ?>)" class="text-[#a83300] hover:text-[#d24200] font-bold text-sm">Edit</button>
+                  <button onclick="editCategory(<?= htmlspecialchars(json_encode($cat), ENT_QUOTES, 'UTF-8') ?>)" class="text-zesto-orange hover:text-[#d24200] font-bold text-sm">Edit</button>
                   <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this category? Dishes associated with this category will remain, but will not have this category assigned.');">
                     <?= csrfField() ?>
                     <input type="hidden" name="action" value="delete_category">
@@ -400,12 +400,12 @@ include __DIR__ . '/../../../includes/header.php';
 <!-- ADD / EDIT CATEGORY MODAL -->
 <!-- ========================================== -->
 <div id="category-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
-  <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl relative translate-y-4 transition-transform duration-300">
-    <button onclick="closeCategoryModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+  <div class="glass-panel rounded-2xl w-full max-w-md p-6 shadow-2xl relative translate-y-4 transition-transform duration-300">
+    <button onclick="closeCategoryModal()" class="absolute top-4 right-4 text-white/40 hover:text-white/70">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
     
-    <h2 id="category-modal-title" class="text-xl font-extrabold text-[#1b1c1c] mb-6">Add Food Category</h2>
+    <h2 id="category-modal-title" class="text-xl font-extrabold text-white mb-6">Add Food Category</h2>
     
     <form method="POST" id="category-form" enctype="multipart/form-data">
       <?= csrfField() ?>
@@ -414,45 +414,45 @@ include __DIR__ . '/../../../includes/header.php';
       
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Category Name</label>
+          <label class="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Category Name</label>
           <input type="text" name="name" id="category-name" placeholder="e.g. Desserts" required
-                 class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#a83300] font-semibold text-gray-700">
+                 class="w-full px-4 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-zesto-orange/50 font-semibold text-white/80">
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Display Order Sequence</label>
+          <label class="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Display Order Sequence</label>
           <input type="number" name="display_order" id="category-order" placeholder="e.g. 5" required min="0" value="0"
-                 class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#a83300] font-semibold text-gray-700">
+                 class="w-full px-4 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-zesto-orange/50 font-semibold text-white/80">
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Upload Category Image File</label>
+          <label class="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Upload Category Image File</label>
           <input type="file" name="image_file" accept="image/*"
-                 class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#ffdbd0] file:text-[#a83300] hover:file:bg-[#ffeadb] cursor-pointer">
-          <span class="text-[10px] text-gray-400 font-semibold mt-1 block">Recommended size: Square 200x200 JPG, PNG or WEBP (Max 5MB)</span>
+                 class="w-full text-sm text-white/60 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-zesto-orange/20 file:text-zesto-orange hover:file:bg-zesto-orange/30 cursor-pointer">
+          <span class="text-[10px] text-white/40 font-semibold mt-1 block">Recommended size: Square 200x200 JPG, PNG or WEBP (Max 5MB)</span>
         </div>
 
         <div class="relative flex py-2 items-center">
-          <div class="flex-grow border-t border-gray-200"></div>
-          <span class="flex-shrink mx-4 text-xs font-bold text-gray-400 uppercase">OR</span>
-          <div class="flex-grow border-t border-gray-200"></div>
+          <div class="flex-grow border-t border-white/10"></div>
+          <span class="flex-shrink mx-4 text-xs font-bold text-white/40 uppercase">OR</span>
+          <div class="flex-grow border-t border-white/10"></div>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Category Image URL</label>
+          <label class="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Category Image URL</label>
           <input type="url" name="image_url" id="category-image-url" placeholder="https://example.com/category-image.jpg"
-                 class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#a83300] font-medium text-gray-700">
+                 class="w-full px-4 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-zesto-orange/50 font-medium text-white/80">
         </div>
 
         <div class="flex items-center gap-3 pt-2">
           <input type="checkbox" name="is_active" id="category-active" checked value="1"
                  class="w-5 h-5 accent-[#a83300] rounded focus:ring-0">
-          <label for="category-active" class="text-sm font-bold text-gray-700">Enable this category immediately</label>
+          <label for="category-active" class="text-sm font-bold text-white/80">Enable this category immediately</label>
         </div>
       </div>
 
       <div class="mt-8 flex justify-end gap-3">
-        <button type="button" onclick="closeCategoryModal()" class="px-5 py-3 border border-gray-200 text-gray-500 rounded-xl font-bold hover:bg-gray-50 transition-colors">
+        <button type="button" onclick="closeCategoryModal()" class="px-5 py-3 border border-white/10 text-white/60 rounded-xl font-bold hover:bg-white/5 transition-colors">
           Cancel
         </button>
         <button type="submit" class="px-6 py-3 bg-[#a83300] text-white rounded-xl font-bold hover:bg-[#d24200] transition-colors">
@@ -471,13 +471,13 @@ function switchTab(tab) {
   const paneCategories = document.getElementById('tab-content-categories');
 
   if (tab === 'specials') {
-    btnSpecials.className = "tab-btn pb-4 font-bold text-sm border-b-2 border-[#a83300] text-[#a83300] transition-all";
-    btnCategories.className = "tab-btn pb-4 font-bold text-sm text-gray-500 hover:text-gray-800 transition-all";
+    btnSpecials.className = "tab-btn pb-4 font-bold text-sm border-b-2 border-zesto-orange/50 text-zesto-orange transition-all";
+    btnCategories.className = "tab-btn pb-4 font-bold text-sm text-white/60 hover:text-white/90 transition-all";
     paneSpecials.classList.remove('hidden');
     paneCategories.classList.add('hidden');
   } else {
-    btnCategories.className = "tab-btn pb-4 font-bold text-sm border-b-2 border-[#a83300] text-[#a83300] transition-all";
-    btnSpecials.className = "tab-btn pb-4 font-bold text-sm text-gray-500 hover:text-gray-800 transition-all";
+    btnCategories.className = "tab-btn pb-4 font-bold text-sm border-b-2 border-zesto-orange/50 text-zesto-orange transition-all";
+    btnSpecials.className = "tab-btn pb-4 font-bold text-sm text-white/60 hover:text-white/90 transition-all";
     paneCategories.classList.remove('hidden');
     paneSpecials.classList.add('hidden');
   }

@@ -63,11 +63,11 @@ include __DIR__ . '/../../../includes/header.php';
   <?php include __DIR__ . '/../../../includes/sidebar.php'; ?>
   
   <div class="flex-1 overflow-auto p-6 md:p-10 max-w-2xl mx-auto">
-    <div class="flex justify-between items-center mb-8 border-b border-gray-100 pb-5">
+    <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-5">
       <div>
-        <span class="text-xs font-bold text-[#a83300] uppercase tracking-widest">Admin Control Panel</span>
-        <h1 class="text-2xl md:text-3xl font-black text-[#1b1c1c] mt-1">Delivery Settings</h1>
-        <p class="text-xs text-gray-500 mt-1">Configure global delivery fare algorithms and active incentive bonuses</p>
+        <span class="text-xs font-bold text-zesto-orange uppercase tracking-widest">Admin Control Panel</span>
+        <h1 class="text-2xl md:text-3xl font-black text-white mt-1">Delivery Settings</h1>
+        <p class="text-xs text-white/60 mt-1">Configure global delivery fare algorithms and active incentive bonuses</p>
       </div>
     </div>
 
@@ -77,53 +77,53 @@ include __DIR__ . '/../../../includes/header.php';
     </div>
     <?php endif; ?>
 
-    <div class="bg-white rounded-3xl border border-gray-150 p-6 md:p-8 shadow-sm">
-      <form method="POST" class="flex flex-col gap-6 text-xs text-gray-600 font-semibold">
+    <div class="glass-panel rounded-3xl border border-white/10 p-6 md:p-8 shadow-md shadow-black/20">
+      <form method="POST" class="flex flex-col gap-6 text-xs text-white/70 font-semibold">
         <?= csrfField() ?>
 
         <!-- Fare Calculation Config -->
         <div class="space-y-4">
-          <h3 class="font-extrabold text-sm text-[#a83300] uppercase tracking-wider border-b border-gray-100 pb-2">🏍 Core Delivery Fare</h3>
+          <h3 class="font-extrabold text-sm text-zesto-orange uppercase tracking-wider border-b border-white/10 pb-2">🏍 Core Delivery Fare</h3>
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-[10px] font-bold text-gray-600 mb-1.5 uppercase">Base Fare (₹) *</label>
+              <label class="block text-[10px] font-bold text-white/70 mb-1.5 uppercase">Base Fare (₹) *</label>
               <input type="number" step="0.01" name="base_fare" required value="<?= e($settings['base_fare']) ?>" class="zesto-input bg-gray-50/50">
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-gray-600 mb-1.5 uppercase">Per KM Charge (₹) *</label>
+              <label class="block text-[10px] font-bold text-white/70 mb-1.5 uppercase">Per KM Charge (₹) *</label>
               <input type="number" step="0.01" name="per_km_charge" required value="<?= e($settings['per_km_charge']) ?>" class="zesto-input bg-gray-50/50">
             </div>
           </div>
           
           <div>
-            <label class="block text-[10px] font-bold text-gray-600 mb-1.5 uppercase">Minimum Delivery Charge (₹) *</label>
+            <label class="block text-[10px] font-bold text-white/70 mb-1.5 uppercase">Minimum Delivery Charge (₹) *</label>
             <input type="number" step="0.01" name="min_delivery_charge" required value="<?= e($settings['min_delivery_charge']) ?>" class="zesto-input bg-gray-50/50">
-            <span class="text-[9px] text-gray-400 font-medium block mt-1">Ensures partners always make a baseline amount per delivery task</span>
+            <span class="text-[9px] text-white/40 font-medium block mt-1">Ensures partners always make a baseline amount per delivery task</span>
           </div>
         </div>
 
         <!-- Incentive Bonuses config -->
         <div class="space-y-4">
-          <h3 class="font-extrabold text-sm text-[#a83300] uppercase tracking-wider border-b border-gray-100 pb-2">🌧 Active Delivery Incentives</h3>
+          <h3 class="font-extrabold text-sm text-zesto-orange uppercase tracking-wider border-b border-white/10 pb-2">🌧 Active Delivery Incentives</h3>
           
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label class="block text-[10px] font-bold text-gray-600 mb-1.5 uppercase">Peak Hour Bonus (₹)</label>
+              <label class="block text-[10px] font-bold text-white/70 mb-1.5 uppercase">Peak Hour Bonus (₹)</label>
               <input type="number" step="0.01" name="peak_hour_bonus" required value="<?= e($settings['peak_hour_bonus']) ?>" class="zesto-input bg-gray-50/50">
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-gray-600 mb-1.5 uppercase">Rain Bonus (₹)</label>
+              <label class="block text-[10px] font-bold text-white/70 mb-1.5 uppercase">Rain Bonus (₹)</label>
               <input type="number" step="0.01" name="rain_bonus" required value="<?= e($settings['rain_bonus']) ?>" class="zesto-input bg-gray-50/50">
             </div>
             <div>
-              <label class="block text-[10px] font-bold text-gray-600 mb-1.5 uppercase">Festival Bonus (₹)</label>
+              <label class="block text-[10px] font-bold text-white/70 mb-1.5 uppercase">Festival Bonus (₹)</label>
               <input type="number" step="0.01" name="festival_bonus" required value="<?= e($settings['festival_bonus']) ?>" class="zesto-input bg-gray-50/50">
             </div>
           </div>
         </div>
 
-        <button type="submit" class="w-full btn-primary bg-[#a83300] hover:bg-[#c93c02] text-white h-12 justify-center font-bold tracking-wide mt-4 rounded-xl text-xs cursor-pointer shadow-sm">
+        <button type="submit" class="w-full btn-primary bg-[#a83300] hover:bg-[#c93c02] text-white h-12 justify-center font-bold tracking-wide mt-4 rounded-xl text-xs cursor-pointer shadow-md shadow-black/20">
           Save Settings &amp; Apply Globally 🎉
         </button>
       </form>
