@@ -10,6 +10,10 @@ $data       = json_decode(file_get_contents('php://input'), true) ?? [];
 $cartKey    = $data['cart_key']    ?? '';
 $menuItemId = (int)($data['menu_item_id'] ?? 0);
 
+if ($cartKey && !$menuItemId) {
+    $menuItemId = (int)($_SESSION['cart'][$cartKey]['menu_item_id'] ?? 0);
+}
+
 // Support both cart_key (explicit) and menu_item_id (derive key)
 if (!$cartKey && $menuItemId) {
     // Find the cart key matching this item id

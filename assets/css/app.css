@@ -659,3 +659,19 @@ body {
   cursor: not-allowed;
   transform: none;
 }
+
+/* ── Live Search Results Dropdown Text Visibility ────────────────── */
+#search-results a p.text-white {
+  color: #ffffff !important;
+}
+#search-results a p.text-zinc-500 {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+#search-results a:hover p.text-white,
+#search-results a:hover p.group-hover\:text-amber-400 {
+  color: #f59e0b !important;
+}
+#search-results a:hover p.text-zinc-500 {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+

@@ -148,6 +148,10 @@ $csrfToken   = csrfToken();
   <script src="<?= BASE_URL ?>/assets/js/auth.js" defer></script>
   <script src="<?= BASE_URL ?>/assets/js/cart.js" defer></script>
 
+  <?php if (!empty($extraJs)): foreach ($extraJs as $js): ?>
+  <script src="<?= e($js) ?>" defer></script>
+  <?php endforeach; endif; ?>
+
   <?php if (!empty($extraCss)): foreach ($extraCss as $css): ?>
   <link rel="stylesheet" href="<?= e($css) ?>">
   <?php endforeach; endif; ?>
