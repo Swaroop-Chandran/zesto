@@ -24,6 +24,100 @@ function updateCartBadge(count) {
 
 window.cartQty = window.cartQty || {};
 
+// ── Cart Conflict Modal ───────────────────────────────────────
+let _conflictModalOpen = false;
+let _pendingConflict   = null;
+
+function getOrCreateConflictModal() {
+  let modal = document.getElementById('cart-conflict-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'cart-conflict-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', 'ccm-title');
+    modal.className = 'hidden fixed inset-0 z-[9999] flex items-center justify-center p-4';
+    modal.innerHTML = `
+      <div id="cart-conflict-backdrop" class="absolute inset-0 bg-black/75 backdrop-blur-sm"></div>
+      <div class="relative bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl p-6 max-w-sm w-full z-10 animate-scale-up">
+        <div class="flex items-start gap-4 mb-5">
+          <div class="w-11 h-11 rounded-full bg-amber-400/10 flex items-center justify-center shrink-0 text-2xl" aria-hidden="true">🛒</div>
+          <div>
+            <h3 id="ccm-title" class="text-white font-extrabold text-base leading-tight">Different Restaurant</h3>
+            <p class="text-zinc-400 text-sm mt-2 leading-relaxed">
+              Your cart contains items from another restaurant.<br>
+              Would you like to clear the cart and start a new order?
+            </p>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <button id="cart-conflict-cancel"
+                  class="flex-1 py-2.5 px-4 rounded-xl border border-white/10 text-white/70 font-bold text-sm hover:bg-white/5 transition-colors cursor-pointer bg-transparent">
+            Cancel
+          </button>
+          <button id="cart-conflict-clear"
+                  class="flex-1 py-2.5 px-4 rounded-xl bg-amber-400 text-zinc-950 font-extrabold text-sm hover:bg-amber-500 active:scale-95 transition-all cursor-pointer border-none">
+            Clear Cart &amp; Continue
+          </button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    document.getElementById('cart-conflict-backdrop').addEventListener('click', closeConflictModal);
+    document.getElementById('cart-conflict-cancel').addEventListener('click', closeConflictModal);
+    document.getElementById('cart-conflict-clear').addEventListener('click', handleClearAndContinue);
+  }
+  return modal;
+}
+
+function openConflictModal(itemId, restaurantId, restaurantSlug, customization) {
+  if (_conflictModalOpen) return;      // only one modal at a time
+  _conflictModalOpen = true;
+  _pendingConflict   = { itemId, restaurantId, restaurantSlug, customization };
+  const modal = getOrCreateConflictModal();
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeConflictModal() {
+  const modal = document.getElementById('cart-conflict-modal');
+  if (modal) modal.classList.add('hidden');
+  document.body.style.overflow = '';
+  _conflictModalOpen = false;
+  _pendingConflict   = null;
+}
+
+async function handleClearAndContinue() {
+  if (!_pendingConflict) { closeConflictModal(); return; }
+
+  const clearBtn = document.getElementById('cart-conflict-clear');
+  if (clearBtn) {
+    clearBtn.disabled = true;
+    clearBtn.innerHTML = `<span class="spinner" style="width:1rem;height:1rem;border-width:2px;display:inline-block;vertical-align:middle;border-radius:50%;border:2px solid #09090b;border-right-color:transparent;animation:spin 0.7s linear infinite;"></span>`;
+  }
+
+  try {
+    const res  = await fetch((window.ZESTO_BASE || '') + '/api/cart/clear.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': getCsrfToken() },
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      window.cartQty = {};
+      updateCartBadge(0);
+      const { itemId, restaurantId, restaurantSlug, customization } = _pendingConflict;
+      closeConflictModal();
+      await cartAdd(itemId, restaurantId, restaurantSlug, customization);
+    } else {
+      Zesto.toast('Could not clear cart. Please try again.', 'error');
+      closeConflictModal();
+    }
+  } catch (e) {
+    Zesto.toast('Network error. Please try again.', 'error');
+    closeConflictModal();
+  }
+}
+
 async function cartAdd(itemId, restaurantId, restaurantSlug, customization = '') {
   const wrap = document.getElementById('wrap-' + itemId);
   let btn = null;
@@ -58,6 +152,11 @@ async function cartAdd(itemId, restaurantId, restaurantSlug, customization = '')
       
       updateCartBadge(data.cart_count);
       Zesto.toast('🛒 Added to your cart!', 'cart');
+    } else if (data.conflict) {
+      // Cross-restaurant conflict — show modal once, no toast
+      restoreAddBtn(itemId, restaurantId, restaurantSlug, wrap, btn);
+      if (window.lucide) lucide.createIcons();
+      openConflictModal(itemId, restaurantId, restaurantSlug, customization);
     } else {
       restoreAddBtn(itemId, restaurantId, restaurantSlug, wrap, btn);
       if (window.lucide) lucide.createIcons();
@@ -75,14 +174,15 @@ function restoreAddBtn(itemId, restaurantId, restaurantSlug, wrap, btn) {
     const theme = wrap.dataset.theme || 'light';
     const img = wrap.querySelector('img');
     if (theme === 'modal') {
+      const priceVal = parseFloat(wrap.dataset.price || 0);
+      const priceText = priceVal > 0 ? `<span class="text-zesto-orange font-extrabold text-sm">&#8377;${priceVal.toFixed(0)}</span>` : '';
       wrap.innerHTML = `
         ${img ? img.outerHTML : ''}
-        <span class="text-zesto-orange font-extrabold text-sm">$${parseFloat(wrap.dataset.price || 0).toFixed(2)}</span>
+        ${priceText}
         <button data-add-cart="${itemId}"
                 onclick="cartAdd('${itemId}', '${restaurantId}', '${restaurantSlug}', document.getElementById('custom-${itemId}') ? document.getElementById('custom-${itemId}').value : '')"
-                class="bg-zesto-orange hover:bg-zesto-orange/90 text-white h-8 w-32 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-md shadow-black/20 cursor-pointer border-none">
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add to Cart
+                class="zesto-add-btn w-full">
+          + Add
         </button>`;
     } else {
       wrap.innerHTML = `
@@ -284,12 +384,11 @@ async function openRestaurantMenu(slug) {
                   </div>` : ''}
               </div>
               <div id="wrap-${item.id}" data-theme="modal" data-price="${item.price}" class="flex sm:flex-col justify-between items-end gap-3 shrink-0 w-32">
-                <span class="text-zesto-orange font-extrabold text-sm">$${parseFloat(item.price).toFixed(2)}</span>
+                <span class="text-zesto-orange font-extrabold text-sm">&#8377;${parseFloat(item.price).toFixed(0)}</span>
                 <button data-add-cart="${item.id}"
                         onclick="cartAdd('${item.id}', '${r.id}', '${r.slug}', document.getElementById('custom-${item.id}') ? document.getElementById('custom-${item.id}').value : '')"
-                        class="bg-zesto-orange hover:bg-zesto-orange/90 text-white h-8 w-32 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-md shadow-black/20 cursor-pointer border-none">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  Add to Cart
+                        class="zesto-add-btn w-full">
+                  + Add
                 </button>
               </div>
             </div>

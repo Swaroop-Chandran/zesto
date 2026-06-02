@@ -348,6 +348,7 @@ include __DIR__ . '/../../../includes/navbar.php';
     <?php endif; ?>
   </section>
 
+
   <!-- ═══ TRENDING COMBO SECTION ══════════════════════════════════ -->
   <?php if ($comboInfo): ?>
   <section class="trending-combo-card p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden">
@@ -361,7 +362,7 @@ include __DIR__ . '/../../../includes/navbar.php';
       <p class="text-xs text-zinc-400 leading-relaxed font-sans">
         <?= e($comboInfo['description']) ?>
       </p>
-      
+
       <div class="flex items-center gap-4 pt-4">
         <div id="wrap-<?= $comboInfo['id'] ?>" data-theme="dark">
           <?php
@@ -374,15 +375,19 @@ include __DIR__ . '/../../../includes/navbar.php';
             }
           ?>
           <?php if ($comboQty > 0): ?>
-            <div class="flex items-center gap-2 bg-zinc-900 border border-white/10 rounded-full px-3 py-1.5 shadow-inner">
-              <button class="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/20 hover:text-white border-none cursor-pointer font-bold" onclick="event.preventDefault(); cartDecrement(<?= $comboInfo['id'] ?>, <?= $comboInfo['restaurant_id'] ?>, '<?= e($comboInfo['restaurant_slug']) ?>')">−</button>
-              <span class="text-white text-xs font-black"><?= $comboQty ?></span>
-              <button class="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/20 hover:text-white border-none cursor-pointer font-bold" onclick="event.preventDefault(); cartIncrement(<?= $comboInfo['id'] ?>, <?= $comboInfo['restaurant_id'] ?>, '<?= e($comboInfo['restaurant_slug']) ?>')">+</button>
+            <div class="qty-stepper">
+              <button class="qty-stepper-btn" onclick="event.preventDefault(); cartDecrement(<?= $comboInfo['id'] ?>, <?= $comboInfo['restaurant_id'] ?>, '<?= e($comboInfo['restaurant_slug']) ?>')">−</button>
+              <span class="qty-stepper-count"><?= $comboQty ?></span>
+              <button class="qty-stepper-btn" onclick="event.preventDefault(); cartIncrement(<?= $comboInfo['id'] ?>, <?= $comboInfo['restaurant_id'] ?>, '<?= e($comboInfo['restaurant_slug']) ?>')">+</button>
             </div>
+            <script>
+              window.cartQty = window.cartQty || {};
+              window.cartQty[<?= $comboInfo['id'] ?>] = <?= $comboQty ?>;
+            </script>
           <?php else: ?>
-            <button onclick="event.preventDefault(); cartAdd(<?= $comboInfo['id'] ?>, <?= $comboInfo['restaurant_id'] ?>, '<?= e($comboInfo['restaurant_slug']) ?>')" 
-                    class="px-6 py-2.5 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-zinc-950 text-xs font-black uppercase tracking-wider rounded-full hover:opacity-90 transition shadow-lg shadow-amber-500/10 cursor-pointer border-none">
-              Order Combo (₹<?= number_format($comboInfo['price'], 0) ?>)
+            <button onclick="event.preventDefault(); cartAdd(<?= $comboInfo['id'] ?>, <?= $comboInfo['restaurant_id'] ?>, '<?= e($comboInfo['restaurant_slug']) ?>')"
+                    class="zesto-add-btn">
+              + Add Combo
             </button>
           <?php endif; ?>
         </div>
@@ -391,13 +396,14 @@ include __DIR__ . '/../../../includes/navbar.php';
         </span>
       </div>
     </div>
-    
+
     <div class="relative z-10 flex gap-4 mt-4 md:mt-0 flex-shrink-0">
       <img src="https://images.unsplash.com/photo-1603360946369-dc9bb6258143?auto=format&fit=crop&q=80&w=200" class="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-xl shadow-2xl border border-white/10" alt="Beef Fry">
       <img src="https://images.unsplash.com/photo-1626132647523-66f5bf380027?auto=format&fit=crop&q=80&w=200" class="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-xl shadow-2xl border border-white/10" alt="Porotta">
     </div>
   </section>
   <?php endif; ?>
+
 
 </div>
 </main>

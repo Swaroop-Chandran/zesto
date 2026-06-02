@@ -10,6 +10,12 @@ Zesto.toast = function(message, type = 'info', duration = 3500) {
   const container = document.getElementById('toast-container');
   if (!container) return;
 
+  // Deduplicate — don't stack the same message+type
+  const dedupeKey = type + ':' + message;
+  if (Zesto._activeToasts && Zesto._activeToasts.has(dedupeKey)) return;
+  Zesto._activeToasts = Zesto._activeToasts || new Set();
+  Zesto._activeToasts.add(dedupeKey);
+
   const icons = {
     info:    '🍽️',
     success: '✅',
@@ -24,7 +30,10 @@ Zesto.toast = function(message, type = 'info', duration = 3500) {
 
   setTimeout(() => {
     toast.style.animation = 'fadeIn 0.25s ease-out reverse forwards';
-    setTimeout(() => toast.remove(), 260);
+    setTimeout(() => {
+      toast.remove();
+      Zesto._activeToasts && Zesto._activeToasts.delete(dedupeKey);
+    }, 260);
   }, duration);
 };
 
