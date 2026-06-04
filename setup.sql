@@ -359,3 +359,119 @@ INSERT IGNORE INTO offers (title, description, code, image) VALUES
 ('50% Off First 3 Orders', 'Get 50% discount up to ₹150 on your first 3 orders on Zesto.', 'WELCOME50', 'https://lh3.googleusercontent.com/aida-public/AB6AXuD55EC6JU2Ccf8bZ_lQOIPcFj3kSuFakZ7Wxt-W0OpE6gHvNfyT49MPBvMPCJY1c2BABZdhUorBcsCBsRdjIi1hV8MN-qBhNvVfkFOGkwJwTBRXvQ5-xFFM-_YeWvKSO-ulKag_cSMFrCnyQzpDYMhwhkWuDXcHjGmocSq_VjOGID-zDA7slW4ITIXHdCFsr9Wqgp-iceaeLkg2slVfKC4jUW5I10I1LweWGGOkKZfWvhPdb4otIKn2F-2Gq6JwTISCzYme5748y0M'),
 ('Weekend Zesto Feast', 'Save 20% on premium dining experiences from select top kitchens.', 'ZESTODELIGHT', NULL);
 
+-- ─────────────────────────────────────────────────────────────
+-- 11. DELIVERY SETTINGS
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS delivery_settings (
+    id                  INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    base_fare           DECIMAL(8,2) NOT NULL DEFAULT 40.00,
+    per_km_charge       DECIMAL(8,2) NOT NULL DEFAULT 5.00,
+    min_delivery_charge DECIMAL(8,2) NOT NULL DEFAULT 40.00,
+    peak_hour_bonus     DECIMAL(8,2) NOT NULL DEFAULT 0.00,
+    rain_bonus          DECIMAL(8,2) NOT NULL DEFAULT 0.00,
+    festival_bonus      DECIMAL(8,2) NOT NULL DEFAULT 0.00,
+    updated_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Seed default delivery settings row (id=1)
+INSERT IGNORE INTO delivery_settings (id, base_fare, per_km_charge, min_delivery_charge, peak_hour_bonus, rain_bonus, festival_bonus)
+VALUES (1, 40.00, 5.00, 40.00, 0.00, 0.00, 0.00);
+
+-- ─────────────────────────────────────────────────────────────
+-- 12. DELIVERY ASSIGNMENTS
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS delivery_assignments (
+    id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    order_id              INT UNSIGNED NOT NULL,
+    delivery_partner_id   INT UNSIGNED NOT NULL,
+    status                ENUM('pending','accepted','rejected','picked_up','out_for_delivery','delivered','completed','cancelled')
+                          NOT NULL DEFAULT 'pending',
+    restaurant_lat        DECIMAL(10,7) DEFAULT NULL,
+    restaurant_lng        DECIMAL(10,7) DEFAULT NULL,
+    customer_lat          DECIMAL(10,7) DEFAULT NULL,
+    customer_lng          DECIMAL(10,7) DEFAULT NULL,
+    delivery_partner_lat  DECIMAL(10,7) DEFAULT NULL,
+    delivery_partner_lng  DECIMAL(10,7) DEFAULT NULL,
+    distance_to_restaurant DECIMAL(8,3) DEFAULT NULL COMMENT 'km',
+    distance_to_customer  DECIMAL(8,3) DEFAULT NULL COMMENT 'km',
+    total_distance        DECIMAL(8,3) DEFAULT NULL COMMENT 'km',
+    earnings              DECIMAL(10,2) DEFAULT NULL,
+    accepted_at           TIMESTAMP NULL DEFAULT NULL,
+    picked_up_at          TIMESTAMP NULL DEFAULT NULL,
+    delivered_at          TIMESTAMP NULL DEFAULT NULL,
+    confirmed_at          TIMESTAMP NULL DEFAULT NULL,
+    created_at            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (delivery_partner_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_order  (order_id),
+    INDEX idx_partner (delivery_partner_id),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ─────────────────────────────────────────────────────────────
+-- 13. DELIVERY EARNINGS
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS delivery_earnings (
+    id                  INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    delivery_partner_id INT UNSIGNED NOT NULL,
+    order_id            INT UNSIGNED NOT NULL UNIQUE,
+    base_fare           DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    distance_charge     DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    peak_hour_bonus     DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    rain_bonus          DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    festival_bonus      DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    total_earnings      DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    distance_travelled  DECIMAL(8,3) DEFAULT NULL COMMENT 'km',
+    created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (delivery_partner_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    INDEX idx_partner (delivery_partner_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ─────────────────────────────────────────────────────────────
+-- 14. DELIVERY AUDIT LOGS
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS delivery_audit_logs (
+    id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    order_id    INT UNSIGNED NOT NULL,
+    action_name VARCHAR(100) NOT NULL,
+    details     TEXT DEFAULT NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    INDEX idx_order (order_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ─────────────────────────────────────────────────────────────
+-- 15. ORDER REVIEWS
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS order_reviews (
+    id                  INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    order_id            INT UNSIGNED NOT NULL UNIQUE,
+    customer_id         INT UNSIGNED DEFAULT NULL,
+    restaurant_id       INT UNSIGNED DEFAULT NULL,
+    delivery_partner_id INT UNSIGNED DEFAULT NULL,
+    restaurant_rating   TINYINT UNSIGNED NOT NULL DEFAULT 5,
+    delivery_rating     TINYINT UNSIGNED NOT NULL DEFAULT 5,
+    review_text         TEXT DEFAULT NULL,
+    created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE SET NULL,
+    FOREIGN KEY (delivery_partner_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ─────────────────────────────────────────────────────────────
+-- 16. DELIVERY NOTIFICATIONS
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS delivery_notifications (
+    id                  INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    order_id            INT UNSIGNED NOT NULL,
+    delivery_partner_id INT UNSIGNED NOT NULL,
+    is_read             TINYINT(1) NOT NULL DEFAULT 0,
+    created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (delivery_partner_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_partner (delivery_partner_id),
+    INDEX idx_order (order_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

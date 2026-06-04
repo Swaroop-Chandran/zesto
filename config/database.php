@@ -97,6 +97,7 @@ class Database {
                             $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `is_active` TINYINT(1) NOT NULL DEFAULT 1");
                             $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `account_status` ENUM('active','suspended','deleted') NOT NULL DEFAULT 'active'");
                             $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `session_invalidated_at` TIMESTAMP NULL DEFAULT NULL");
+                            $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
                         }
                     }
 
@@ -122,6 +123,7 @@ class Database {
                         $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `is_active` TINYINT(1) NOT NULL DEFAULT 1");
                         $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `account_status` ENUM('active','suspended','deleted') NOT NULL DEFAULT 'active'");
                         $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `session_invalidated_at` TIMESTAMP NULL DEFAULT NULL");
+                        $pdo->exec("ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
 
                         // Parse and execute statements
                         $queries = preg_split('/;\s*[\r\n]+/', $sql);
