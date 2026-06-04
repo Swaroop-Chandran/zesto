@@ -53,7 +53,7 @@
 
         <div>
           <label class="block text-[10px] text-white/50 font-bold uppercase tracking-wider pl-1 font-mono mb-1">Sign In As Role</label>
-          <div class="grid grid-cols-4 gap-2">
+          <div class="grid grid-cols-3 gap-2">
             <label class="cursor-pointer">
               <input type="radio" name="login_role" value="customer" checked class="sr-only">
               <div class="text-center p-1.5 border rounded-md text-[9px] font-bold transition-all border-zesto-orange bg-zesto-orange/20 text-zesto-orange role-login-pill">Customer</div>
@@ -65,10 +65,6 @@
             <label class="cursor-pointer">
               <input type="radio" name="login_role" value="delivery_partner" class="sr-only">
               <div class="text-center p-1.5 border rounded-md text-[9px] font-bold transition-all border-white/10 text-white/50 hover:border-white/30 role-login-pill">Delivery</div>
-            </label>
-            <label class="cursor-pointer">
-              <input type="radio" name="login_role" value="admin" class="sr-only">
-              <div class="text-center p-1.5 border rounded-md text-[9px] font-bold transition-all border-white/10 text-white/50 hover:border-white/30 role-login-pill">Admin</div>
             </label>
           </div>
         </div>

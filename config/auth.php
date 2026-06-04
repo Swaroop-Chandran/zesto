@@ -45,8 +45,14 @@ function getCurrentUser(): ?array {
  */
 function requireLogin(string $redirect = ''): void {
     if (!isLoggedIn()) {
-        $back = $redirect ?: (BASE_URL . $_SERVER['REQUEST_URI']);
-        header('Location: ' . BASE_URL . '/login.php?redirect=' . urlencode($back));
+        $back = $redirect ?: (BASE_URL . ($_SERVER['REQUEST_URI'] ?? '/'));
+        // Admin pages redirect to the dedicated admin login, not the public portal
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+        if (stripos($requestUri, '/admin/') !== false) {
+            header('Location: ' . BASE_URL . '/admin/login.php');
+        } else {
+            header('Location: ' . BASE_URL . '/login.php?redirect=' . urlencode($back));
+        }
         exit;
     }
 }

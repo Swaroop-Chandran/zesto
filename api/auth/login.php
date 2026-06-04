@@ -17,6 +17,11 @@ if (empty($email) || empty($password)) {
     jsonResponse(['success' => false, 'message' => 'Email and password are required.'], 422);
 }
 
+// Admin login is not allowed through the public portal
+if ($role === ROLE_ADMIN) {
+    jsonResponse(['success' => false, 'message' => 'Admin login is not available here. Please use the admin login page.'], 403);
+}
+
 $stmt = db()->prepare("SELECT * FROM users WHERE email = :email AND role = :role LIMIT 1");
 $stmt->execute([':email' => $email, ':role' => $role]);
 $user = $stmt->fetch();

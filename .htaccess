@@ -71,6 +71,7 @@ AddDefaultCharset UTF-8
   RewriteRule ^delivery-panel/notifications\.php$ modules/delivery/notifications/notifications.php [L]
 
   # 4. Admin Panel Routing
+  RewriteRule ^admin/login\.php$ modules/admin/login/admin_login.php [L]
   RewriteRule ^admin/dashboard\.php$ modules/admin/dashboard/dashboard.php [L]
   RewriteRule ^admin/restaurants\.php$ modules/admin/restaurants/restaurants.php [L]
   RewriteRule ^admin/customers\.php$ modules/admin/customers/customers.php [L]
